@@ -1,0 +1,39 @@
+services:
+  minio:
+    image: minio/minio
+    container_name: hus_minio_storage
+    ports:
+      - "9000:9000"    # Cổng kết nối cho Code (API)
+      - "9001:9001"    # Cổng giao diện Web (Console) 
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data   
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  crawler:
+    build: .                 # Docker sẽ tìm file Dockerfile ở thư mục hiện tại
+    shm_size: '2gb'
+    container_name: hus_crawler_bot
+    depends_on:
+      minio:
+        condition: service_healthy  # Chỉ chạy Bot khi MinIO đã sẵn sàng (dựa vào healthcheck)
+    environment:
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONPATH=/app/src  # Thêm dòng này vào environment
+    command: python -m raw.crawldata # Chạy theo kiểu module
+    volumes:
+      - .:/app               
+    restart: on-failure      # Nếu cào lỗi, nó sẽ tự khởi động lại
+
+volumes:
+  minio_data:   # Volume để lưu dữ liệu của MinIO, đảm bảo dữ liệu không bị mất khi container dừng
