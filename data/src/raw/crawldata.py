@@ -6,6 +6,9 @@ from utils.bucket_manager import BucketManager
 from datetime import datetime
 class CrawlData:
     def __init__(self):
+        """
+        Khởi tạo cấu hình và kết nối cần thiết cho việc crawl dữ liệu.
+        """
         self.base_url = "https://readtoolead.com"
         self.manager = BucketManager()
         co = ChromiumOptions()
@@ -26,7 +29,7 @@ class CrawlData:
         co.set_argument('--lang=en-US')
         co.set_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
 
-        # 5. Đường dẫn đến Chromium (Khớp với Dockerfile của Hoa)
+        # 5. Đường dẫn đến Chromium
         co.set_browser_path('/usr/bin/chromium') 
         
         # 6. Tránh lỗi quyền ghi file (Quyết định việc 'Disconnected' hay không)
@@ -37,6 +40,9 @@ class CrawlData:
 
 
     def get_article_links(self, page_num):
+        """
+        Lấy tất cả link bài viết trên trang danh sách.
+        """
         links = []
         try:
             list_url = f"{self.base_url}/page/{page_num}/" if page_num > 1 else self.base_url
@@ -58,6 +64,9 @@ class CrawlData:
 
 
     def _extract_article_detail(self, url):
+        """
+        Lấy chi tiết bài viết: Title, Post Date, và các cặp EN-VI.
+        """
         try:
             self.page.get(url)
             print(f" Đang xử lý bài: {url}")
@@ -103,6 +112,9 @@ class CrawlData:
 
 
     def crawl_and_save(self, start_page, end_page):
+        """
+        Quản lý toàn bộ quá trình crawl từ start_page đến end_page, gom dữ liệu, và lưu lên MinIO.
+        """
         all_articles_data = []
         for p_num in range(start_page, end_page + 1):
             print(f" Bắt đầu xử lý Trang {p_num}...")
@@ -114,12 +126,11 @@ class CrawlData:
             for link in links:
                 article_data = self._extract_article_detail(link) # Trả về List các Dict
                 if article_data:
-                    # 2. Gom dữ liệu bài này vào thùng chứa chung
+                    # Gom dữ liệu bài này vào thùng chứa chung
                     all_articles_data.extend(article_data) 
                     print(f" Đã bóc tách xong: {link}")
             
-            time.sleep(1) # Nghỉ giữa các trang
-
+            time.sleep(1)
     
         if all_articles_data:
             # Biến tất cả thành 1 DataFrame duy nhất
@@ -128,7 +139,7 @@ class CrawlData:
             # Đặt tên file theo khoảng trang cho rõ ràng
             file_name = f"readtolead_pages_{start_page}_to_{end_page}"
             
-            # 4. Lưu 1 file duy nhất lên MinIO
+            # Lưu 1 file duy nhất lên MinIO
             self.manager.save_dataframe(
                 df=df_final,
                 bucket='readtolead-lake',
@@ -144,5 +155,4 @@ class CrawlData:
 # --- CHẠY CHƯƠNG TRÌNH ---
 if __name__ == "__main__":
     crawler = CrawlData()
-    # Ví dụ: Hoa muốn cào từ trang 1 đến trang 3
     crawler.crawl_and_save(start_page=1, end_page=10)

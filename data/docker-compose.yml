@@ -29,7 +29,7 @@ services:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - PYTHONDONTWRITEBYTECODE=1
-      - PYTHONPATH=/app/src  # Thêm dòng này vào environment
+      - PYTHONPATH=/app/src
     command: python -m raw.crawldata # Chạy theo kiểu module
     volumes:
       - .:/app               

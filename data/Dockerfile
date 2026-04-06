@@ -1,4 +1,4 @@
-# 1. Dùng bản slim để nhẹ nhưng vẫn đủ dùng
+# 1. Dùng bản slim để giảm kích thước image, chỉ cài những gì cần thiết
 FROM python:3.12-slim
 
 # 2. Cài đặt các thư viện hệ thống cần thiết để chạy Chrome
@@ -35,5 +35,4 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 # 7. Chạy ứng dụng
-# Chú ý: Hoa nên dùng chế độ headless (không giao diện) khi chạy trong Docker
 CMD ["python","-m", "raw.crawldata"]

@@ -15,6 +15,9 @@ class BucketManager:
                        file_format = "json",
                        partition_cols: list = None,
                        **kwargs):
+        """
+        Lưu DataFrame lên Bucket với định dạng linh hoạt (Parquet, CSV, JSON).
+        """
         if df is None or df.empty:
             print(f"DataFrame rỗng: Bỏ qua upload lên bucket {bucket}")
             return
@@ -68,7 +71,7 @@ class BucketManager:
                     **kwargs
                 )
 
-            print(f"✅ Upload thành công!")
+            print(f"✅Upload thành công!")
 
         except Exception as e:
             print(f"❌ Lỗi Upload Bucket ({file_format}): {e}")
