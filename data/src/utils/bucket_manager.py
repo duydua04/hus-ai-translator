@@ -1,4 +1,4 @@
-from configs.bucket_config import get_bucket_config
+from data.configs.bucket_config import get_bucket_config
 import pandas as pd
 from datetime import datetime
 import s3fs
