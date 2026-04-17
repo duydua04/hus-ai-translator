@@ -62,7 +62,7 @@ class ReadToLeadScraper:
                     max_page = max(nums)
                     logger.info(f"Đã tìm thấy tổng cộng {max_page} trang (qua mảng .page)!")
                 else:
-                    logger.warning("⚠Không tìm thấy phân trang, mặc định cào 1 trang.")
+                    logger.warning("Không tìm thấy phân trang, mặc định cào 1 trang.")
 
         except Exception as e:
             logger.error(f"Lỗi khi tìm số trang: {e}")
@@ -87,7 +87,9 @@ class ReadToLeadScraper:
             all_links = [a.link.rstrip('/') for a in elements]
 
             processed_normalized = {p.rstrip('/') for p in processed_links}
-            new_links = list(dict.fromkeys([l for l in all_links if l not in processed_normalized]))
+            new_links = list(
+                dict.fromkeys([l for l in all_links if l not in processed_normalized])
+            )
 
             logger.info(f"[Page {p_num}] Tổng: {len(all_links)} bài | Cần cào mới: {len(new_links)} bài")
 
