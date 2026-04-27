@@ -1,31 +1,17 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15
     container_name: ai_translator_db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secretpassword
-      POSTGRES_DB: ai_translator
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  web:
-    build: .
-    container_name: ai_translator_web
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:secretpassword@db:5432/ai_translator
-    depends_on:
-      - db
+      - ./init-db:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:

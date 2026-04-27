@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     # --- DATABASE ---
     DATABASE_URL: str
 
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    POSTGRES_PORT: int = 5432
+    POSTGRES_HOST: str = "localhost"
+
     # --- JWT / OAUTH2 ---
     OAUTH2_SECRET_KEY: str
     OAUTH2_ALGORITHM: str = "HS256"
