@@ -18,6 +18,11 @@ from .config.settings import settings
 # --- Import các API router ---
 from .api.auth.auth_router import router as auth_router
 from .api.admin.admin_router import router as admin_router
+from .api.language.language_router import router as language_router
+from .api.user.user_router import router as user_router
+from .api.translation.translation_router import router as translation_router
+from .api.feedback.feedback_router import router as feedback_router
+from .api.chat.chat_router import router as chat_router
 
 # =========================================================
 # KHỞI TẠO APP
@@ -52,13 +57,15 @@ app.add_middleware(
 # =========================================================
 # INCLUDE ROUTERS
 # =========================================================
-
-# Xác thực người dùng: /auth/...
-app.include_router(auth_router)
-
-# Quản trị admin: /admin/...
-app.include_router(admin_router)
-
+ 
+app.include_router(auth_router)         # /auth/...
+app.include_router(admin_router)        # /admin/...
+app.include_router(language_router)     # /languages/...
+app.include_router(user_router)         # /user/...
+app.include_router(translation_router)  # /translate/...
+app.include_router(feedback_router)     # /feedback/...
+app.include_router(chat_router)         # /chat/...
+ 
 
 # =========================================================
 # HEALTH CHECK
