@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     OAUTH2_REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     #Secret Admin
-    first_admin_secret: str = "VungOiMoRa123"
+    FIRST_ADMIN_SECRET: str = "VungOiMoRa123"
 
     # --- SESSION MIDDLEWARE ---
     SECRET_KEY: str

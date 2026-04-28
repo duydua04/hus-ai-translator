@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...config.db import get_db
 from ...models.models import Admin, User
 from ...schemas.auth_schemas import RegisterRequest, OAuth2Token
-from ...utils.security import hash_password, verify_password, issue_token_pair
+from ...utils.security import (
+    hash_password,
+    verify_password,
+    issue_token_pair,
+    verify_refresh_token
+)
 
 
 class AuthService:
@@ -13,75 +18,81 @@ class AuthService:
         self.db = db
 
     async def register_user(self, payload: RegisterRequest) -> User:
-        """
-        Dang ky user
-        """
+        """Đăng ký tài khoản người dùng mới."""
         stmt = select(User).where(User.email == payload.email)
         result = await self.db.execute(stmt)
-        existing_user = result.scalar_one_or_none()
-
-        if existing_user:
+        if result.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="This email is already registered."
+                detail="Email này đã được đăng ký."
             )
-
-        hashed_pw = hash_password(payload.password)
 
         new_user = User(
             email=payload.email,
             full_name=payload.full_name,
-            hashed_password=hashed_pw
+            hashed_password=hash_password(payload.password)
         )
-
         self.db.add(new_user)
         try:
             await self.db.commit()
             await self.db.refresh(new_user)
-        except Exception as e:
+        except Exception:
             await self.db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="An error occurred while saving to the database."
+                detail="Lỗi hệ thống khi lưu dữ liệu."
             )
-
         return new_user
 
     async def authenticate_user(self, email: str, password: str, role: str = "user") -> OAuth2Token:
-        """
-        Authenticate user and return a token pair (Access & Refresh).
-        Supports both 'user' and 'admin' roles.
-        """
+        """Xác thực người dùng/admin và cấp cặp token."""
         user_obj = None
-
-        # 1. Find user by role
         if role == "admin":
             stmt = select(Admin).where(Admin.email == email)
-            result = await self.db.execute(stmt)
-            user_obj = result.scalar_one_or_none()
         else:
             stmt = select(User).where(User.email == email)
-            result = await self.db.execute(stmt)
-            user_obj = result.scalar_one_or_none()
 
-        if not user_obj:
+        result = await self.db.execute(stmt)
+        user_obj = result.scalar_one_or_none()
+
+        if not user_obj or not verify_password(password, user_obj.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password.",
+                detail="Email hoặc mật khẩu không chính xác.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if not getattr(user_obj, "is_active", True):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Your account has been disabled."
+                detail="Tài khoản đã bị vô hiệu hóa."
             )
 
-        if not verify_password(password, user_obj.hashed_password):
+        return issue_token_pair(email=email, role=role)
+
+    async def refresh_token(self, refresh_token: str) -> OAuth2Token:
+        """Làm mới Access Token từ Refresh Token."""
+        try:
+            payload = verify_refresh_token(refresh_token)
+        except Exception:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password.",
-                headers={"WWW-Authenticate": "Bearer"},
+                detail="Token không hợp lệ hoặc đã hết hạn."
+            )
+
+        email = payload.get("sub")
+        role = payload.get("role")
+
+        if role == "admin":
+            stmt = select(Admin).where(Admin.email == email, Admin.is_active == True)
+        else:
+            stmt = select(User).where(User.email == email, User.is_active == True)
+
+        result = await self.db.execute(stmt)
+        if not result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tài khoản không tồn tại hoặc đã bị khóa."
             )
 
         return issue_token_pair(email=email, role=role)

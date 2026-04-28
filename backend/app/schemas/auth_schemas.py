@@ -71,3 +71,7 @@ class ResetPasswordRequest(BaseModel):
         if "new_password" in info.data and v != info.data["new_password"]:
             raise ValueError("Passwords do not match")
         return v
+
+class RefreshTokenRequest(BaseModel):
+    """Schema cho yêu cầu làm mới token."""
+    refresh_token: str

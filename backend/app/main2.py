@@ -12,6 +12,13 @@ from .config.settings import settings
 # IMPORT CONTROLLERS (ROUTERS)
 from .api.common.auth_api import router as auth_router
 
+
+
+
+
+
+
+from .api.admin.setup_admin import router as admin_router
 app = FastAPI(
     title="HUS AI Translator API",
     description="Scalable API for AI-powered document and text translation.",
@@ -45,7 +52,7 @@ app.add_middleware(
 
 # --- COMMON ROUTERS ---
 app.include_router(auth_router)
-
+app.include_router(admin_router)
 # Note: Add other routers here as the project grows
 # app.include_router(translation_router)
 # app.include_router(chat_router)
