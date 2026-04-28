@@ -1,4 +1,3 @@
-import os
 from fastapi import APIRouter, Depends, HTTPException, Header, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -6,8 +5,8 @@ from sqlalchemy import select
 from ...config.db import get_db
 from ...config.settings import settings
 from ...models.models import Admin
-from ...schemas.auth_schemas import RegisterRequest
-from ...schemas.admin_schema import AdminResponse
+from ...schemas.common.auth_schemas import RegisterRequest
+from ...schemas.admin.admin_schema import AdminResponse
 from ...utils.security import hash_password
 
 router = APIRouter(

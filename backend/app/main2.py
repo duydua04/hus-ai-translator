@@ -1,15 +1,22 @@
-"""
-Main entry point for the FastAPI application.
-Simplified version without lifespan events.
-"""
+# IMPORT LIBRARIES
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+
+
+
+
+
 # IMPORT CONFIGURATIONS
 from .config.settings import settings
 
-# IMPORT CONTROLLERS (ROUTERS)
+
+
+
+
+
+# IMPORT COMMON API
 from .api.common.auth_api import router as auth_router
 
 
@@ -17,8 +24,27 @@ from .api.common.auth_api import router as auth_router
 
 
 
-
+# IMPORT ADMIN API
 from .api.admin.setup_admin import router as admin_router
+
+
+
+
+
+
+
+# IMPORT USER API
+
+
+
+
+
+
+
+
+
+
+
 app = FastAPI(
     title="HUS AI Translator API",
     description="Scalable API for AI-powered document and text translation.",
@@ -32,7 +58,6 @@ app.add_middleware(
 )
 
 # 2. CORS MIDDLEWARE
-# Dynamically loaded from settings for production readiness
 origins = [
     settings.FRONTEND_URL,
     settings.ADMIN_URL,
@@ -46,26 +71,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================================================
-# INCLUDE ROUTERS
-# =========================================================
 
-# --- COMMON ROUTERS ---
+# --- CALL COMMON API ---
 app.include_router(auth_router)
-app.include_router(admin_router)
-# Note: Add other routers here as the project grows
-# app.include_router(translation_router)
-# app.include_router(chat_router)
 
-# =========================================================
-# ROOT ENDPOINT
-# =========================================================
-@app.get("/", tags=["Health Check"])
-async def root():
-    """Health check endpoint to verify server status."""
-    return {
-        "status": "online",
-        "app": "HUS AI Translator API",
-        "environment": settings.APP_ENV,
-        "version": "1.0.0"
-    }
+
+
+
+
+
+
+
+# CALL ADMIN API
+app.include_router(admin_router)
+
+
+
+
+
+
+
+# CALL USER API

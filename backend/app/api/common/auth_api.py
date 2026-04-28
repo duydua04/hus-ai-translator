@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ...schemas.auth_schemas import (
+from ...schemas.common.auth_schemas import (
     RegisterRequest,
     UserResponse,
     LoginRequest,
