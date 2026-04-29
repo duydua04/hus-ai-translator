@@ -4,9 +4,9 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..config.db import get_db
-from ..models.models import Admin, User
-from ..utils.security import verify_access_token
+from app.config.db import get_db
+from app.models.models import Admin, User
+from app.utils.security import verify_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/auth/token",  # Đường dẫn này phải khớp với router đăng nhập của bạn

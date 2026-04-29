@@ -1,15 +1,16 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...config.db import get_db
-from ...models.models import Admin, User
-from ...schemas.common.auth_schemas import RegisterRequest, OAuth2Token
-from ...utils.security import (
+from app.config.db import get_db
+from app.models.models import Admin, User
+from app.schemas.common.auth_schemas import LoginRequest, RegisterRequest, OAuth2Token
+from app.utils.security import (
+    delete_auth_cookies,
     hash_password,
     verify_password,
     issue_token_pair,
-    verify_refresh_token
+    verify_refresh_token,
 )
 
 
@@ -17,6 +18,44 @@ class AuthService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    # --------------------------------------------------
+    # Alias methods (dùng bởi auth_api.py / auth_router.py)
+    # --------------------------------------------------
+    async def register(self, payload: RegisterRequest) -> User:
+        """Alias của register_user — dùng bởi router."""
+        return await self.register_user(payload)
+
+    async def login(self, payload: LoginRequest) -> OAuth2Token:
+        """Đăng nhập user và trả về cặp token."""
+        return await self.authenticate_user(payload.email, payload.password, role="user")
+
+    @staticmethod
+    def logout(response: Response) -> dict:
+        """Xóa cookie đăng nhập."""
+        delete_auth_cookies(response, role="user")
+        return {"message": "Đăng xuất thành công."}
+
+    async def forgot_password_request(self, email: str) -> dict:
+        """Stub — cần tích hợp gửi email OTP thực tế."""
+        return {"message": "Nếu email tồn tại, OTP đã được gửi."}
+
+    def verify_otp(self, otp: str, reset_token: str) -> dict:
+        """Stub — cần tích hợp logic xác thực OTP thực tế."""
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Chức năng xác thực OTP chưa được triển khai.",
+        )
+
+    async def reset_password(self, new_password: str, permission_token: str) -> dict:
+        """Stub — cần tích hợp logic reset mật khẩu thực tế."""
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Chức năng đặt lại mật khẩu chưa được triển khai.",
+        )
+
+    # --------------------------------------------------
+    # Core methods
+    # --------------------------------------------------
     async def register_user(self, payload: RegisterRequest) -> User:
         """Đăng ký tài khoản người dùng mới."""
         stmt = select(User).where(User.email == payload.email)
@@ -46,7 +85,6 @@ class AuthService:
 
     async def authenticate_user(self, email: str, password: str, role: str = "user") -> OAuth2Token:
         """Xác thực người dùng/admin và cấp cặp token."""
-        user_obj = None
         if role == "admin":
             stmt = select(Admin).where(Admin.email == email)
         else:
@@ -98,5 +136,13 @@ class AuthService:
         return issue_token_pair(email=email, role=role)
 
 
+# Alias class dùng cho auth_router.py (services/user/auth_service.py)
+UserAuthService = AuthService
+
+
 def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
+    return AuthService(db)
+
+
+def get_user_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
     return AuthService(db)

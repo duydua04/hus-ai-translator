@@ -6,9 +6,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...config.db import get_db
-from ...models.models import Translation, TranslationFeedback, User
-from ...schemas.admin.admin_user_schema import UserDetailResponse, UserListResponse
+from app.config.db import get_db
+from app.models.models import Translation, TranslationFeedback, User
+from app.schemas.admin.admin_user_schema import UserDetailResponse, UserListResponse
 
 class AdminUserService:
     def __init__(self, db: AsyncSession):

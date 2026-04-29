@@ -6,9 +6,9 @@ Tất cả endpoint đều yêu cầu đăng nhập (require_user).
 """
 from fastapi import APIRouter, Depends, status
 
-from ...middleware.auth import require_user
-from ...schemas.schemas import FeedbackCreateRequest, FeedbackResponse
-from ...services.user.feedback_service import FeedbackService, get_feedback_service
+from app.middleware.auth import require_user
+from app.schemas.user.feedback_schema import FeedbackCreateRequest, FeedbackResponse
+from app.services.user.feedback_service import FeedbackService, get_feedback_service
 
 router = APIRouter(prefix="/feedback", tags=["Feedback - Đánh giá bản dịch"])
 

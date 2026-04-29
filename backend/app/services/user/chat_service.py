@@ -16,9 +16,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...config.db import get_db
-from ...models.models import ChatMessage, ChatSession
-from ...schemas.schemas import (
+from app.config.db import get_db
+from app.models.models import ChatMessage, ChatSession
+from app.schemas.user.chat_schema import (
     ChatHistoryResponse,
     ChatMessageResponse,
     ChatSessionCreateRequest,

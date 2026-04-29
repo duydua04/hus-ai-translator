@@ -7,29 +7,36 @@ Toàn bộ logic nghiệp vụ của admin:
   - Tạo tài khoản admin mới
   - Thống kê phiên làm việc (chat sessions)
 """
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import Depends, HTTPException, Response, status
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...config.db import get_db
-from ...models.models import Admin, ChatSession, User
-from ...schemas.schemas import (
-    AdminCreateRequest,
-    AdminResponse,
-    ChangeUserTierRequest,
-    LoginRequest,
-    OAuth2Token,
-    UserListResponse,
-    UserResponse,
-)
-from ...utils.security import (
+from app.config.db import get_db
+from app.models.models import Admin, ChatSession, User
+from app.schemas.admin.admin_schema import AdminResponse
+from app.schemas.common.auth_schemas import LoginRequest, OAuth2Token
+from app.schemas.common.auth_schemas import RegisterRequest as AdminCreateRequest
+from app.schemas.user.user_schema import UserResponse
+from app.utils.security import (
     delete_auth_cookies,
     hash_password,
     issue_token_pair,
     verify_password,
 )
+
+
+class UserListResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    data: List[UserResponse]
+
+
+class ChangeUserTierRequest(BaseModel):
+    tier: str
 
 
 class AdminService:
@@ -117,16 +124,8 @@ class AdminService:
         limit: int = 20,
         offset: int = 0,
     ) -> UserListResponse:
-        """
-        Lấy danh sách người dùng với bộ lọc:
-        - search: tìm theo email hoặc full_name (LIKE)
-        - tier   : lọc theo gói dịch vụ
-        - is_active: lọc theo trạng thái
-        Hỗ trợ phân trang qua limit + offset.
-        """
         stmt = select(User)
 
-        # --- Điều kiện lọc ---
         if search:
             pattern = f"%{search}%"
             stmt = stmt.where(
@@ -137,12 +136,10 @@ class AdminService:
         if is_active is not None:
             stmt = stmt.where(User.is_active == is_active)
 
-        # --- Đếm tổng (cho pagination) ---
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total_result = await self.db.execute(count_stmt)
         total = total_result.scalar_one()
 
-        # --- Lấy dữ liệu theo trang ---
         stmt = stmt.order_by(User.created_at.desc()).limit(limit).offset(offset)
         result = await self.db.execute(stmt)
         users = result.scalars().all()
@@ -158,7 +155,6 @@ class AdminService:
     # XEM CHI TIẾT NGƯỜI DÙNG
     # --------------------------------------------------
     async def get_user_detail(self, user_id: str) -> UserResponse:
-        """Lấy chi tiết một người dùng theo UUID."""
         stmt = select(User).where(User.id == user_id)
         result = await self.db.execute(stmt)
         user = result.scalar_one_or_none()
@@ -175,11 +171,6 @@ class AdminService:
     # KHÓA / MỞ KHÓA TÀI KHOẢN
     # --------------------------------------------------
     async def toggle_user_active(self, user_id: str, is_active: bool) -> dict:
-        """
-        Khóa (is_active=False) hoặc mở khóa (is_active=True) tài khoản.
-        Khi khóa, token hiện tại của user sẽ bị từ chối ở middleware
-        (middleware kiểm tra is_active khi query DB).
-        """
         stmt = select(User).where(User.id == user_id)
         result = await self.db.execute(stmt)
         user = result.scalar_one_or_none()
@@ -200,7 +191,6 @@ class AdminService:
     # ĐỔI GÓI DỊCH VỤ (TIER)
     # --------------------------------------------------
     async def change_user_tier(self, user_id: str, payload: ChangeUserTierRequest) -> UserResponse:
-        """Admin thay đổi gói dịch vụ của người dùng."""
         stmt = select(User).where(User.id == user_id)
         result = await self.db.execute(stmt)
         user = result.scalar_one_or_none()
@@ -221,12 +211,6 @@ class AdminService:
     # THỐNG KÊ CHAT SESSION
     # --------------------------------------------------
     async def get_session_stats(self, user_id: Optional[str] = None) -> dict:
-        """
-        Thống kê phiên trò chuyện:
-        - Tổng số session
-        - Số session được ghim
-        - Nếu truyền user_id thì lọc theo user đó
-        """
         stmt_total = select(func.count(ChatSession.id))
         stmt_pinned = select(func.count(ChatSession.id)).where(ChatSession.is_pinned == True)
 
@@ -251,8 +235,6 @@ class AdminService:
         limit: int = 20,
         offset: int = 0,
     ) -> dict:
-        """Admin xem toàn bộ phiên chat của một user cụ thể."""
-        # Kiểm tra user tồn tại
         user_stmt = select(User).where(User.id == user_id)
         user_result = await self.db.execute(user_stmt)
         user = user_result.scalar_one_or_none()
@@ -295,6 +277,5 @@ class AdminService:
         }
 
 
-# Factory để FastAPI Depends inject
 def get_admin_service(db: AsyncSession = Depends(get_db)) -> AdminService:
     return AdminService(db)

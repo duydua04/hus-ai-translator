@@ -11,9 +11,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...config.db import get_db
-from ...models.models import Language
-from ...schemas.schemas import LanguageCreateRequest, LanguageResponse
+from app.config.db import get_db
+from app.models.models import Language
+from app.schemas.common.language_schema import LanguageCreateRequest, LanguageResponse
 
 
 class LanguageService:

@@ -35,6 +35,7 @@ class OAuth2Token(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     expires_in: int
+    scope: str = "user"
 
 
 class UserResponse(BaseModel):
@@ -75,3 +76,8 @@ class ResetPasswordRequest(BaseModel):
 class RefreshTokenRequest(BaseModel):
     """Schema cho yêu cầu làm mới token."""
     refresh_token: str
+
+
+class VerifyOTPRequest(BaseModel):
+    """Schema cho yêu cầu xác thực OTP đặt lại mật khẩu."""
+    otp: str

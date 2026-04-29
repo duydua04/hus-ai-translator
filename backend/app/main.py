@@ -14,15 +14,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from .config.settings import settings
-
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # --- Import các API router ---
-from .api.auth.auth_router import router as auth_router
-from .api.admin.admin_router import router as admin_router
-from .api.language.language_router import router as language_router
-from .api.user.user_router import router as user_router
-from .api.translation.translation_router import router as translation_router
-from .api.feedback.feedback_router import router as feedback_router
-from .api.chat.chat_router import router as chat_router
+# auth_api_router là router chính (services/common/auth_service.py)
+
+from app.api.common.auth_api import router as auth_api_router
+from app.api.admin.admin_user_router import router as admin_user_router
+from app.api.admin.setup_admin import router as setup_admin_router
+from app.api.common.language_router import router as language_router
+from app.api.user.user_router import router as user_router
+from app.api.translation.translation_router import router as translation_router
+from app.api.feedback.feedback_router import router as feedback_router
+from app.api.chat.chat_router import router as chat_router
 
 # =========================================================
 # KHỞI TẠO APP
@@ -57,15 +62,16 @@ app.add_middleware(
 # =========================================================
 # INCLUDE ROUTERS
 # =========================================================
- 
-app.include_router(auth_router)         # /auth/...
-app.include_router(admin_router)        # /admin/...
-app.include_router(language_router)     # /languages/...
-app.include_router(user_router)         # /user/...
-app.include_router(translation_router)  # /translate/...
-app.include_router(feedback_router)     # /feedback/...
-app.include_router(chat_router)         # /chat/...
- 
+
+app.include_router(auth_api_router)         # /auth/...   (login, register, refresh, logout, forgot-password...)
+app.include_router(setup_admin_router)      # /api/internal/...
+app.include_router(admin_user_router)       # /api/admin/users/...
+app.include_router(language_router)         # /languages/...
+app.include_router(user_router)             # /user/...
+app.include_router(translation_router)      # /translate/...
+app.include_router(feedback_router)         # /feedback/...
+app.include_router(chat_router)             # /chat/...
+
 
 # =========================================================
 # HEALTH CHECK

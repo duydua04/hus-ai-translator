@@ -6,9 +6,9 @@ Tất cả endpoint đều yêu cầu đăng nhập (require_user).
 """
 from fastapi import APIRouter, Depends
 
-from ...middleware.auth import require_user
-from ...schemas.schemas import ChangePasswordRequest, UserResponse, UserUpdateRequest
-from ...services.user.profile_service import UserProfileService, get_user_profile_service
+from app.middleware.auth import require_user
+from app.schemas.user.user_schema import ChangePasswordRequest, UserResponse, UserUpdateRequest
+from app.services.user.profile_service import UserProfileService, get_user_profile_service
 
 router = APIRouter(prefix="/user", tags=["User - Hồ sơ cá nhân"])
 

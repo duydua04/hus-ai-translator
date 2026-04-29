@@ -16,7 +16,7 @@ from fastapi import Response
 from jwt import ExpiredSignatureError, InvalidTokenError
 
 from ..config.settings import settings
-from ..schemas.schemas import OAuth2Token
+from ..schemas.common.auth_schemas import OAuth2Token
 
 
 # =========================================================

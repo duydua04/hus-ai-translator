@@ -8,14 +8,14 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, status
 
-from ...middleware.auth import require_user
-from ...schemas.schemas import (
+from app.middleware.auth import require_user
+from app.schemas.user.translation_schema import (
     TranslateDocumentRequest,
     TranslateTextRequest,
     TranslationListResponse,
     TranslationResponse,
 )
-from ...services.user.translation_service import TranslationService, get_translation_service
+from app.services.user.translation_service import TranslationService, get_translation_service
 
 router = APIRouter(prefix="/translate", tags=["Translation - Dịch thuật"])
 
