@@ -1,0 +1,518 @@
+<div class="page" id="page-feedback-dash">
+  <div class="page__header">
+    <div>
+      <div class="page__title">Dashboard Feedback</div>
+      <div class="page__subtitle">
+        Tháng 12 · 2025 — Tổng quan đánh giá người dùng
+      </div>
+    </div>
+    <select class="filter-select">
+      <option>Tháng này</option>
+      <option>Tháng trước</option>
+      <option>Quý này</option>
+      <option>Năm nay</option>
+    </select>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card metric-card--green">
+      <div class="metric-card__icon">
+        <i class="bx bxs-bar-chart-square"></i>
+      </div>
+      <div class="metric-card__label">Tổng feedback</div>
+      <div class="metric-card__value">1.284</div>
+      <div class="metric-card__trend metric-card__trend--up">
+        ↑ 12% so với tháng trước
+      </div>
+    </div>
+    <div class="metric-card metric-card--blue">
+      <div class="metric-card__icon">
+        <i class="bx bx-star"></i>
+      </div>
+      <div class="metric-card__label">Điểm trung bình</div>
+      <div class="metric-card__value">4.3</div>
+      <div class="metric-card__trend metric-card__trend--up">
+        ↑ 0.2 điểm cải thiện
+      </div>
+    </div>
+    <div class="metric-card metric-card--red">
+      <div class="metric-card__icon">
+        <i class="bx bx-sad"></i>
+      </div>
+      <div class="metric-card__label">Phản hồi tiêu cực</div>
+      <div class="metric-card__value">97</div>
+      <div class="metric-card__trend metric-card__trend--down">
+        ↑ 4% cần xử lý
+      </div>
+    </div>
+    <div class="metric-card metric-card--amber">
+      <div class="metric-card__icon">
+        <i class="bx bx-smile"></i>
+      </div>
+      <div class="metric-card__label">Tỷ lệ hài lòng</div>
+      <div class="metric-card__value">92%</div>
+      <div class="metric-card__trend metric-card__trend--up">
+        ↑ 3% so với tháng trước
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <!-- Bar chart -->
+    <div class="chart-card">
+      <div class="chart-card__header">
+        <div>
+          <div class="chart-card__title">Phân bố đánh giá theo sao</div>
+          <div class="chart-card__subtitle">Tổng 1.020 lượt đánh giá</div>
+        </div>
+        <span class="count-chip">1.020</span>
+      </div>
+      <div class="bar-chart">
+        <div class="bar-chart__row">
+          <div class="bar-chart__label">5 ★</div>
+          <div class="bar-chart__track">
+            <div
+              class="bar-chart__fill"
+              style="
+                width: 68%;
+                background: linear-gradient(90deg, #276830, #4a9e55);
+              "
+            ></div>
+          </div>
+          <div class="bar-chart__count">687</div>
+        </div>
+        <div class="bar-chart__row">
+          <div class="bar-chart__label">4 ★</div>
+          <div class="bar-chart__track">
+            <div
+              class="bar-chart__fill"
+              style="
+                width: 21%;
+                background: linear-gradient(90deg, #4a9e55, #6bbd77);
+              "
+            ></div>
+          </div>
+          <div class="bar-chart__count">213</div>
+        </div>
+        <div class="bar-chart__row">
+          <div class="bar-chart__label">3 ★</div>
+          <div class="bar-chart__track">
+            <div
+              class="bar-chart__fill"
+              style="width: 6%; background: #b4b2a9"
+            ></div>
+          </div>
+          <div class="bar-chart__count">61</div>
+        </div>
+        <div class="bar-chart__row">
+          <div class="bar-chart__label">2 ★</div>
+          <div class="bar-chart__track">
+            <div
+              class="bar-chart__fill"
+              style="width: 4%; background: #ef9f27"
+            ></div>
+          </div>
+          <div class="bar-chart__count">38</div>
+        </div>
+        <div class="bar-chart__row">
+          <div class="bar-chart__label">1 ★</div>
+          <div class="bar-chart__track">
+            <div
+              class="bar-chart__fill"
+              style="width: 2%; background: #e24b4a"
+            ></div>
+          </div>
+          <div class="bar-chart__count">21</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donut chart -->
+    <div class="chart-card">
+      <div class="chart-card__header">
+        <div>
+          <div class="chart-card__title">Phân loại feedback</div>
+          <div class="chart-card__subtitle">Theo danh mục</div>
+        </div>
+      </div>
+      <div class="donut-chart">
+        <svg width="110" height="110" viewBox="0 0 36 36">
+          <circle
+            cx="18"
+            cy="18"
+            r="14"
+            fill="none"
+            stroke="#EAF7ED"
+            stroke-width="4"
+          />
+          <circle
+            cx="18"
+            cy="18"
+            r="14"
+            fill="none"
+            stroke="#33823C"
+            stroke-width="4"
+            stroke-dasharray="51 49"
+            stroke-dashoffset="25"
+            transform="rotate(-90 18 18)"
+          />
+          <circle
+            cx="18"
+            cy="18"
+            r="14"
+            fill="none"
+            stroke="#EF9F27"
+            stroke-width="4"
+            stroke-dasharray="20 80"
+            stroke-dashoffset="-26"
+            transform="rotate(-90 18 18)"
+          />
+          <circle
+            cx="18"
+            cy="18"
+            r="14"
+            fill="none"
+            stroke="#E24B4A"
+            stroke-width="4"
+            stroke-dasharray="11 89"
+            stroke-dashoffset="-46"
+            transform="rotate(-90 18 18)"
+          />
+          <circle
+            cx="18"
+            cy="18"
+            r="14"
+            fill="none"
+            stroke="#C0D0CC"
+            stroke-width="4"
+            stroke-dasharray="7 93"
+            stroke-dashoffset="-57"
+            transform="rotate(-90 18 18)"
+          />
+          <text
+            x="18"
+            y="17"
+            text-anchor="middle"
+            font-size="5"
+            font-weight="700"
+            fill="#0D2D12"
+          >
+            4.3
+          </text>
+          <text x="18" y="22" text-anchor="middle" font-size="3" fill="#567060">
+            avg
+          </text>
+        </svg>
+        <div class="donut-chart__legend">
+          <div class="donut-chart__legend-item">
+            <div class="donut-chart__swatch" style="background: #33823c"></div>
+            Dịch thuật tốt
+            <span class="donut-chart__pct">58%</span>
+          </div>
+          <div class="donut-chart__legend-item">
+            <div class="donut-chart__swatch" style="background: #ef9f27"></div>
+            Sai nghĩa
+            <span class="donut-chart__pct">22%</span>
+          </div>
+          <div class="donut-chart__legend-item">
+            <div class="donut-chart__swatch" style="background: #e24b4a"></div>
+            Lỗi kỹ thuật
+            <span class="donut-chart__pct">12%</span>
+          </div>
+          <div class="donut-chart__legend-item">
+            <div class="donut-chart__swatch" style="background: #c0d0cc"></div>
+            Khác
+            <span class="donut-chart__pct">8%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-feedback-list">
+  <div class="page__header">
+    <div>
+      <div class="page__title">Danh sách Feedback</div>
+      <div class="page__subtitle">1.284 đánh giá từ người dùng</div>
+    </div>
+    <button class="btn btn--secondary">Xuất CSV</button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search">
+      <i class="bx bx-search search__icon"></i>
+      <input
+        class="search__input"
+        placeholder="Tìm theo nội dung, người dùng..."
+      />
+    </div>
+    <div class="filter-bar__actions">
+      <select class="filter-select">
+        <option>Tất cả đánh giá</option>
+        <option>5 sao</option>
+        <option>4 sao</option>
+        <option>3 sao trở xuống</option>
+      </select>
+      <select class="filter-select">
+        <option>Tất cả loại</option>
+        <option>Dịch thuật tốt</option>
+        <option>Sai nghĩa</option>
+        <option>Lỗi kỹ thuật</option>
+      </select>
+      <select class="filter-select">
+        <option>Ngôn ngữ: Tất cả</option>
+        <option>Việt → Anh</option>
+        <option>Anh → Việt</option>
+        <option>Khác</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-bar__item tab-bar__item--active">Tất cả</div>
+    <div class="tab-bar__item">Cần xử lý</div>
+    <div class="tab-bar__item">Đã xử lý</div>
+  </div>
+
+  <div class="data-table">
+    <table>
+      <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 22%" />
+        <col style="width: 9%" />
+        <col style="width: 11%" />
+        <col style="width: 10%" />
+        <col style="width: 14%" />
+        <col style="width: 10%" />
+        <col style="width: 7%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Người dùng</th>
+          <th>Nội dung</th>
+          <th>Đánh giá</th>
+          <th>Loại</th>
+          <th>Ngôn ngữ</th>
+          <th>Thời gian</th>
+          <th>Trạng thái</th>
+          <th>Xem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="
+                  background: #c8edd0;
+                  color: #163d1a;
+                  width: 26px;
+                  height: 26px;
+                  font-size: 10px;
+                "
+              >
+                NH
+              </div>
+              <span class="user-cell__name">Nguyễn Hải</span>
+            </div>
+          </td>
+          <td>
+            <div class="feedback-text">Bản dịch rất chính xác, tự nhiên!</div>
+          </td>
+          <td>
+            <div class="star-rating">
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star">★</span>
+            </div>
+          </td>
+          <td><span class="badge badge--positive">Tốt</span></td>
+          <td><span class="lang-chip">VI→EN</span></td>
+          <td><span class="cell-date">hôm nay, 09:14</span></td>
+          <td>
+            <span class="badge badge--resolved"
+              ><span class="badge__dot"></span>Hoàn tất</span
+            >
+          </td>
+          <td><button class="table-action">Xem</button></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="
+                  background: #fdecea;
+                  color: #7b241c;
+                  width: 26px;
+                  height: 26px;
+                  font-size: 10px;
+                "
+              >
+                PT
+              </div>
+              <span class="user-cell__name">Phan Tuấn</span>
+            </div>
+          </td>
+          <td>
+            <div class="feedback-text">Dịch sai nghĩa câu cuối đoạn văn</div>
+          </td>
+          <td>
+            <div class="star-rating">
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+            </div>
+          </td>
+          <td><span class="badge badge--negative">Sai nghĩa</span></td>
+          <td><span class="lang-chip">EN→VI</span></td>
+          <td><span class="cell-date">hôm nay, 07:52</span></td>
+          <td>
+            <span class="badge badge--pending-review"
+              ><span class="badge__dot"></span>Cần xử lý</span
+            >
+          </td>
+          <td><button class="table-action">Xem</button></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="
+                  background: #c8edd0;
+                  color: #0d2d12;
+                  width: 26px;
+                  height: 26px;
+                  font-size: 10px;
+                "
+              >
+                TL
+              </div>
+              <span class="user-cell__name">Trần Lan</span>
+            </div>
+          </td>
+          <td>
+            <div class="feedback-text">Giao diện dễ dùng, tốc độ nhanh</div>
+          </td>
+          <td>
+            <div class="star-rating">
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+            </div>
+          </td>
+          <td><span class="badge badge--positive">Tốt</span></td>
+          <td><span class="lang-chip">VI→ZH</span></td>
+          <td><span class="cell-date">hôm qua, 18:33</span></td>
+          <td>
+            <span class="badge badge--resolved"
+              ><span class="badge__dot"></span>Hoàn tất</span
+            >
+          </td>
+          <td><button class="table-action">Xem</button></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="
+                  background: #ede7f6;
+                  color: #4527a0;
+                  width: 26px;
+                  height: 26px;
+                  font-size: 10px;
+                "
+              >
+                BK
+              </div>
+              <span class="user-cell__name">Bùi Khoa</span>
+            </div>
+          </td>
+          <td>
+            <div class="feedback-text">Bị lỗi timeout khi upload file dài</div>
+          </td>
+          <td>
+            <div class="star-rating">
+              <span class="star-rating__star">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+              <span class="star-rating__star star-rating__star--off">★</span>
+            </div>
+          </td>
+          <td><span class="badge badge--negative">Lỗi KT</span></td>
+          <td><span class="lang-chip">JA→VI</span></td>
+          <td><span class="cell-date">hôm qua, 14:10</span></td>
+          <td>
+            <span class="badge badge--pending-review"
+              ><span class="badge__dot"></span>Cần xử lý</span
+            >
+          </td>
+          <td><button class="table-action">Xem</button></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="
+                  background: #fef3e2;
+                  color: #b7640a;
+                  width: 26px;
+                  height: 26px;
+                  font-size: 10px;
+                "
+              >
+                VT
+              </div>
+              <span class="user-cell__name">Vũ Thảo</span>
+            </div>
+          </td>
+          <td>
+            <div class="feedback-text">
+              Rất hài lòng với bản dịch chuyên ngành
+            </div>
+          </td>
+          <td>
+            <div class="star-rating">
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star">★</span
+              ><span class="star-rating__star">★</span>
+              <span class="star-rating__star">★</span>
+            </div>
+          </td>
+          <td><span class="badge badge--positive">Tốt</span></td>
+          <td><span class="lang-chip">EN→VI</span></td>
+          <td><span class="cell-date">28/11/2025</span></td>
+          <td>
+            <span class="badge badge--resolved"
+              ><span class="badge__dot"></span>Hoàn tất</span
+            >
+          </td>
+          <td><button class="table-action">Xem</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="pagination__info">Hiển thị 1–5 / 1.284 feedback</span>
+      <button class="pagination__btn">‹</button>
+      <button class="pagination__btn pagination__btn--active">1</button>
+      <button class="pagination__btn">2</button>
+      <button class="pagination__btn">3</button>
+      <button class="pagination__btn">…</button>
+      <button class="pagination__btn">18</button>
+      <button class="pagination__btn">›</button>
+    </div>
+  </div>
+</div>

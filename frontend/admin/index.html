@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles/base.css" />
+    <link rel="stylesheet" href="assets/styles/layout.css" />
+    <link rel="stylesheet" href="assets/styles/components.css" />
+    <link rel="stylesheet" href="pages/user/user.css" />
+    <link rel="stylesheet" href="pages/feedback/feedback.css" />
+    <title>Admin</title>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-icon">
+          <i class="bx bx-store"></i>
+        </div>
+        <div>
+          <div class="sidebar__logo-text">Admin</div>
+          <div class="sidebar__logo-ver">v2.0</div>
+        </div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-label">Người dùng</div>
+        <div
+          class="nav-item nav-item--active"
+          onclick="showPage('users', this)"
+        >
+          <i class="bx bx-group nav-item__icon"></i>
+          <span class="nav-item__text">Quản lý người dùng</span>
+        </div>
+      </div>
+
+      <div class="sidebar__section">
+        <div class="sidebar__section-label">Feedback</div>
+        <div class="nav-item" onclick="showPage('feedback-dash', this)">
+          <i class="bx bx-grid-alt nav-item__icon"></i>
+          <span class="nav-item__text">Dashboard</span>
+        </div>
+        <div class="nav-item" onclick="showPage('feedback-list', this)">
+          <i class="bx bx-list-ul nav-item__icon"></i>
+          <span class="nav-item__text">Danh sách feedback</span>
+        </div>
+      </div>
+
+      <div class="sidebar__footer">
+        <div class="admin-card">
+          <div class="admin-card__avatar">AD</div>
+          <div class="admin-card__info">
+            <div class="admin-card__name">Administrator</div>
+            <div class="admin-card__role">Toàn quyền truy cập</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <span class="topbar__title" id="topbar-title"
+            >Quản lý người dùng</span
+          >
+          <span class="topbar__crumb" id="topbar-crumb">/ Danh sách</span>
+        </div>
+        <div class="topbar__actions">
+          <button class="topbar__btn topbar__btn--notif" title="Thông báo">
+            <i class="bx bx-bell"></i>
+          </button>
+        </div>
+      </header>
+      <div class="content" id="content-area"></div>
+    </div>
+
+    <script>
+      const PAGE_META = {
+        users: { title: "Quản lý người dùng", crumb: "/ Danh sách" },
+        "feedback-dash": { title: "Feedback", crumb: "/ Dashboard" },
+        "feedback-list": { title: "Feedback", crumb: "/ Danh sách" },
+      };
+      const PAGE_FILES = {
+        users: "pages/user/user.html",
+        "feedback-dash": "pages/feedback/feedback.html",
+        "feedback-list": "pages/feedback/feedback.html",
+      };
+      const cache = {};
+
+      async function loadPageContent(key) {
+        const file = PAGE_FILES[key];
+        if (!file) return;
+        if (!cache[file]) {
+          const res = await fetch(file);
+          cache[file] = await res.text();
+        }
+        document.getElementById("content-area").innerHTML = cache[file];
+        initPageScripts();
+      }
+
+      async function showPage(key, navEl) {
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("nav-item--active"));
+        if (navEl) navEl.classList.add("nav-item--active");
+        const meta = PAGE_META[key] || { title: "Admin", crumb: "" };
+        document.getElementById("topbar-title").textContent = meta.title;
+        document.getElementById("topbar-crumb").textContent = meta.crumb;
+
+        await loadPageContent(key);
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("page--active"));
+        const target = document.getElementById("page-" + key);
+        if (target) target.classList.add("page--active");
+      }
+
+      function initPageScripts() {
+        document.querySelectorAll(".tab-bar .tab-bar__item").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            tab
+              .closest(".tab-bar")
+              .querySelectorAll(".tab-bar__item")
+              .forEach((t) => t.classList.remove("tab-bar__item--active"));
+            tab.classList.add("tab-bar__item--active");
+          });
+        });
+
+        document.querySelectorAll(".pagination__btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            if (["‹", "›", "…"].includes(this.textContent)) return;
+            this.closest(".pagination")
+              .querySelectorAll(".pagination__btn")
+              .forEach((b) => b.classList.remove("pagination__btn--active"));
+            this.classList.add("pagination__btn--active");
+          });
+        });
+      }
+
+      showPage("users", document.querySelector(".nav-item--active"));
+    </script>
+  </body>
+</html>

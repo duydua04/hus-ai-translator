@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Green scale */
+  --g900: #0d2d12;
+  --g800: #163d1a;
+  --g700: #1e5224;
+  --g600: #276830;
+  --g500: #33823c;
+  --g400: #4a9e55;
+  --g300: #6bbd77;
+  --g200: #9ed8a8;
+  --g100: #c8edd0;
+  --g50: #eaf7ed;
+  --g25: #f4fbf5;
+
+  /* Ink / Text */
+  --ink: #0d1f10;
+  --ink2: #2c4030;
+  --ink3: #567060;
+  --ink4: #8ea898;
+
+  /* Borders */
+  --border: #d3e8d8;
+  --border2: #e8f4eb;
+
+  /* Surfaces */
+  --surface: #ffffff;
+  --bg: #f0f7f2;
+
+  /* Semantic colors */
+  --red: #c0392b;
+  --red-bg: #fdecea;
+  --amber: #b7640a;
+  --amber-bg: #fef3e2;
+  --blue: #1a5fa8;
+  --blue-bg: #e6f0fb;
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(13, 45, 18, 0.06),
+    0 1px 2px rgba(13, 45, 18, 0.04);
+  --shadow-md: 0 4px 12px rgba(13, 45, 18, 0.09),
+    0 1px 3px rgba(13, 45, 18, 0.05);
+  --shadow-focus: 0 0 0 3px rgba(74, 158, 85, 0.3);
+}
+
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 13.5px;
+  background: var(--bg);
+  color: var(--ink);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}

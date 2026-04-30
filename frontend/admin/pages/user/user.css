@@ -1,0 +1,42 @@
+#page-users table colgroup col:nth-child(1) {
+  width: 24%;
+}
+#page-users table colgroup col:nth-child(2) {
+  width: 10%;
+}
+#page-users table colgroup col:nth-child(3) {
+  width: 13%;
+}
+#page-users table colgroup col:nth-child(4) {
+  width: 13%;
+}
+#page-users table colgroup col:nth-child(5) {
+  width: 12%;
+}
+#page-users table colgroup col:nth-child(6) {
+  width: 14%;
+}
+
+@media (max-width: 1023px) {
+  #page-users th:nth-child(4),
+  #page-users td:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  #page-users th:nth-child(2),
+  #page-users td:nth-child(2),
+  #page-users th:nth-child(3),
+  #page-users td:nth-child(3),
+  #page-users th:nth-child(4),
+  #page-users td:nth-child(4),
+  #page-users th:nth-child(5),
+  #page-users td:nth-child(5) {
+    display: none;
+  }
+
+  #page-users table {
+    min-width: unset;
+  }
+}

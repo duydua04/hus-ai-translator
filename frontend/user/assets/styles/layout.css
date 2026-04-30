@@ -82,9 +82,7 @@
   color: #fff;
 }
 
-/* =====================
-   RESPONSIVE — DESKTOP (≥ 1024px)
-   ===================== */
+/* RESPONSIVE — DESKTOP (≥ 1024px) */
 @media (min-width: 1024px) {
   :root {
     --max-w: 1200px;
@@ -112,9 +110,7 @@
   }
 }
 
-/* =====================
-   RESPONSIVE — TABLET (768px – 1023px)
-   ===================== */
+/* TABLET */
 @media (min-width: 768px) and (max-width: 1023px) {
   .header {
     padding: 0 24px;
@@ -129,9 +125,7 @@
   }
 }
 
-/* =====================
-   RESPONSIVE — MOBILE (< 768px)
-   ===================== */
+/* MOBILE (< 768px) */
 @media (max-width: 767px) {
   .header {
     padding: 0 12px;
@@ -144,7 +138,7 @@
   }
 
   .header__brand-text {
-    font-size: 0.85rem;
+    display: none;
   }
 
   .header__nav {
