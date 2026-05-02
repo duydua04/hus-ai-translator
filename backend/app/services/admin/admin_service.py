@@ -14,13 +14,13 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.db import get_db
-from app.models.models import Admin, ChatSession, User
-from app.schemas.admin.admin_schema import AdminResponse
-from app.schemas.common.auth_schemas import LoginRequest, OAuth2Token
-from app.schemas.common.auth_schemas import RegisterRequest as AdminCreateRequest
-from app.schemas.user.user_schema import UserResponse
-from app.utils.security import (
+from ...config.db import get_db
+from ...models.models import Admin, ChatSession, User
+from ...schemas.admin.admin_schema import AdminResponse
+from ...schemas.common.auth_schemas import LoginRequest, OAuth2Token
+from ...schemas.common.auth_schemas import RegisterRequest as AdminCreateRequest
+from ...schemas.user.user_schema import UserResponse
+from ...utils.security import (
     delete_auth_cookies,
     hash_password,
     issue_token_pair,

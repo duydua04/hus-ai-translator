@@ -14,9 +14,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.db import get_db
-from app.models.models import Language, MediaAsset, Translation
-from app.schemas.user.translation_schema import (
+from ...config.db import get_db
+from ...models.models import Language, MediaAsset, Translation
+from ...schemas.user.translation_schema import (
     TranslateDocumentRequest,
     TranslateTextRequest,
     TranslationListResponse,

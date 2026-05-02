@@ -1,9 +1,9 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, status
 
-from app.middleware.auth import require_admin
-from app.schemas.admin.admin_user_schema import UserDetailResponse, UserListResponse
-from app.services.admin.admin_user_service import AdminUserService, get_admin_user_service
+from ...middleware.auth import require_admin
+from ...schemas.admin.admin_user_schema import UserDetailResponse, UserListResponse
+from ...services.admin.admin_user_service import AdminUserService, get_admin_user_service
 
 router = APIRouter(
     prefix="/api/admin/users",

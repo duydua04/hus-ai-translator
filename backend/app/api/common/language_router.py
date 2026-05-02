@@ -11,9 +11,9 @@ from typing import List
 
 from fastapi import APIRouter, Depends, status
 
-from app.middleware.auth import require_admin
-from app.schemas.common.language_schema import LanguageCreateRequest, LanguageResponse
-from app.services.user.language_service import LanguageService, get_language_service
+from ...middleware.auth import require_admin
+from ...schemas.common.language_schema import LanguageCreateRequest, LanguageResponse
+from ...services.user.language_service import LanguageService, get_language_service
 
 router = APIRouter(prefix="/languages", tags=["Languages - Ngôn ngữ"])
 

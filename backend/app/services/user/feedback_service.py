@@ -10,9 +10,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.db import get_db
-from app.models.models import Translation, TranslationFeedback
-from app.schemas.user.feedback_schema import FeedbackCreateRequest, FeedbackResponse
+from ...config.db import get_db
+from ...models.models import Translation, TranslationFeedback
+from ...schemas.user.feedback_schema import FeedbackCreateRequest, FeedbackResponse
 
 
 class FeedbackService:

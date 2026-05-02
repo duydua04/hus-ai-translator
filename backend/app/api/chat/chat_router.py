@@ -6,8 +6,8 @@ Tất cả endpoint đều yêu cầu đăng nhập (require_user).
 """
 from fastapi import APIRouter, Depends, status
 
-from app.middleware.auth import require_user
-from app.schemas.user.chat_schema import (
+from ...middleware.auth import require_user
+from ...schemas.user.chat_schema import (
     ChatHistoryResponse,
     ChatMessageResponse,
     ChatSessionCreateRequest,
@@ -16,7 +16,7 @@ from app.schemas.user.chat_schema import (
     PinSessionRequest,
     SendMessageRequest,
 )
-from app.services.user.chat_service import ChatService, get_chat_service
+from ...services.user.chat_service import ChatService, get_chat_service
 
 router = APIRouter(prefix="/chat", tags=["Chat - Trò chuyện AI"])
 

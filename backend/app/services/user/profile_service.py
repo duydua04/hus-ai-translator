@@ -10,14 +10,14 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.db import get_db
-from app.models.models import Language, User
-from app.schemas.user.user_schema import (
+from ...config.db import get_db
+from ...models.models import Language, User
+from ...schemas.user.user_schema import (
     ChangePasswordRequest,
     UserResponse,
     UserUpdateRequest,
 )
-from app.utils.security import hash_password, verify_password
+from ...utils.security import hash_password, verify_password
 
 
 class UserProfileService:

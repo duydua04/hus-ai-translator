@@ -7,15 +7,21 @@ Không chứa logic — chỉ gọi AdminFeedbackService.
 """
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
-from app.middleware.auth import require_admin
-from app.services.admin.admin_feedback_service import AdminFeedbackService, get_admin_feedback_service
+from ...middleware.auth import require_admin
+from ...schemas.admin.admin_feedback_schema import (
+    FeedbackDeleteResponse,
+    FeedbackDetailResponse,
+    FeedbackListResponse,
+    FeedbackStatsResponse,
+)
+from ...services.admin.admin_feedback_service import AdminFeedbackService, get_admin_feedback_service
 
 router = APIRouter(prefix="/admin/feedback", tags=["Admin - Quản lý Feedback"])
 
 
-@router.get("")
+@router.get("", response_model=FeedbackListResponse)
 async def list_feedbacks(
     rating: Optional[int] = None,
     user_id: Optional[str] = None,
@@ -39,7 +45,7 @@ async def list_feedbacks(
     )
 
 
-@router.get("/stats")
+@router.get("/stats", response_model=FeedbackStatsResponse)
 async def get_quality_stats(
     llm_model: Optional[str] = None,
     service: AdminFeedbackService = Depends(get_admin_feedback_service),
@@ -53,19 +59,17 @@ async def get_quality_stats(
     return await service.get_quality_stats(llm_model=llm_model)
 
 
-@router.get("/{feedback_id}")
+@router.get("/{feedback_id}", response_model=FeedbackDetailResponse)
 async def get_feedback_detail(
     feedback_id: str,
     service: AdminFeedbackService = Depends(get_admin_feedback_service),
     _=Depends(require_admin),
 ):
-    """
-    Xem chi tiết một feedback kèm thông tin bản dịch gốc và người dùng.
-    """
+    """Xem chi tiết một feedback kèm thông tin bản dịch gốc và người dùng."""
     return await service.get_feedback_detail(feedback_id)
 
 
-@router.delete("/{feedback_id}")
+@router.delete("/{feedback_id}", status_code=status.HTTP_200_OK, response_model=FeedbackDeleteResponse)
 async def delete_feedback(
     feedback_id: str,
     service: AdminFeedbackService = Depends(get_admin_feedback_service),

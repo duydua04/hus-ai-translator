@@ -11,9 +11,9 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.db import get_db
-from app.models.models import Language
-from app.schemas.common.language_schema import LanguageCreateRequest, LanguageResponse
+from ...config.db import get_db
+from ...models.models import Language
+from ...schemas.common.language_schema import LanguageCreateRequest, LanguageResponse
 
 
 class LanguageService:
@@ -84,13 +84,13 @@ class LanguageService:
     # --------------------------------------------------
     # BẬT / TẮT NGÔN NGỮ (admin)
     # --------------------------------------------------
-    async def toggle_language_active(self, language_id: str, is_active: bool) -> LanguageResponse:
+    async def toggle_language_active(self, language_code: str, is_active: bool) -> LanguageResponse:
         """
         Admin bật (is_active=True) hoặc tắt (is_active=False) một ngôn ngữ.
         Khi tắt, ngôn ngữ đó sẽ không xuất hiện trong dropdown của người dùng nữa.
         Các bản dịch cũ dùng ngôn ngữ này vẫn giữ nguyên trong DB.
         """
-        stmt = select(Language).where(Language.id == language_id)
+        stmt = select(Language).where(Language.language_code == language_code)
         result = await self.db.execute(stmt)
         lang = result.scalar_one_or_none()
 

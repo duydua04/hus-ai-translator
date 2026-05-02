@@ -2,10 +2,10 @@ from fastapi import Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config.db import get_db
-from app.models.models import Admin, User
-from app.schemas.common.auth_schemas import LoginRequest, RegisterRequest, OAuth2Token
-from app.utils.security import (
+from ...config.db import get_db
+from ...models.models import Admin, User
+from ...schemas.common.auth_schemas import LoginRequest, RegisterRequest, OAuth2Token
+from ...utils.security import (
     delete_auth_cookies,
     hash_password,
     verify_password,

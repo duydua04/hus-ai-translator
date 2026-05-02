@@ -5,9 +5,10 @@ Router xác thực người dùng thường.
 Không chứa logic nghiệp vụ - chỉ gọi AuthService.
 """
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-
-from app.middleware.auth import require_user
-from app.schemas.common.auth_schemas import (
+from fastapi.security import OAuth2PasswordRequestForm
+from ...middleware.auth import require_admin, require_user
+from ...schemas.admin.admin_schema import AdminResponse
+from ...schemas.common.auth_schemas import (
     ForgotPasswordRequest,
     LoginRequest,
     OAuth2Token,
@@ -16,9 +17,10 @@ from app.schemas.common.auth_schemas import (
     UserResponse,
     VerifyOTPRequest,
 )
-from app.services.common.auth_service import AuthService, get_auth_service
-from app.utils.security import set_auth_cookies
-from app.config.settings import settings
+from ...services.common.auth_service import AuthService, get_auth_service
+from ...services.admin.admin_service import AdminService, get_admin_service
+from ...utils.security import set_auth_cookies
+from ...config.settings import settings
 
 router = APIRouter(prefix="/auth", tags=["Auth - Người dùng"])
 
@@ -202,3 +204,79 @@ async def reset_password(
     response.delete_cookie("reset_token")
 
     return result
+
+# =========================================================
+# ADMIN — ĐĂNG NHẬP / REFRESH / LOGOUT / ME
+# =========================================================
+ 
+@router.post("/admin/login", response_model=OAuth2Token)
+async def admin_login(
+    payload: LoginRequest,
+    response: Response,
+    service: AdminService = Depends(get_admin_service),
+):
+    """Đăng nhập admin. Token đặt vào HttpOnly Cookie tự động."""
+    token_data = await service.login(payload)
+    set_auth_cookies(response, token_data.access_token, token_data.refresh_token, role="admin")
+    return token_data
+ 
+ 
+@router.post("/admin/refresh", response_model=OAuth2Token)
+async def admin_refresh_token(
+    request: Request,
+    response: Response,
+    service: AuthService = Depends(get_auth_service),
+):
+    """Cấp lại access token admin từ refresh token trong Cookie."""
+    token = request.cookies.get("refresh_token_admin")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Không tìm thấy refresh token trong cookie.",
+        )
+    new_token = await service.refresh_token(token)
+    set_auth_cookies(response, new_token.access_token, new_token.refresh_token, role="admin")
+    return new_token
+ 
+ 
+@router.post("/admin/logout")
+def admin_logout(
+    response: Response,
+    service: AdminService = Depends(get_admin_service),
+    _=Depends(require_admin),
+):
+    """Đăng xuất admin: xóa cookie."""
+    return service.logout(response)
+ 
+ 
+@router.get("/admin/me", response_model=AdminResponse)
+def admin_get_me(info=Depends(require_admin)):
+    """Thông tin admin đang đăng nhập."""
+    return AdminResponse.model_validate(info["user"])
+
+
+# =========================================================
+# SWAGGER UI — OAuth2 token endpoint
+# Dùng riêng cho nút Authorize trên Swagger docs.
+# Nhập username = email, password = mật khẩu.
+# Chọn scope: "user" hoặc "admin".
+# =========================================================
+ 
+ 
+@router.post("/token", response_model=OAuth2Token, include_in_schema=False)
+async def swagger_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    service: AuthService = Depends(get_auth_service),
+    admin_service: AdminService = Depends(get_admin_service),
+):
+    """
+    Endpoint riêng cho Swagger Authorize.
+    Chọn scope 'user' hoặc 'admin' để đăng nhập đúng vai trò.
+    """
+    role = form_data.scopes[0] if form_data.scopes else "user"
+ 
+    if role == "admin":
+        return await admin_service.login(
+            LoginRequest(email=form_data.username, password=form_data.password)
+        )
+    return await service.authenticate_user(form_data.username, form_data.password, role="user")
