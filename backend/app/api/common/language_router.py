@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, status
 
 from ...middleware.auth import require_admin
 from ...schemas.common.language_schema import LanguageCreateRequest, LanguageResponse
-from ...services.user.language_service import LanguageService, get_language_service
+from ...services.common.language_service import LanguageService, get_language_service
 
 router = APIRouter(prefix="/languages", tags=["Languages - Ngôn ngữ"])
 
@@ -63,3 +63,4 @@ async def deactivate_language(
 ):
     """Admin tắt một ngôn ngữ. Ngôn ngữ sẽ không xuất hiện trong dropdown người dùng."""
     return await service.toggle_language_active(language_id, is_active=False)
+    
