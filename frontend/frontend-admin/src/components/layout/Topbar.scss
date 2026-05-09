@@ -1,0 +1,73 @@
+/* TOPBAR */
+.topbar {
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.topbar__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+}
+
+.topbar__crumb {
+  font-size: 12px;
+  color: var(--ink4);
+  margin-left: 4px;
+}
+
+.topbar__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar__btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--g400), var(--g300));
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink3);
+  font-size: 15px;
+  transition: all 0.15s;
+}
+
+.topbar__btn:hover {
+  background: var(--g50);
+  border-color: var(--g200);
+  color: var(--g600);
+}
+
+.topbar__btn--notif {
+  position: relative;
+}
+
+.topbar__btn--notif::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  background: #e53935;
+  border-radius: 50%;
+  border: 1.5px solid var(--surface);
+}
+
+.topbar__btn .bx {
+  color: #fff;
+}
