@@ -150,46 +150,89 @@
   border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-/*ADMIN-CARD*/
+// Admin card
 .admin-card {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px;
+  padding: 12px 12px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.05);
-}
+  cursor: default;
+  transition: background 0.18s;
+  position: relative;
 
-.admin-card__avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--g400), var(--g300));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-}
+  &:hover,
+  &--hovered {
+    background: var(--g800);
+  }
 
-.admin-card__info {
-  flex: 1;
-  min-width: 0;
-}
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--g500);
+    color: var(--g50);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+  }
 
-.admin-card__name {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
 
-.admin-card__role {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.35);
-  margin-top: 1px;
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--g100);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__role {
+    font-size: 11.5px;
+    color: var(--g400);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__logout {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--g400);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(4px);
+    transition: opacity 0.18s, transform 0.18s, background 0.15s, color 0.15s;
+
+    i {
+      font-size: 18px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--g100);
+    }
+  }
+
+  &:hover &__logout,
+  &--hovered &__logout {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

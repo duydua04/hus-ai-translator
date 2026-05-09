@@ -8,30 +8,58 @@ import {
 
 import Layout from "./components/layout/Layout";
 
+import Login from "./pages/auth/Login";
 import UsersPage from "./pages/users/UsersPage";
 import FeedbackDashPage from "./pages/feedback/FeedbackDashPage";
 import FeedbackListPage from "./pages/feedback/FeedbackListPage";
+import NotFound from "./pages/nf/NotFound";
+
+import useAuth from "./hooks/useAuth";
 
 import "./assets/styles/base.scss";
 import "./assets/styles/layout.scss";
 import "./assets/styles/components.scss";
 
+function PrivateRoute({ admin, children }) {
+  if (admin === undefined) return null;
+  if (admin === null) return <Navigate to="/login" />;
+  return children;
+}
+
 export default function App() {
+  const { admin, login, logout, loading, error } = useAuth();
+
   return (
     <Router>
       <Routes>
-        {/* redirect mặc định */}
-        <Route path="/" element={<Navigate to="/users" />} />
+        <Route path="/" element={<Navigate to="/login" />} />
 
-        {/* layout chung */}
-        <Route path="/" element={<Layout />}>
+        <Route
+          path="/login"
+          element={
+            admin ? (
+              <Navigate to="/users" />
+            ) : (
+              <Login login={login} loading={loading} error={error} />
+            )
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            <PrivateRoute admin={admin}>
+              <Layout admin={admin} onLogout={logout} />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="/users" />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="feedback/dash" element={<FeedbackDashPage />} />
           <Route path="feedback/list" element={<FeedbackListPage />} />
         </Route>
 
-        {/* 404 */}
-        <Route path="*" element={<div>404 Not Found</div>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
