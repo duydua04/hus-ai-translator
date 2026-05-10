@@ -52,12 +52,12 @@ class PDFExtractor:
         try:
             import pymupdf
             self.doc = pymupdf.open(str(self.pdf_path))
-            logger.info(f"✅ Opened PDF: {self.pdf_path.name} ({self.page_count} pages)")
+            logger.info(f"Opened PDF: {self.pdf_path.name} ({self.page_count} pages)")
         except ImportError:
-            logger.error("❌ pymupdf not installed. Install with: pip install pymupdf")
+            logger.error("pymupdf not installed. Install with: pip install pymupdf")
             raise
         except Exception as e:
-            logger.error(f"❌ Failed to open PDF: {e}")
+            logger.error(f"Failed to open PDF: {e}")
             raise
     
     @property
@@ -99,10 +99,10 @@ class PDFExtractor:
         try:
             page = self.doc[page_number]
             text = page.get_text()
-            logger.debug(f"✅ Extracted text from page {page_number} ({len(text)} chars)")
+            logger.debug(f"Extracted text from page {page_number} ({len(text)} chars)")
             return text
         except Exception as e:
-            logger.error(f"❌ Failed to extract text from page {page_number}: {e}")
+            logger.error(f"Failed to extract text from page {page_number}: {e}")
             return ""
     
     def extract_all_text(self) -> List[str]:
@@ -117,8 +117,54 @@ class PDFExtractor:
             text = self.extract_text(page_num)
             texts.append(text)
         
-        logger.info(f"✅ Extracted text from all {self.page_count} pages")
+        logger.info(f"Extracted text from all {self.page_count} pages")
         return texts
+
+    def extract_text_blocks(self, page_number: int) -> List[Dict[str, Any]]:
+        """
+        Trích xuất các khối text có bbox từ một trang.
+
+        Returns:
+            Danh sách dict:
+            {
+                "bbox": [x0, y0, x1, y1],
+                "text": str
+            }
+        """
+        if page_number < 0 or page_number >= self.page_count:
+            raise IndexError(f"Invalid page number: {page_number}")
+
+        try:
+            page = self.doc[page_number]
+            blocks = page.get_text("blocks", sort=True)
+            results: List[Dict[str, Any]] = []
+
+            for block in blocks:
+                if len(block) < 5:
+                    continue
+
+                x0, y0, x1, y1 = block[:4]
+                text = block[4] if isinstance(block[4], str) else ""
+                text = text.strip()
+
+                if not text:
+                    continue
+
+                results.append(
+                    {
+                        "bbox": [float(x0), float(y0), float(x1), float(y1)],
+                        "text": text,
+                    }
+                )
+
+            logger.debug(
+                f"Extracted {len(results)} text blocks from page {page_number}"
+            )
+            return results
+
+        except Exception as e:
+            logger.error(f"Failed to extract text blocks from page {page_number}: {e}")
+            return []
     
     def extract_images(self, page_number: int, output_dir: Optional[str] = None) -> List[str]:
         """
@@ -132,7 +178,7 @@ class PDFExtractor:
             Danh sách đường dẫn hoặc data images
         """
         # Placeholder - cần implement
-        logger.warning("⚠️ Image extraction not yet implemented")
+        logger.warning("Image extraction not yet implemented")
         return []
     
     def get_page_metadata(self, page_number: int) -> Dict[str, Any]:
@@ -157,14 +203,14 @@ class PDFExtractor:
                 "rotation": page.rotation,
             }
         except Exception as e:
-            logger.error(f"❌ Failed to get page metadata: {e}")
+            logger.error(f"Failed to get page metadata: {e}")
             return {}
     
     def close(self) -> None:
         """Đóng PDF document."""
         if hasattr(self, "doc"):
             self.doc.close()
-            logger.info("✅ PDF closed")
+            logger.info("PDF closed")
     
     def __enter__(self):
         return self

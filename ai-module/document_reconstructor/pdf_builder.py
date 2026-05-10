@@ -3,13 +3,14 @@ PDF Builder
 
 Xây dựng PDF từ translated content.
 
-Placeholder - trong thực tế sẽ integrate với pymupdf/pikepdf để:
-- Đặt text dịch vào vị trí gốc
-- Bảo toàn formatting, fonts, styles
-- Tạo PDF output
+Phiên bản này dùng PyMuPDF để:
+- Xóa vùng text gốc bằng redaction
+- Chèn text đã dịch vào đúng vị trí bbox
+- Giữ nguyên phần còn lại của PDF
 """
 
 import logging
+import os
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
@@ -47,7 +48,7 @@ class PDFBuilder:
         if not self.original_pdf_path.exists():
             raise FileNotFoundError(f"PDF not found: {original_pdf_path}")
         
-        logger.info(f"✅ Initialized PDF builder for {self.original_pdf_path.name}")
+        logger.info(f"Initialized PDF builder for {self.original_pdf_path.name}")
     
     def add_translated_text(
         self,
@@ -73,7 +74,7 @@ class PDFBuilder:
         })
         
         logger.debug(
-            f"✅ Added translation for page {page}: "
+            f"Added translation for page {page}: "
             f"{len(original_text)} chars → {len(translated_text)} chars"
         )
     
@@ -87,34 +88,120 @@ class PDFBuilder:
         Returns:
             True nếu thành công
         
-        Note:
-            Đây là placeholder implementation.
-            Trong thực tế, cần:
-            1. Mở original PDF
-            2. Tìm vị trí text gốc
-            3. Thay thế bằng text dịch
-            4. Bảo toàn formatting, fonts
-            5. Lưu output
         """
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
         try:
-            # Placeholder: copy original PDF
-            # Trong thực tế sẽ dùng pymupdf, pikepdf để modify
-            import shutil
+            import pymupdf
+
+            doc = pymupdf.open(str(self.original_pdf_path))
+            font_file = self._resolve_unicode_font()
+
+            # Nhóm translations theo trang
+            grouped: Dict[int, List[Dict[str, Any]]] = {}
+            for item in self.translations:
+                grouped.setdefault(item["page"], []).append(item)
+
+            for page_num, items in grouped.items():
+                if page_num < 0 or page_num >= len(doc):
+                    continue
+
+                page = doc[page_num]
+
+                # Che vùng text cũ bằng nền trắng.
+                # Cách này ổn định hơn redaction khi PDF chứa colorspace đặc biệt.
+                for item in items:
+                    bbox = item.get("bbox")
+                    translated_text = item.get("translated_text", "").strip()
+
+                    if not bbox or not translated_text:
+                        continue
+
+                    rect = pymupdf.Rect(bbox)
+                    page.draw_rect(
+                        rect,
+                        color=None,
+                        fill=1,
+                        overlay=True,
+                    )
+
+                # Chèn text mới vào cùng vùng
+                for item in items:
+                    bbox = item.get("bbox")
+                    translated_text = item.get("translated_text", "").strip()
+
+                    if not bbox or not translated_text:
+                        continue
+
+                    rect = pymupdf.Rect(bbox)
+                    font_size = 11
+                    inserted = False
+
+                    for _ in range(8):
+                        result = page.insert_textbox(
+                            rect,
+                            translated_text,
+                            fontsize=font_size,
+                            fontname="translated_font",
+                            fontfile=font_file,
+                            color=(0, 0, 0),
+                            align=0,
+                        )
+                        if result >= 0:
+                            inserted = True
+                            break
+                        font_size -= 1
+
+                    if not inserted:
+                        page.insert_textbox(
+                            rect,
+                            translated_text,
+                            fontsize=max(font_size, 6),
+                            fontname="translated_font",
+                            fontfile=font_file,
+                            color=(0, 0, 0),
+                            align=0,
+                        )
+
+            doc.save(str(output_path), deflate=True, garbage=4)
+            doc.close()
             
-            # Tạm thời copy file gốc (placeholder)
-            shutil.copy(self.original_pdf_path, output_path)
-            
-            logger.info(f"✅ Built PDF: {output_path}")
-            logger.warning("⚠️ Current implementation is placeholder. Implement actual PDF building.")
+            logger.info(f"Built PDF: {output_path}")
             
             return True
         
         except Exception as e:
-            logger.error(f"❌ Failed to build PDF: {e}")
+            logger.error(f"Failed to build PDF: {e}")
             return False
+
+    def _resolve_unicode_font(self) -> Optional[str]:
+        """Chọn một font có hỗ trợ Unicode để hiển thị tiếng Việt."""
+        candidates = []
+
+        if os.name == "nt":
+            windows_font_dir = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
+            candidates.extend(
+                [
+                    windows_font_dir / "arial.ttf",
+                    windows_font_dir / "calibri.ttf",
+                    windows_font_dir / "times.ttf",
+                    windows_font_dir / "segoeui.ttf",
+                ]
+            )
+        else:
+            candidates.extend(
+                [
+                    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+                    Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+                ]
+            )
+
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+
+        return None
     
     def get_translation_summary(self) -> Dict[str, Any]:
         """Lấy tóm tắt các translations."""

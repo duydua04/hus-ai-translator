@@ -93,13 +93,13 @@ class DocumentTranslationPipeline:
                 api_key="sk-..."
             )
         """
-        logger.info("🚀 Initializing DocumentTranslationPipeline")
+        logger.info("Initializing DocumentTranslationPipeline")
         
         # Validate service
         if service not in AVAILABLE_SERVICES:
             available = ", ".join(AVAILABLE_SERVICES)
             raise ValueError(
-                f"❌ Unknown service: {service}\n"
+                f"Unknown service: {service}\n"
                 f"Available: {available}"
             )
         
@@ -122,7 +122,7 @@ class DocumentTranslationPipeline:
                 **translator_kwargs
             )
         except Exception as e:
-            logger.error(f"❌ Failed to initialize translator: {e}")
+            logger.error(f"Failed to initialize translator: {e}")
             raise
         
         # Khởi tạo cache
@@ -139,7 +139,7 @@ class DocumentTranslationPipeline:
         self.stats = {
             "start_time": None,
             "end_time": None,
-            "total_pages": 0,
+            "page_count": 0,
             "total_text_chars": 0,
             "translated_chars": 0,
             "cache_hits": 0,
@@ -147,7 +147,7 @@ class DocumentTranslationPipeline:
         }
         
         logger.info(
-            f"✅ Pipeline initialized: "
+            f"Pipeline initialized: "
             f"{self.service} ({self.lang_in} → {self.lang_out})"
         )
     
@@ -177,58 +177,61 @@ class DocumentTranslationPipeline:
                 "error": str (nếu failed),
             }
         """
-        logger.info(f"📄 Starting translation: {Path(input_pdf).name}")
+        logger.info(f"Starting translation: {Path(input_pdf).name}")
         
         self.stats["start_time"] = datetime.now().isoformat()
         
         try:
             # 1. Mở file PDF
-            logger.info("📖 Opening PDF...")
+            logger.info("Opening PDF...")
             extractor = PDFExtractor(input_pdf)
-            self.stats["total_pages"] = extractor.page_count
+            self.stats["page_count"] = extractor.page_count
             
             # 2. Khởi tạo PDF builder
             builder = PDFBuilder(input_pdf)
             
             # 3. Process từng trang
-            logger.info(f"🔄 Processing {extractor.page_count} pages...")
+            logger.info(f"Processing {extractor.page_count} pages...")
             
-            for page_num in range(extractor.total_pages):
+            for page_num in range(extractor.page_count):
                 if verbose:
                     print(f"Processing page {page_num + 1}/{extractor.page_count}...")
-                
-                # Trích xuất text
-                text = extractor.extract_text(page_num)
-                self.stats["total_text_chars"] += len(text)
-                
-                # Skip empty text
-                if not text.strip():
-                    logger.debug(f"⏭️ Skipping empty page {page_num}")
+
+                # Lấy các block text có bbox để chèn lại đúng vị trí
+                text_blocks = extractor.extract_text_blocks(page_num)
+                if not text_blocks:
+                    logger.debug(f"Skipping empty page {page_num}")
                     continue
-                
-                # Protect formulas
-                protected_text, formula_map = self.layout_preserver.protect_formulas(text)
-                
-                # Dịch (với cache)
-                translated_text = self._translate_with_cache(protected_text)
-                
-                # Restore formulas
-                translated_text = self.layout_preserver.restore_formulas(
-                    translated_text,
-                    formula_map
-                )
-                
-                self.stats["translated_chars"] += len(translated_text)
-                
-                # Thêm vào builder
-                builder.add_translated_text(
-                    page=page_num,
-                    original_text=text,
-                    translated_text=translated_text
-                )
+
+                for block in text_blocks:
+                    text = block["text"]
+                    bbox = block["bbox"]
+                    self.stats["total_text_chars"] += len(text)
+
+                    # Protect formulas
+                    protected_text, formula_map = self.layout_preserver.protect_formulas(text)
+
+                    # Dịch (với cache)
+                    translated_text = self._translate_with_cache(protected_text)
+
+                    # Restore formulas
+                    translated_text = self.layout_preserver.restore_formulas(
+                        translated_text,
+                        formula_map
+                    )
+
+                    self.stats["translated_chars"] += len(translated_text)
+
+                    # Thêm vào builder kèm bbox
+                    builder.add_translated_text(
+                        page=page_num,
+                        original_text=text,
+                        translated_text=translated_text,
+                        bbox=bbox,
+                    )
             
             # 4. Build output PDF
-            logger.info("🏗️ Building output PDF...")
+            logger.info("Building output PDF...")
             success = builder.build(output_pdf)
             
             if not success:
@@ -244,8 +247,8 @@ class DocumentTranslationPipeline:
             ).total_seconds()
             
             logger.info(
-                f"✅ Translation completed in {duration:.1f}s\n"
-                f"   Pages: {self.stats['total_pages']}\n"
+                f"Translation completed in {duration:.1f}s\n"
+                f"   Pages: {self.stats['page_count']}\n"
                 f"   Text characters: {self.stats['total_text_chars']}\n"
                 f"   Translated characters: {self.stats['translated_chars']}\n"
                 f"   Cache hits: {self.stats['cache_hits']}\n"
@@ -261,7 +264,7 @@ class DocumentTranslationPipeline:
             }
         
         except Exception as e:
-            logger.error(f"❌ Translation failed: {e}")
+            logger.error(f"Translation failed: {e}")
             
             return {
                 "status": "error",
@@ -295,7 +298,7 @@ class DocumentTranslationPipeline:
             
             if cached:
                 self.stats["cache_hits"] += 1
-                logger.debug(f"📦 Cache hit: {len(text)} chars")
+                logger.debug(f"Cache hit: {len(text)} chars")
                 return cached
             else:
                 self.stats["cache_misses"] += 1
@@ -304,7 +307,7 @@ class DocumentTranslationPipeline:
         try:
             translated = self.translator.translate(text)
         except Exception as e:
-            logger.error(f"❌ Translation failed: {e}")
+            logger.error(f"Translation failed: {e}")
             # Fallback: trả về text gốc
             translated = text
         
