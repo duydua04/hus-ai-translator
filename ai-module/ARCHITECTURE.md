@@ -1,16 +1,13 @@
-"""
+```
 ARCHITECTURE SUMMARY
 Tóm tắt kiến trúc HUS AI Translator - AI Module
 
-Ngày tạo: 2024-01-15
 Phiên bản: 0.1.0
-"""
+```
 
-# =============================================================================
 # KIẾN TRÚC TỔNG QUAN
-# =============================================================================
 
-"""
+```
 Input PDF
     ↓
     ├─→ [PDF Extractor] ──→ Text + Metadata
@@ -30,14 +27,12 @@ Input PDF
     └─→ [PDF Builder] ──→ Output PDF (with translations)
                           ↓
                       Output PDF
-"""
+```
 
 
-# =============================================================================
 # CẤU TRÚC THƯ MỤC CHI TIẾT
-# =============================================================================
 
-"""
+```
 ai-module/                           # Root
 │
 ├── __init__.py                       # Module exports: DocumentTranslationPipeline
@@ -121,14 +116,12 @@ ai-module/                           # Root
                                       • get_status() - pipeline status
                                       • get_cache_stats() - cache info
                                       • clear_cache() - clear cached translations
-"""
+```
 
 
-# =============================================================================
-# DÒNG CHẢY (WORKFLOW) CHI TIẾT
-# =============================================================================
+# WORKFLOW
 
-"""
+```
 MAIN WORKFLOW: translate(input_pdf, output_pdf)
 
 1. INITIALIZATION
@@ -164,14 +157,12 @@ MAIN WORKFLOW: translate(input_pdf, output_pdf)
    ├─ status: "success" | "error"
    ├─ stats: {pages, chars, duration, ...}
    └─ error (if failed)
-"""
+```
 
 
-# =============================================================================
 # DEPENDENCY GRAPH
-# =============================================================================
 
-"""
+```
 External Libraries (requirements.txt)
     │
     ├─ pymupdf <──────────────────── PDFExtractor
@@ -197,14 +188,12 @@ External Libraries (requirements.txt)
     ├─ fontTools ────────────────── Font handling
     ├─ huggingface_hub ──────────── Model downloads
     └─ python-dotenv ────────────── .env support
-"""
+```
 
 
-# =============================================================================
 # KEY DESIGN PATTERNS
-# =============================================================================
 
-"""
+```
 1. SINGLETON PATTERN
    └─ ConfigManager
       • Single instance across application
@@ -240,14 +229,12 @@ External Libraries (requirements.txt)
       • Automatic retry on failure
       • Exponential backoff
       • Applied to translators
-"""
+```
 
 
-# =============================================================================
 # MODULE RESPONSIBILITIES
-# =============================================================================
 
-"""
+```
 config_manager.py
 ├─ Responsibility: Manage configuration
 ├─ Scope: Global (singleton)
@@ -307,14 +294,12 @@ pipeline.py
 ├─ Scope: Per-task (new instance per translation)
 ├─ Key Methods: translate(), translate_text()
 └─ Thread-Safety: No (stateful, not designed for multi-threading)
-"""
+```
 
 
-# =============================================================================
 # USAGE PATTERNS
-# =============================================================================
 
-"""
+```
 PATTERN 1: Simple PDF Translation
 ────────────────────────────────────────────────────────────────────
 from ai_module.pipeline import DocumentTranslationPipeline
@@ -372,14 +357,12 @@ class CustomTranslator(BaseTranslator):
         return translated_text
 
 # Register in TRANSLATORS_MAP
-"""
+```
 
 
-# =============================================================================
 # CONFIGURATION HIERARCHY
-# =============================================================================
 
-"""
+```
 Configuration Priority (highest to lowest):
     1. Runtime parameters (explicit keyword arguments)
        └─ pipeline = DocumentTranslationPipeline(api_key="sk-...")
@@ -389,14 +372,12 @@ Configuration Priority (highest to lowest):
        └─ ~/.config/hus-ai-translator/config.json
     4. Default values (hardcoded in code)
        └─ model = "gpt-4"
-"""
+```
 
 
-# =============================================================================
 # SCALABILITY CONSIDERATIONS
-# =============================================================================
 
-"""
+```
 MULTI-THREADING
 ├─ ConfigManager: Thread-safe (RLock)
 ├─ TranslationCache: Thread-safe (SQLite)
@@ -417,14 +398,12 @@ MEMORY USAGE
 ├─ Cache database: ~1-10MB per 10K translations
 ├─ Translator client: ~50MB (varies by service)
 └─ ONNX model: ~500MB-2GB (layout analysis model)
-"""
+```
 
 
-# =============================================================================
 # ERROR HANDLING STRATEGY
-# =============================================================================
 
-"""
+```
 TRY-EXCEPT BLOCKS
 ├─ PDF opening: FileNotFoundError, Exception
 ├─ Translator creation: ValueError (unknown service)
@@ -443,14 +422,12 @@ LOGGING LEVELS
 ├─ INFO: Major steps (pipeline init, translation start/end)
 ├─ WARNING: Potential issues (API key not found, deprecated features)
 └─ ERROR: Failures (translation failed, file not found)
-"""
+```
 
 
-# =============================================================================
 # NEXT STEPS FOR IMPLEMENTATION
-# =============================================================================
 
-"""
+```
 PHASE 1: Core (NOW)
 ├─ Pipeline structure
 ├─ Config management
@@ -484,14 +461,12 @@ PHASE 4: MLOps (Optional)
 ├─ Fine-tuning for domain-specific translations
 ├─ A/B testing for translators
 └─ Analytics & reporting
-"""
+```
 
 
-# =============================================================================
 # FILE CHECKLIST - WHAT'S CREATED
-# =============================================================================
 
-"""
+```
 CREATED FILES:
 ├─ __init__.py
 ├─ requirements.txt
@@ -529,8 +504,4 @@ PLACEHOLDERS (Implement later):
 ├─ Image extraction
 ├─ Table extraction
 └─ Advanced formula preservation
-"""
-
-
-if __name__ == "__main__":
-    print(__doc__)
+```
