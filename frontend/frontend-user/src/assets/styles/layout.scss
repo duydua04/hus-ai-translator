@@ -1,0 +1,158 @@
+/* HEADER */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: #fff;
+  border-bottom: 1px solid var(--clr-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--clr-primary);
+}
+
+.header__brand-icon {
+  font-size: 1.4rem;
+  background: var(--clr-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 2px 4px;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header__link {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--clr-text-muted);
+  transition: color 0.2s;
+  position: relative;
+}
+
+.header__link::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--clr-primary);
+  border-radius: 2px;
+  transition: width 0.2s;
+}
+
+.header__link:hover,
+.header__link--active {
+  color: var(--clr-primary);
+}
+
+.header__link--active::after,
+.header__link:hover::after {
+  width: 100%;
+}
+
+/* FOOTER */
+.footer {
+  background: var(--clr-footer-bg);
+  color: var(--clr-footer-text);
+  padding: 40px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer__text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --max-w: 1200px;
+  }
+
+  .header {
+    padding: 0 48px;
+    height: 68px;
+  }
+
+  .header__brand {
+    font-size: 1.1rem;
+  }
+
+  .header__nav {
+    gap: 32px;
+  }
+
+  .header__link {
+    font-size: 1rem;
+  }
+
+  .footer {
+    padding: 48px 48px;
+  }
+}
+
+/* TABLET */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .header {
+    padding: 0 24p;
+  }
+
+  .header__nav {
+    gap: 18px;
+  }
+
+  .footer {
+    padding: 36px 24px;
+  }
+}
+
+/* MOBILE (< 768px) */
+@media (max-width: 767px) {
+  .header {
+    padding: 0 12px;
+    height: 46px;
+  }
+
+  .header__brand-icon {
+    font-size: 1.1rem;
+    padding: 1px 3px;
+  }
+
+  .header__brand-text {
+    display: none;
+  }
+
+  .header__nav {
+    gap: 10px;
+  }
+
+  .header__link {
+    font-size: 0.78rem;
+  }
+
+  .footer {
+    padding: 24px 16px;
+  }
+
+  .footer__text {
+    font-size: 0.82rem;
+  }
+}

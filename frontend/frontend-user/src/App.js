@@ -1,25 +1,106 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
-function App() {
+import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
+
+import HomePage from "./pages/Home/HomePage";
+import TransFilesPage from "./pages/TransFiles/TransFilesPage";
+import AboutUsPage from "./pages/AboutUs/AboutUsPage";
+import LoginPage from "./pages/Auth/Login/LoginPage";
+import RegisterPage from "./pages/Auth/Register/RegisterPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPassword/ForgotPassword";
+import NotFound from "./pages/nf/NotFound";
+
+import useAuth from "./hooks/useAuth";
+
+import "./assets/styles/base.scss";
+import "./assets/styles/layout.scss";
+import "./assets/styles/components.scss";
+
+function PrivateRoute({ user, children }) {
+  if (user === undefined) return null;
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function MainLayout({ user, logout }) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-wrapper">
+      <Header user={user} logout={logout} />
+
+      <main className="app-main">
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about-us" element={<AboutUsPage />} />
+
+          {/* Protected */}
+          <Route
+            path="/trans-files"
+            element={
+              <PrivateRoute user={user}>
+                <TransFilesPage />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Not Found */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+
+      <Footer />
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  const { user, login, logout, register, loading, error } = useAuth();
+
+  return (
+    <Router>
+      <Routes>
+        {/* Auth */}
+        <Route
+          path="/login"
+          element={
+            user ? (
+              <Navigate to="/" replace />
+            ) : (
+              <LoginPage login={login} loading={loading} error={error} />
+            )
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            user ? (
+              <Navigate to="/" replace />
+            ) : (
+              <RegisterPage
+                register={register}
+                loading={loading}
+                error={error}
+              />
+            )
+          }
+        />
+
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        {/* Main Layout */}
+        <Route path="/*" element={<MainLayout user={user} logout={logout} />} />
+      </Routes>
+    </Router>
+  );
+}

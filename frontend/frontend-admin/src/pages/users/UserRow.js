@@ -11,10 +11,9 @@ const PLAN_MAP = {
 const STATUS_MAP = {
   active: { variant: "active", dot: true, label: "Hoạt động" },
   locked: { variant: "inactive", dot: true, label: "Bị khóa" },
-  pending: { variant: "pending", dot: true, label: "Chờ xác thực" },
 };
 
-export default function UserRow({ user, onLock, onUnlock }) {
+export default function UserRow({ user, onDetail, onLock, onUnlock }) {
   const plan = PLAN_MAP[user.plan] || {};
   const status = STATUS_MAP[user.status] || {};
 
@@ -44,7 +43,9 @@ export default function UserRow({ user, onLock, onUnlock }) {
         <span className="cell-number">{user.translations}</span>
       </td>
       <td>
-        <button className="table-action">Chi tiết</button>
+        <button className="table-action" onClick={() => onDetail(user.id)}>
+          Chi tiết
+        </button>
         {user.status === "locked" ? (
           <button
             className="table-action table-action--unlock"

@@ -1,12 +1,27 @@
 import React from "react";
 import UserRow from "./UserRow";
+import UserDetailModal from "./detail/UserDetail";
 import Pagination from "../../components/common/Pagination";
 import { useUsers } from "../../hooks/useUsers";
 import "./UsersPage.scss";
 
 export default function UsersPage() {
-  const { users, total, loading, filters, setFilters, lockUser, unlockUser } =
-    useUsers();
+  const {
+    users,
+    total,
+    loading,
+    error,
+    filters,
+    setFilters,
+    selectedUser,
+    detailLoading,
+    detailError,
+    openDetail,
+    closeDetail,
+    lockUser,
+    unlockUser,
+    deleteUser,
+  } = useUsers();
 
   return (
     <div className="page page--active" id="page-users">
@@ -31,7 +46,6 @@ export default function UsersPage() {
             <option value="">Tất cả trạng thái</option>
             <option value="active">Đang hoạt động</option>
             <option value="locked">Bị vô hiệu hóa</option>
-            <option value="pending">Chờ xác thực</option>
           </select>
           <select
             className="filter-select"
@@ -43,16 +57,6 @@ export default function UsersPage() {
             <option value="free">Miễn phí</option>
             <option value="pro">Pro</option>
             <option value="enterprise">Doanh nghiệp</option>
-          </select>
-          <select
-            className="filter-select"
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, sort: e.target.value }))
-            }
-          >
-            <option value="newest">Mới nhất trước</option>
-            <option value="oldest">Cũ nhất trước</option>
-            <option value="most_active">Hoạt động nhiều</option>
           </select>
         </div>
       </div>
@@ -95,6 +99,7 @@ export default function UsersPage() {
                 <UserRow
                   key={user.id}
                   user={user}
+                  onDetail={openDetail}
                   onLock={lockUser}
                   onUnlock={unlockUser}
                 />
@@ -109,6 +114,17 @@ export default function UsersPage() {
           onChange={(p) => setFilters((f) => ({ ...f, page: p }))}
         />
       </div>
+
+      {/* Modal chi tiết */}
+      <UserDetailModal
+        user={selectedUser}
+        loading={detailLoading}
+        error={detailError}
+        onClose={closeDetail}
+        onLock={lockUser}
+        onUnlock={unlockUser}
+        onDelete={deleteUser}
+      />
     </div>
   );
 }

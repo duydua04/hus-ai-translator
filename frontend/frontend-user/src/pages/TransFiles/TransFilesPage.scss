@@ -1,0 +1,246 @@
+.transfiles-page .translator {
+  flex: 1;
+  padding: 48px 24px;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.transfiles-page .translator__content--file {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.transfiles-page .translator__content--text {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 180px;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.mode-switcher {
+  display: inline-flex;
+  background: #fff;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-switcher__btn {
+  padding: 8px 22px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mode-switcher__btn--active {
+  background: var(--clr-primary);
+  color: #fff;
+}
+
+.mode-switcher__btn:hover:not(.mode-switcher__btn--active) {
+  background: var(--clr-primary-light);
+  color: var(--clr-primary);
+}
+
+.upload__box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 24px 20px 16px;
+}
+
+.upload__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 12px;
+  border: 2px dashed var(--clr-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  background: var(--clr-primary-light);
+  min-height: 100px;
+}
+
+.upload__item:hover {
+  border-color: var(--clr-primary);
+  background: #d4eddf;
+  transform: translateY(-2px);
+}
+
+.upload__item i {
+  font-size: 2rem;
+  color: var(--clr-primary);
+  line-height: 1;
+}
+
+.upload__item:nth-child(1) i {
+  color: #1a73e8;
+}
+.upload__item:nth-child(2) i {
+  color: #e53935;
+}
+.upload__item:nth-child(3) i {
+  color: var(--clr-primary);
+}
+
+.upload__item p {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--clr-text);
+  text-align: center;
+}
+
+.upload__item small {
+  font-size: 0.72rem;
+  color: var(--clr-text-muted);
+  text-align: center;
+}
+
+.upload__note {
+  margin: 0 20px 20px;
+  padding: 20px;
+  background: var(--clr-primary-light);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--clr-text-muted);
+  text-align: center;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--clr-border);
+}
+
+.transfiles-page .translator__action {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+}
+
+.transfiles-page .translator__action .btn {
+  padding: 11px 48px;
+  font-size: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .transfiles-page .translator {
+    padding: 64px 48px;
+    gap: 28px;
+  }
+
+  .transfiles-page .translator__box {
+    max-width: 680px;
+  }
+
+  .upload__box {
+    gap: 20px;
+    padding: 28px 24px 20px;
+  }
+
+  .upload__item {
+    min-height: 120px;
+    padding: 24px 16px;
+  }
+
+  .upload__item i {
+    font-size: 2.4rem;
+  }
+
+  .upload__note {
+    margin: 0 24px 24px;
+    min-height: 88px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .transfiles-page .translator {
+    padding: 40px 24px;
+    gap: 20px;
+  }
+
+  .transfiles-page .translator__box {
+    max-width: 100%;
+  }
+
+  .upload__box {
+    gap: 12px;
+    padding: 20px 16px 14px;
+  }
+
+  .upload__item {
+    min-height: 90px;
+    padding: 16px 10px;
+  }
+
+  .upload__item i {
+    font-size: 1.7rem;
+  }
+
+  .upload__item p {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .transfiles-page .translator {
+    padding: 20px 12px;
+    gap: 16px;
+  }
+
+  .mode-switcher__btn {
+    padding: 7px 14px;
+    font-size: 0.82rem;
+  }
+
+  .upload__box {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 14px 12px 10px;
+  }
+
+  .upload__item {
+    min-height: 76px;
+    padding: 12px 6px;
+    gap: 6px;
+  }
+
+  .upload__item i {
+    font-size: 1.4rem;
+  }
+
+  .upload__item p {
+    font-size: 0.72rem;
+  }
+
+  .upload__item small {
+    font-size: 0.65rem;
+  }
+
+  .upload__note {
+    margin: 0 12px 14px;
+    font-size: 0.82rem;
+    padding: 14px;
+  }
+
+  .transfiles-page .translator__action {
+    padding: 12px 16px;
+  }
+
+  .transfiles-page .translator__action .btn {
+    width: 100%;
+    padding: 12px;
+  }
+}

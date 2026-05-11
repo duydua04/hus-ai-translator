@@ -1,80 +1,36 @@
 import { useState, useEffect, useCallback } from "react";
-import { userApi } from "../api/UserApi";
+import UserAPI from "../api/UserApi";
 
-const MOCK_USERS = [
-  {
-    id: 1,
-    initials: "NH",
-    name: "Nguyễn Hải",
-    email: "nguyenhai@email.com",
-    avatarBg: "#c8edd0",
-    avatarColor: "#163d1a",
-    plan: "pro",
-    status: "active",
-    joinDate: "12/03/2025",
-    translations: "1.240",
-  },
-  {
-    id: 2,
-    initials: "TL",
-    name: "Trần Lan",
-    email: "tran.lan@gmail.com",
-    avatarBg: "#fef3e2",
-    avatarColor: "#b7640a",
-    plan: "free",
-    status: "active",
-    joinDate: "05/07/2025",
-    translations: "87",
-  },
-  {
-    id: 3,
-    initials: "PD",
-    name: "Phạm Đức",
-    email: "pham.duc@work.vn",
-    avatarBg: "#e6f0fb",
-    avatarColor: "#1a5fa8",
-    plan: "enterprise",
-    status: "locked",
-    joinDate: "22/01/2025",
-    translations: "3.871",
-  },
-  {
-    id: 4,
-    initials: "LM",
-    name: "Lê Minh",
-    email: "leminh99@yahoo.com",
-    avatarBg: "#f5eef8",
-    avatarColor: "#6c3483",
-    plan: "free",
-    status: "active",
-    joinDate: "30/09/2025",
-    translations: "34",
-  },
-  {
-    id: 5,
-    initials: "VT",
-    name: "Vũ Thảo",
-    email: "vuthao@company.com",
-    avatarBg: "#fdecea",
-    avatarColor: "#c0392b",
-    plan: "pro",
-    status: "pending",
-    joinDate: "14/11/2025",
-    translations: "12",
-  },
-  {
-    id: 6,
-    initials: "BK",
-    name: "Bùi Khoa",
-    email: "buikhoa@edu.vn",
-    avatarBg: "#c8edd0",
-    avatarColor: "#0d2d12",
-    plan: "enterprise",
-    status: "active",
-    joinDate: "18/08/2024",
-    translations: "9.102",
-  },
-];
+// Chuyển API field → UI field
+function normalizeUser(u) {
+  return {
+    id: u.id,
+    name: u.full_name,
+    email: u.email,
+    initials: u.full_name
+      ? u.full_name
+          .trim()
+          .split(" ")
+          .slice(-2)
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase()
+      : "?",
+    avatarBg: "#e0e7ff",
+    avatarColor: "#4f46e5",
+    plan: u.tier,
+    status: u.is_active ? "active" : "locked",
+    joinDate: u.created_at
+      ? new Date(u.created_at).toLocaleDateString("vi-VN")
+      : "—",
+    updatedAt: u.updated_at
+      ? new Date(u.updated_at).toLocaleDateString("vi-VN")
+      : "—",
+    translations: u.total_translations ?? "—",
+    feedbacks: u.total_feedbacks ?? "—",
+    is_active: u.is_active,
+  };
+}
 
 export function useUsers() {
   const [users, setUsers] = useState([]);
@@ -83,22 +39,37 @@ export function useUsers() {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     page: 1,
-    limit: 6,
+    limit: 20,
+    search: "",
     status: "",
     plan: "",
-    sort: "",
   });
+
+  // --- Detail modal ---
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState(null);
+
+  const buildParams = (f) => {
+    const params = { page: f.page, limit: f.limit };
+    if (f.search) params.search = f.search;
+    if (f.plan) params.tier = f.plan;
+    if (f.status === "active") params.is_active = true;
+    else if (f.status === "locked") params.is_active = false;
+    return params;
+  };
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // TODO: Thay bằng userApi.getAll(filters) khi có backend
-      await new Promise((r) => setTimeout(r, 300));
-      setUsers(MOCK_USERS);
-      setTotal(156);
+      const data = await UserAPI.getUsers(buildParams(filters));
+      setUsers((data.data ?? []).map(normalizeUser));
+      setTotal(data.total ?? 0);
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.response?.data?.detail || "Không thể tải danh sách người dùng."
+      );
     } finally {
       setLoading(false);
     }
@@ -108,18 +79,67 @@ export function useUsers() {
     fetchUsers();
   }, [fetchUsers]);
 
+  // Mở modal chi tiết — fetch riêng để lấy total_translations, total_feedbacks
+  const openDetail = async (userId) => {
+    setSelectedUser(null);
+    setDetailError(null);
+    setDetailLoading(true);
+    try {
+      const data = await UserAPI.getUserDetail(userId);
+      setSelectedUser(normalizeUser(data));
+    } catch (err) {
+      setDetailError(
+        err.response?.data?.detail || "Không thể tải thông tin người dùng."
+      );
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const closeDetail = () => {
+    setSelectedUser(null);
+    setDetailError(null);
+  };
+
+  // Khóa / mở khóa — cập nhật cả list lẫn modal nếu đang mở
   const lockUser = async (userId) => {
-    // await userApi.lockUser(userId);
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, status: "locked" } : u))
-    );
+    try {
+      await UserAPI.toggleUserStatus(userId, false);
+      const patch = { is_active: false, status: "locked" };
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, ...patch } : u))
+      );
+      if (selectedUser?.id === userId)
+        setSelectedUser((prev) => ({ ...prev, ...patch }));
+    } catch (err) {
+      setError(err.response?.data?.detail || "Không thể khóa người dùng.");
+    }
   };
 
   const unlockUser = async (userId) => {
-    // await userApi.unlockUser(userId);
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, status: "active" } : u))
-    );
+    try {
+      await UserAPI.toggleUserStatus(userId, true);
+      const patch = { is_active: true, status: "active" };
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, ...patch } : u))
+      );
+      if (selectedUser?.id === userId)
+        setSelectedUser((prev) => ({ ...prev, ...patch }));
+    } catch (err) {
+      setError(err.response?.data?.detail || "Không thể mở khóa người dùng.");
+    }
+  };
+
+  // Xóa — đóng modal nếu đang xem user bị xóa
+  const deleteUser = async (userId) => {
+    try {
+      await UserAPI.deleteUser(userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setTotal((prev) => prev - 1);
+      if (selectedUser?.id === userId) closeDetail();
+    } catch (err) {
+      setError(err.response?.data?.detail || "Không thể xóa người dùng.");
+    }
   };
 
   return {
@@ -129,7 +149,13 @@ export function useUsers() {
     error,
     filters,
     setFilters,
+    selectedUser,
+    detailLoading,
+    detailError,
+    openDetail,
+    closeDetail,
     lockUser,
     unlockUser,
+    deleteUser,
   };
 }

@@ -1,0 +1,59 @@
+@use "../auth-shared" as *;
+
+.auth-page {
+  @include auth-page-base;
+
+  &__card {
+    @include auth-card;
+  }
+  &__brand {
+    @include auth-brand;
+  }
+
+  &__brand-icon {
+    font-size: 1.6rem;
+    background: var(--clr-primary);
+    color: #fff;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  &__brand-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--clr-primary);
+  }
+
+  &__title {
+    @include auth-title;
+  }
+  &__subtitle {
+    @include auth-subtitle;
+  }
+  &__alert {
+    @include auth-alert;
+  }
+
+  &__alert--error {
+    background: #fdecea;
+    color: #c62828;
+    border-color: #f5c6c6;
+  }
+
+  &__alert--success {
+    background: var(--clr-primary-light);
+    color: var(--clr-primary-dark);
+    border-color: var(--clr-border);
+  }
+
+  &__footer-text {
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--clr-text-muted);
+    margin-top: 20px;
+  }
+}
+
+.auth-form {
+  @include auth-form-base;
+}
