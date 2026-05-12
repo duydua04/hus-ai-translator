@@ -1,5 +1,10 @@
 .env
 venv/
 .idea/
-.venv/
 __pycache__/
+*.pyc
+logs/
+plugins/
+airflow/
+ai-module/translate_model/models/**/*.bin
+.venv/
