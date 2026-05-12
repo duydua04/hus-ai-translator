@@ -3,3 +3,5 @@ venv/
 .idea/
 __pycache__/
 airflow/
+.vscode/
+node_modules/

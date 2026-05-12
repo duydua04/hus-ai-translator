@@ -4,18 +4,18 @@ import "./ContactForm.scss";
 function ContactForm({ form, onChange, onSubmit, loading, success, error }) {
   return (
     <div className="contact">
-      <h3 className="contact__title">Contact me</h3>
+      <h3 className="contact__title">Liên hệ với chúng mình</h3>
 
       {success && (
         <p className="contact__success">
-          Gửi thành công! Chúng tôi sẽ liên hệ sớm.
+          Gửi thành công! Chúng mình sẽ phản hồi sớm!!
         </p>
       )}
       {error && <p className="contact__error">{error}</p>}
 
       <div className="contact__row">
         <div className="contact__field">
-          <label className="contact__label">First name</label>
+          <label className="contact__label">Tên</label>
           <input
             type="text"
             name="firstName"
@@ -26,7 +26,7 @@ function ContactForm({ form, onChange, onSubmit, loading, success, error }) {
           />
         </div>
         <div className="contact__field">
-          <label className="contact__label">Last name</label>
+          <label className="contact__label">Họ đệm</label>
           <input
             type="text"
             name="lastName"
@@ -39,7 +39,7 @@ function ContactForm({ form, onChange, onSubmit, loading, success, error }) {
       </div>
 
       <div className="contact__field">
-        <label className="contact__label">Email address</label>
+        <label className="contact__label">Địa chỉ Email</label>
         <input
           type="email"
           name="email"
@@ -51,7 +51,7 @@ function ContactForm({ form, onChange, onSubmit, loading, success, error }) {
       </div>
 
       <div className="contact__field">
-        <label className="contact__label">Your message</label>
+        <label className="contact__label">Nội dung</label>
         <textarea
           name="message"
           placeholder="Enter your question or message"
@@ -66,7 +66,7 @@ function ContactForm({ form, onChange, onSubmit, loading, success, error }) {
         onClick={onSubmit}
         disabled={loading}
       >
-        {loading ? "Đang gửi..." : "Submit"}
+        {loading ? "Đang gửi..." : "Gửi"}
       </button>
     </div>
   );

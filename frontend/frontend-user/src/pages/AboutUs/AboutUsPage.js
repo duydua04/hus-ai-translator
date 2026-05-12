@@ -11,7 +11,7 @@ function AboutUsPage() {
     <section className="about">
       <div className="about__inner">
         <div className="about__content">
-          <h2 className="about__title">About</h2>
+          <h2 className="about__title">About us</h2>
           <p className="about__subheading">
             Subheading for description or instructions
           </p>

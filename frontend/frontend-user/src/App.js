@@ -14,6 +14,7 @@ import AboutUsPage from "./pages/AboutUs/AboutUsPage";
 import LoginPage from "./pages/Auth/Login/LoginPage";
 import RegisterPage from "./pages/Auth/Register/RegisterPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPassword/ForgotPassword";
+import ProfilePage from "./pages/Profile/Profile";
 import NotFound from "./pages/nf/NotFound";
 
 import useAuth from "./hooks/useAuth";
@@ -49,6 +50,15 @@ function MainLayout({ user, logout }) {
             element={
               <PrivateRoute user={user}>
                 <TransFilesPage />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute user={user}>
+                <ProfilePage />
               </PrivateRoute>
             }
           />

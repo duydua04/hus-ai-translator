@@ -4,7 +4,7 @@ import "./Header.scss";
 
 const NAV_LINKS = [
   { to: "/", label: "Trang chủ", protected: false },
-  { to: "/trans-files", label: "Dịch ngay", protected: true },
+  { to: "/trans-files", label: "Dịch tệp", protected: true },
   { to: "/about-us", label: "Về chúng tôi", protected: false },
 ];
 
