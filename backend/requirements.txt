@@ -12,3 +12,4 @@ pydantic-settings>=2.2.0
 PyJWT>=2.8.0
 itsdangerous
 alembic
+minio==7.2.18

@@ -37,6 +37,13 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
     ADMIN_URL: str = "http://localhost:3001"
 
+    MINIO_ENDPOINT: str = "minio:9000"
+    MINIO_PUBLIC_ENDPOINT: str = "localhost:9005"
+    MINIO_ACCESS_KEY: str
+    MINIO_SECRET_KEY: str
+    MINIO_SECURE: bool = False
+    MINIO_BUCKET_NAME: str = "transminer-uploads"
+
     @property
     def is_production(self) -> bool:
         return self.APP_ENV == "production"
