@@ -108,9 +108,9 @@ class PDFBuilder:
                     continue
 
                 page = doc[page_num]
+                image_rects = self._collect_image_rects(page)
 
-                # Che vùng text cũ bằng nền trắng.
-                # Cách này ổn định hơn redaction khi PDF chứa colorspace đặc biệt.
+                # Che vùng text cũ bằng nền trắng, nhưng tránh đè lên vùng ảnh.
                 for item in items:
                     bbox = item.get("bbox")
                     translated_text = item.get("translated_text", "").strip()
@@ -119,12 +119,13 @@ class PDFBuilder:
                         continue
 
                     rect = pymupdf.Rect(bbox)
-                    page.draw_rect(
-                        rect,
-                        color=None,
-                        fill=1,
-                        overlay=True,
-                    )
+                    if not self._overlaps_any(rect, image_rects):
+                        page.draw_rect(
+                            rect,
+                            color=None,
+                            fill=1,
+                            overlay=True,
+                        )
 
                 # Chèn text mới vào cùng vùng
                 for item in items:
@@ -202,6 +203,27 @@ class PDFBuilder:
                 return str(candidate)
 
         return None
+
+    def _collect_image_rects(self, page) -> List["pymupdf.Rect"]:
+        """Lấy danh sách bbox của ảnh trên một trang."""
+        import pymupdf
+
+        rects: List[pymupdf.Rect] = []
+        try:
+            blocks = page.get_text("dict").get("blocks", [])
+            for block in blocks:
+                if block.get("type") == 1 and "bbox" in block:
+                    rects.append(pymupdf.Rect(block["bbox"]))
+        except Exception as e:
+            logger.debug(f"Failed to collect image rects: {e}")
+        return rects
+
+    def _overlaps_any(self, rect, rects) -> bool:
+        """Kiểm tra một bbox có chồng lên bbox ảnh nào không."""
+        for other in rects:
+            if rect.intersects(other):
+                return True
+        return False
     
     def get_translation_summary(self) -> Dict[str, Any]:
         """Lấy tóm tắt các translations."""

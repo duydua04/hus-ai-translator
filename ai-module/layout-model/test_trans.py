@@ -9,8 +9,8 @@ pipeline = DocumentTranslationPipeline(
 
 print("Bắt đầu dịch PDF...")
 result = pipeline.translate(
-    input_pdf="Introduction to Parallel Computing_chapter2_19-54.pdf",
-    output_pdf="output_vi.pdf",
+    input_pdf="UCSC.pdf",
+    output_pdf="UCSC_output_vi.pdf",
     verbose=True
 )
 
