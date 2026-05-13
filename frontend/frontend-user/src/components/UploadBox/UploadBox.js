@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import "./UploadBox.scss";
 
 const UPLOAD_TYPES = [
@@ -27,14 +27,37 @@ const UPLOAD_TYPES = [
 ];
 
 function UploadBox({ onFileSelect, selectedFile, result, loading, error }) {
+  const inputRef = useRef(null);
+
+  const handleItemClick = (accept) => {
+    if (inputRef.current) {
+      inputRef.current.accept = accept;
+      inputRef.current.value = ""; // reset để có thể chọn lại cùng file
+      inputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) onFileSelect(file);
+  };
+
   return (
     <div className="translator__content translator__content--file">
+      {/* Input ẩn, dùng chung cho cả 3 loại */}
+      <input
+        ref={inputRef}
+        type="file"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+
       <div className="upload__box">
         {UPLOAD_TYPES.map(({ id, icon, label, ext, accept }) => (
           <div
             key={id}
             className="upload__item"
-            onClick={() => onFileSelect(accept)}
+            onClick={() => handleItemClick(accept)}
           >
             <i className={icon}></i>
             <p>{label}</p>

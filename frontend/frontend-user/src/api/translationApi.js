@@ -1,4 +1,5 @@
 import axiosUser from "./axiosUser";
+import axios from "axios";
 
 // Dịch văn bản thuần
 export const translateText = async (payload) => {
@@ -7,9 +8,25 @@ export const translateText = async (payload) => {
 };
 
 // Dịch tài liệu đã upload
-export const translateFile = async (payload) => {
-  const res = await axiosUser.post("/translate/document", payload);
-  return res.data;
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  if (match) return match[2];
+  return null;
+};
+
+export const translateFile = async (formData) => {
+  const token = getCookie("access_token_user");
+  const response = await axios.post(
+    "http://localhost:8000/translate/document",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
 };
 
 // Lấy lịch sử dịch thuật

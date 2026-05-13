@@ -57,14 +57,37 @@ export default function useTranslation() {
     setError(null);
     setSuccess(null);
     try {
-      const data = await apiTranslateDocument(payload);
+      const formData = new FormData();
+
+      formData.append("input_file_id", payload.file);
+      formData.append("source_lang_id", payload.source_lang_id);
+      formData.append("target_lang_id", payload.target_lang_id);
+      formData.append("llm_model", payload.llm_model);
+
+      const data = await apiTranslateDocument(formData);
+
       setResult(data);
       setSuccess("Dịch tài liệu thành công.");
+
+      setTimeout(() => setSuccess(null), 3000);
       return { success: true, data };
     } catch (err) {
-      const msg = err.response?.data?.detail || "Dịch tài liệu thất bại.";
-      setError(msg);
-      return { success: false, message: msg };
+      console.error("Chi tiết lỗi:", err);
+
+      let errorMsg = "Dịch tài liệu thất bại.";
+
+      if (err.response) {
+        errorMsg =
+          err.response.data?.detail || JSON.stringify(err.response.data);
+      } else if (err.request) {
+        errorMsg =
+          "Không thể kết nối đến máy chủ. Vui lòng kiểm tra CORS hoặc Server.";
+      } else {
+        errorMsg = err.message;
+      }
+
+      setError(errorMsg);
+      return { success: false, message: errorMsg };
     } finally {
       setLoading(false);
     }

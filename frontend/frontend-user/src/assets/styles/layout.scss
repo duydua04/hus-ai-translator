@@ -13,6 +13,12 @@
   box-shadow: var(--shadow-sm);
 }
 
+.header__left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
 .header__brand {
   display: flex;
   align-items: center;

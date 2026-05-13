@@ -2,26 +2,24 @@ import React from "react";
 import "./TranslatorBox.scss";
 
 function TranslatorBox({
-  languages = [], // Danh sách ngôn ngữ từ API
-  sourceLang, // Mã ngôn ngữ hiện tại (vd: "vi")
-  targetLang, // Mã ngôn ngữ hiện tại (vd: "en")
-  setSourceLang, // Hàm cập nhật
-  setTargetLang, // Hàm cập nhật
+  languages = [],
+  sourceLang,
+  targetLang,
+  setSourceLang,
+  setTargetLang,
   onSwapLangs,
   children,
   onTranslate,
   loading = false,
   actionLabel = "Dịch ngay",
 }) {
-  // Hàm tìm tên ngôn ngữ dựa vào mã (để hiển thị label)
-  const getLangName = (code) => {
-    const lang = languages.find((l) => l.language_code === code);
-    return lang ? lang.language_name : code;
+  const getLangName = (id) => {
+    const lang = languages.find((l) => l.id === id); // Tìm theo id
+    return lang ? lang.language_name : id;
   };
 
   return (
     <div className="translator__box">
-      {/* Tabs / Selectors */}
       <div className="translator__tabs">
         <div className="translator__select-wrapper">
           <select
@@ -30,7 +28,7 @@ function TranslatorBox({
             onChange={(e) => setSourceLang(e.target.value)}
           >
             {languages.map((lang) => (
-              <option key={lang.language_code} value={lang.language_code}>
+              <option key={lang.id} value={lang.id}>
                 {lang.language_name}
               </option>
             ))}
@@ -52,7 +50,7 @@ function TranslatorBox({
             onChange={(e) => setTargetLang(e.target.value)}
           >
             {languages.map((lang) => (
-              <option key={lang.language_code} value={lang.language_code}>
+              <option key={lang.id} value={lang.id}>
                 {lang.language_name}
               </option>
             ))}
@@ -60,10 +58,7 @@ function TranslatorBox({
         </div>
       </div>
 
-      {/* Content slot (Textareas hoặc UploadBox) */}
       <div className="translator__main-content">{children}</div>
-
-      {/* Action Button */}
       <div className="translator__action">
         <button
           className={`btn btn--primary ${loading ? "btn--loading" : ""}`}
