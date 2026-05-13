@@ -30,8 +30,8 @@ from .api.translation.translation_router import router as translation_router
 from .api.feedback.feedback_router import router as feedback_router
 from .api.chat.chat_router import router as chat_router
 from .api import sse_route
-
 from .api.common.upload_router import upload_router
+from .api.user.translation_router import translate_router
 from .services.sse_manager import sse_manager
 # =========================================================
 # KHỞI TẠO APP
@@ -78,6 +78,7 @@ app.include_router(feedback_router)         # /feedback/...
 app.include_router(chat_router)             # /chat/...
 app.include_router(sse_route.router)   # /stream/...
 app.include_router(upload_router)
+app.include_router(translate_router)
 # =========================================================
 # HEALTH CHECK
 # =========================================================

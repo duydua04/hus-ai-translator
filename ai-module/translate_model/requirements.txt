@@ -1,0 +1,10 @@
+ctranslate2==4.6.2
+transformers==4.56.0
+peft==0.17.1
+torch==2.9.0
+fastapi==0.125.0
+nltk==3.9.2
+uvicorn==0.46.0
+protobuf==7.34.1
+tiktoken==0.12.0
+sentencepiece==0.2.1
