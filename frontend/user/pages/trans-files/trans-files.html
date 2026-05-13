@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../../assets/styles/base.css" />
+    <link rel="stylesheet" href="../../assets/styles/layout.css" />
+    <link rel="stylesheet" href="../../assets/styles/components.css" />
+    <link rel="stylesheet" href="trans-files.css" />
+
+    <title>Trans Files</title>
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <a href="../home/home.html" class="header__brand">
+        <i class="bx bx-store header__brand-icon"></i>
+        <span class="header__brand-text">Site name</span>
+      </a>
+
+      <nav class="header__nav">
+        <a href="../home/home.html" class="header__link">Trang chủ</a>
+        <a href="#" class="header__link header__link--active">Dịch ngay</a>
+        <a href="../about-us/about-us.html" class="header__link"
+          >Về chúng tôi</a
+        >
+      </nav>
+
+      <button class="btn btn--primary">Đăng nhập</button>
+    </header>
+
+    <!-- HERO (dịch văn bản) -->
+    <section class="translator">
+      <!-- Mode switcher -->
+      <div class="mode-switcher">
+        <button class="mode-switcher__btn">Văn bản</button>
+        <button class="mode-switcher__btn mode-switcher__btn--active">
+          Tệp đính kèm
+        </button>
+      </div>
+      <div class="translator__box">
+        <div class="translator__tabs">
+          <span class="translator__tab translator__tab--active">Tiếng Anh</span>
+          <i class="bx bx-transfer"></i>
+          <span class="translator__tab">Tiếng Việt</span>
+        </div>
+
+        <div class="translator__content">
+          <!-- BEFORE -->
+          <div class="upload__box">
+            <div class="upload__item">
+              <i class="bx bx-file"></i>
+              <p>Tài liệu Word</p>
+              <small>.docx</small>
+            </div>
+            <div class="upload__item">
+              <i class="bx bxs-file-pdf"></i>
+              <p>Tài liệu PDF</p>
+              <small>.pdf</small>
+            </div>
+            <div class="upload__item">
+              <i class="bx bx-image"></i>
+              <p>Hình ảnh</p>
+              <small>.jpg, .png, .webp</small>
+            </div>
+          </div>
+          <div class="upload__note">
+            Bản dịch sẽ xuất hiện ở đây sau khi xử lý...
+          </div>
+        </div>
+
+        <div class="translator__action">
+          <button class="btn btn--primary">Dịch ngay</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p class="footer__text">© 2026 Site name</p>
+    </footer>
+  </body>
+</html>

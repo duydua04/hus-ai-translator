@@ -1,0 +1,45 @@
+/* PAGINATION */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border2);
+}
+
+.pagination__info {
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--ink4);
+}
+
+.pagination__btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12.5px;
+  font-family: "DM Mono", monospace;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink2);
+  transition: all 0.12s;
+}
+
+.pagination__btn:hover {
+  background: var(--g50);
+  border-color: var(--g300);
+  color: var(--g700);
+}
+
+.pagination__btn--active {
+  background: var(--g500);
+  border-color: var(--g500);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(74, 158, 85, 0.35);
+}

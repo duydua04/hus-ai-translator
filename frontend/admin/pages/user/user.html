@@ -1,0 +1,258 @@
+<div class="page page--active" id="page-users">
+  <div class="filter-bar">
+    <div class="search">
+      <i class="bx bx-search search__icon"></i>
+      <input class="search__input" placeholder="Tìm theo tên, email..." />
+    </div>
+    <div class="filter-bar__actions">
+      <select class="filter-select">
+        <option>Tất cả trạng thái</option>
+        <option>Đang hoạt động</option>
+        <option>Bị vô hiệu hóa</option>
+        <option>Chờ xác thực</option>
+      </select>
+      <select class="filter-select">
+        <option>Tất cả gói</option>
+        <option>Miễn phí</option>
+        <option>Pro</option>
+        <option>Doanh nghiệp</option>
+      </select>
+      <select class="filter-select">
+        <option>Mới nhất trước</option>
+        <option>Cũ nhất trước</option>
+        <option>Hoạt động nhiều</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="data-table">
+    <table>
+      <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 14%" />
+        <col style="width: 13%" />
+        <col style="width: 13%" />
+        <col style="width: 12%" />
+        <col style="width: 14%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Người dùng</th>
+          <th>Gói</th>
+          <th>Trạng thái</th>
+          <th>Ngày đăng ký</th>
+          <th>Bản dịch</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="background: #c8edd0; color: #163d1a"
+              >
+                NH
+              </div>
+              <div>
+                <div class="user-cell__name">Nguyễn Hải</div>
+                <div class="user-cell__email">nguyenhai@email.com</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge--pro">Pro</span></td>
+          <td>
+            <span class="badge badge--active"
+              ><span class="badge__dot"></span>Hoạt động</span
+            >
+          </td>
+          <td><span class="cell-date">12/03/2025</span></td>
+          <td><span class="cell-number">1.240</span></td>
+          <td>
+            <button class="table-action">Chi tiết</button>
+            <button
+              class="table-action table-action--lock"
+              style="margin-left: 4px"
+            >
+              Khóa
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="background: #fef3e2; color: #b7640a"
+              >
+                TL
+              </div>
+              <div>
+                <div class="user-cell__name">Trần Lan</div>
+                <div class="user-cell__email">tran.lan@gmail.com</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge--free">Miễn phí</span></td>
+          <td>
+            <span class="badge badge--active"
+              ><span class="badge__dot"></span>Hoạt động</span
+            >
+          </td>
+          <td><span class="cell-date">05/07/2025</span></td>
+          <td><span class="cell-number">87</span></td>
+          <td>
+            <button class="table-action">Chi tiết</button>
+            <button
+              class="table-action table-action--lock"
+              style="margin-left: 4px"
+            >
+              Khóa
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="background: #e6f0fb; color: #1a5fa8"
+              >
+                PD
+              </div>
+              <div>
+                <div class="user-cell__name">Phạm Đức</div>
+                <div class="user-cell__email">pham.duc@work.vn</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge--ent">Doanh nghiệp</span></td>
+          <td>
+            <span class="badge badge--inactive"
+              ><span class="badge__dot"></span>Bị khóa</span
+            >
+          </td>
+          <td><span class="cell-date">22/01/2025</span></td>
+          <td><span class="cell-number">3.871</span></td>
+          <td>
+            <button class="table-action">Chi tiết</button>
+            <button
+              class="table-action table-action--unlock"
+              style="margin-left: 4px"
+            >
+              Mở khóa
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="background: #f5eef8; color: #6c3483"
+              >
+                LM
+              </div>
+              <div>
+                <div class="user-cell__name">Lê Minh</div>
+                <div class="user-cell__email">leminh99@yahoo.com</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge--free">Miễn phí</span></td>
+          <td>
+            <span class="badge badge--active"
+              ><span class="badge__dot"></span>Hoạt động</span
+            >
+          </td>
+          <td><span class="cell-date">30/09/2025</span></td>
+          <td><span class="cell-number">34</span></td>
+          <td>
+            <button class="table-action">Chi tiết</button>
+            <button
+              class="table-action table-action--lock"
+              style="margin-left: 4px"
+            >
+              Khóa
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="background: #fdecea; color: #c0392b"
+              >
+                VT
+              </div>
+              <div>
+                <div class="user-cell__name">Vũ Thảo</div>
+                <div class="user-cell__email">vuthao@company.com</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge--pro">Pro</span></td>
+          <td>
+            <span class="badge badge--pending"
+              ><span class="badge__dot"></span>Chờ xác thực</span
+            >
+          </td>
+          <td><span class="cell-date">14/11/2025</span></td>
+          <td><span class="cell-number">12</span></td>
+          <td>
+            <button class="table-action">Chi tiết</button>
+            <button
+              class="table-action table-action--lock"
+              style="margin-left: 4px"
+            >
+              Khóa
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div
+                class="user-cell__avatar"
+                style="background: #c8edd0; color: #0d2d12"
+              >
+                BK
+              </div>
+              <div>
+                <div class="user-cell__name">Bùi Khoa</div>
+                <div class="user-cell__email">buikhoa@edu.vn</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge--ent">Doanh nghiệp</span></td>
+          <td>
+            <span class="badge badge--active"
+              ><span class="badge__dot"></span>Hoạt động</span
+            >
+          </td>
+          <td><span class="cell-date">18/08/2024</span></td>
+          <td><span class="cell-number">9.102</span></td>
+          <td>
+            <button class="table-action">Chi tiết</button>
+            <button
+              class="table-action table-action--lock"
+              style="margin-left: 4px"
+            >
+              Khóa
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="pagination__info">Hiển thị 1–6 / 156 người dùng</span>
+      <button class="pagination__btn">‹</button>
+      <button class="pagination__btn pagination__btn--active">1</button>
+      <button class="pagination__btn">2</button>
+      <button class="pagination__btn">3</button>
+      <button class="pagination__btn">›</button>
+    </div>
+  </div>
+</div>
