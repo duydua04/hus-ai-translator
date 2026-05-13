@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import UserAPI from "../api/UserApi";
 
-// Chuyển API field → UI field
+// Chuyển API field => UI field
 function normalizeUser(u) {
   return {
     id: u.id,
@@ -39,7 +39,7 @@ export function useUsers() {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     page: 1,
-    limit: 20,
+    limit: 5,
     search: "",
     status: "",
     plan: "",

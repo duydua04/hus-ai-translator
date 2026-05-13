@@ -323,7 +323,7 @@
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--ink3);
-  text-align: left;
+  text-align: center;
 }
 
 .data-table td {
@@ -332,6 +332,7 @@
   color: var(--ink);
   vertical-align: middle;
   font-size: 13px;
+  text-align: center;
 }
 
 .data-table tbody tr:last-child td {
@@ -347,6 +348,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
+  text-align: left;
 }
 
 .user-cell__avatar {

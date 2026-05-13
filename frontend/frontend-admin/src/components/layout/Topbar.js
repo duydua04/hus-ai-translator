@@ -13,6 +13,8 @@ export default function Topbar() {
     title = "Quản lý người dùng";
   } else if (path.startsWith("/feedback")) {
     title = "Quản lý Feedback";
+  } else if (path.startsWith("/languages")) {
+    title = "Quản lý ngôn ngữ";
   }
 
   return (

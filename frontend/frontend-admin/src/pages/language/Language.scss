@@ -1,0 +1,107 @@
+#page-languages table colgroup col:nth-child(1) {
+  width: 10%;
+}
+#page-languages table colgroup col:nth-child(2) {
+  width: 40%;
+}
+#page-languages table colgroup col:nth-child(3) {
+  width: 20%;
+}
+#page-languages table colgroup col:nth-child(4) {
+  width: 15%;
+}
+
+#page-languages {
+  .lang-code {
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
+  }
+
+  .lang-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 16px;
+    background: var(--g500);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.88;
+    }
+
+    i {
+      font-size: 16px;
+    }
+  }
+
+  .btn-submit {
+    height: 36px;
+    padding: 0 20px;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    &:not(:disabled):hover {
+      opacity: 0.88;
+    }
+  }
+
+  .btn-cancel {
+    height: 36px;
+    padding: 0 20px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: var(--color-hover);
+    }
+  }
+
+  .page-error {
+    font-size: 13px;
+    color: var(--color-danger, #e53e3e);
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 767px) {
+    th:nth-child(3),
+    td:nth-child(3) {
+      display: none;
+    }
+
+    table {
+      min-width: unset;
+    }
+  }
+}
