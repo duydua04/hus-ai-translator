@@ -23,6 +23,16 @@ export default function useTranslation() {
     setSuccess(null);
   }, []);
 
+  const showError = useCallback((msg) => {
+    setError(msg);
+    setTimeout(() => setError(null), 3000);
+  }, []);
+
+  const showSuccess = useCallback((msg) => {
+    setSuccess(msg);
+    setTimeout(() => setSuccess(null), 3000);
+  }, []);
+
   const fetchLanguages = useCallback(async () => {
     try {
       const data = await apiGetLanguages();
@@ -35,16 +45,15 @@ export default function useTranslation() {
   // Dịch văn bản thuần
   const translateText = useCallback(async (payload) => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
+    clearMessages();
     try {
       const data = await apiTranslateText(payload);
       setResult(data);
-      setSuccess("Dịch văn bản thành công.");
+      showSuccess("Dịch văn bản thành công.");
       return { success: true, data };
     } catch (err) {
       const msg = err.response?.data?.detail || "Dịch văn bản thất bại.";
-      setError(msg);
+      showError(msg);
       return { success: false, message: msg };
     } finally {
       setLoading(false);
@@ -54,8 +63,7 @@ export default function useTranslation() {
   // Dịch tài liệu
   const translateDocument = useCallback(async (payload) => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
+    clearMessages();
     try {
       const formData = new FormData();
 
@@ -67,9 +75,7 @@ export default function useTranslation() {
       const data = await apiTranslateDocument(formData);
 
       setResult(data);
-      setSuccess("Dịch tài liệu thành công.");
-
-      setTimeout(() => setSuccess(null), 3000);
+      showSuccess("Dịch tài liệu thành công.");
       return { success: true, data };
     } catch (err) {
       console.error("Chi tiết lỗi:", err);
@@ -86,7 +92,7 @@ export default function useTranslation() {
         errorMsg = err.message;
       }
 
-      setError(errorMsg);
+      showError(errorMsg);
       return { success: false, message: errorMsg };
     } finally {
       setLoading(false);
@@ -105,7 +111,7 @@ export default function useTranslation() {
     } catch (err) {
       const msg =
         err.response?.data?.detail || "Không thể tải lịch sử dịch thuật.";
-      setError(msg);
+      showError(msg);
       return { success: false, message: msg };
     } finally {
       setLoading(false);
@@ -123,7 +129,7 @@ export default function useTranslation() {
     } catch (err) {
       const msg =
         err.response?.data?.detail || "Không thể tải chi tiết bản dịch.";
-      setError(msg);
+      showError(msg);
       return { success: false, message: msg };
     } finally {
       setLoading(false);
@@ -133,17 +139,16 @@ export default function useTranslation() {
   // Xóa một bản dịch
   const removeTranslation = useCallback(async (translationId) => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
+    clearMessages();
     try {
       const data = await apiDeleteTranslation(translationId);
       setHistory((prev) => prev.filter((t) => t.id !== translationId));
       setTotal((prev) => prev - 1);
-      setSuccess(data.message || "Đã xóa bản dịch khỏi lịch sử.");
+      showSuccess(data.message || "Đã xóa bản dịch khỏi lịch sử.");
       return { success: true };
     } catch (err) {
       const msg = err.response?.data?.detail || "Xóa bản dịch thất bại.";
-      setError(msg);
+      showError(msg);
       return { success: false, message: msg };
     } finally {
       setLoading(false);

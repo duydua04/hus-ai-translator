@@ -45,7 +45,7 @@ function Header({ user, logout }) {
       <div className="header__left">
         <Link to="/home/text" className="header__brand">
           <i className="bx bx-store header__brand-icon"></i>
-          <span className="header__brand-text">Site name</span>
+          <span className="header__brand-text">transde</span>
         </Link>
 
         <nav className="header__nav">
