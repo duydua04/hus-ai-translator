@@ -11,7 +11,21 @@ export default function useProfile() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Lấy thông tin hồ sơ khi mount
+  const showError = useCallback((msg) => {
+    setError(msg);
+    setTimeout(() => setError(null), 3000);
+  }, []);
+
+  const showSuccess = useCallback((msg) => {
+    setSuccess(msg);
+    setTimeout(() => setSuccess(null), 3000);
+  }, []);
+
+  const clearMessages = useCallback(() => {
+    setError(null);
+    setSuccess(null);
+  }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
@@ -19,7 +33,7 @@ export default function useProfile() {
         const data = await getProfile();
         setProfile(data);
       } catch (err) {
-        setError(
+        showError(
           err.response?.data?.detail || "Không thể tải thông tin hồ sơ."
         );
       } finally {
@@ -29,47 +43,37 @@ export default function useProfile() {
     fetchProfile();
   }, []);
 
-  // Cập nhật họ tên / ngôn ngữ
   const updateProfile = useCallback(async (payload) => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
+    clearMessages();
     try {
       const data = await apiUpdateProfile(payload);
       setProfile(data);
-      setSuccess("Cập nhật hồ sơ thành công.");
+      showSuccess("Cập nhật hồ sơ thành công.");
       return { success: true };
     } catch (err) {
       const msg = err.response?.data?.detail || "Cập nhật thất bại.";
-      setError(msg);
+      showError(msg);
       return { success: false, message: msg };
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Đổi mật khẩu
   const changePassword = useCallback(async (payload) => {
     setLoading(true);
-    setError(null);
-    setSuccess(null);
+    clearMessages();
     try {
       const data = await apiChangePassword(payload);
-      setSuccess(data.message || "Đổi mật khẩu thành công.");
+      showSuccess(data.message || "Đổi mật khẩu thành công.");
       return { success: true };
     } catch (err) {
       const msg = err.response?.data?.detail || "Đổi mật khẩu thất bại.";
-      setError(msg);
+      showError(msg);
       return { success: false, message: msg };
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  // Xoá thông báo sau một khoảng thời gian
-  const clearMessages = useCallback(() => {
-    setError(null);
-    setSuccess(null);
   }, []);
 
   return {

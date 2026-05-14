@@ -4,6 +4,7 @@ import useProfile from "../../hooks/useProfile";
 import InfoTab from "./InfoTab";
 import PasswordTab from "./PasswordTab";
 import AccountTab from "./AccountTab";
+import FeedbackPage from "../Feedback/FeedbackPage";
 
 // Helpers
 const getInitials = (profile) => {
@@ -34,6 +35,7 @@ const TABS = [
   { key: "account", label: "Tài khoản" },
   { key: "info", label: "Cập nhật" },
   { key: "password", label: "Đổi mật khẩu" },
+  { key: "feedback", label: "Đánh giá" },
 ];
 
 export default function Profile() {
@@ -105,6 +107,7 @@ export default function Profile() {
         </div>
 
         {/* Tab content */}
+        {activeTab === "account" && <AccountTab profile={profile} />}
         {activeTab === "info" && (
           <InfoTab
             profile={profile}
@@ -115,7 +118,6 @@ export default function Profile() {
             onClearMessages={clearMessages}
           />
         )}
-        {activeTab === "account" && <AccountTab profile={profile} />}
         {activeTab === "password" && (
           <PasswordTab
             loading={loading}
@@ -125,6 +127,7 @@ export default function Profile() {
             onClearMessages={clearMessages}
           />
         )}
+        {activeTab === "feedback" && <FeedbackPage />}
       </div>
     </div>
   );

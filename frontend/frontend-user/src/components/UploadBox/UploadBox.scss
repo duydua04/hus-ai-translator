@@ -1,3 +1,60 @@
 .upload__error {
   color: #e05252;
 }
+
+.upload__selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; // Đẩy dung lượng về bên phải
+  background: var(--clr-primary-light, #f0f4ff);
+  border: 1.2px solid var(--clr-border, #e2e8f0);
+  border-radius: var(--radius-sm, 6px);
+  padding: 8px 12px;
+  width: 100%;
+  animation: fadeIn 0.2s ease;
+
+  &-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    overflow: hidden; // Tránh tên file quá dài làm vỡ layout
+  }
+
+  &-icon {
+    font-size: 1.2rem;
+    color: var(--clr-primary, #4f46e5);
+    flex-shrink: 0;
+  }
+
+  &-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--clr-text, #1e293b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; // Cắt tên file bằng dấu ... nếu quá dài
+  }
+
+  &-size {
+    font-size: 0.8rem;
+    color: var(--clr-text-muted, #64748b);
+    font-weight: 600;
+
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
