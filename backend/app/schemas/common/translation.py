@@ -1,4 +1,4 @@
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, UUID4, Field
 from typing import Optional
 
 class FileTranslationStartRequest(BaseModel):
@@ -12,3 +12,9 @@ class WebhookTranslationDone(BaseModel):
     status: str                   # "success" hoặc "failed"
     result_path: Optional[str] = None  # Link MinIO của file sau khi dịch
     error_message: Optional[str] = None
+
+
+class TextTranslationRequest(BaseModel):
+    text: str = Field(..., description="Văn bản cần dịch")
+    source_lang_code: str = Field(..., description="Mã ngôn ngữ nguồn (en, vi)")
+    target_lang_code: str = Field(..., description="Mã ngôn ngữ đích (en, vi)")

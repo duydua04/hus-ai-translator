@@ -14,3 +14,4 @@ itsdangerous
 alembic
 minio==7.2.18
 redis==7.0.1
+httpx==0.28.1

@@ -44,7 +44,8 @@ class Settings(BaseSettings):
     MINIO_SECURE: bool = False
     MINIO_BUCKET_NAME: str = "transminer-uploads"
 
-    REDIS_URL: str 
+    REDIS_URL: str
+    TRANSLATE_MODEL_URL: str
 
     @property
     def is_production(self) -> bool:
