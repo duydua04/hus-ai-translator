@@ -83,9 +83,13 @@ class TranslationService:
 
     async def handle_webhook_result(self, payload: WebhookTranslationDone) -> Dict[str, bool]:
         """
-        Xử lý khi AI Worker làm xong: Cập nhật DB, tạo MediaAsset kết quả
+        Xử lý khi AI Worker làm xong: Cập nhật DB, tạo MediaAsset kết quả,
+        sau đó bắn SSE "completed" / "failed" cho Frontend.
+
+        QUAN TRỌNG: SSE "completed" chỉ được bắn SAU KHI DB đã commit thành công.
+        Điều này đảm bảo khi Frontend nhận "completed" → DB đã sẵn sàng để query.
         """
-        # 1. Tìm bản dịch bằng cú pháp Async
+        # 1. Tìm bản dịch
         trans_result = await self.db.execute(
             select(Translation).where(Translation.id == payload.translation_id)
         )
@@ -112,7 +116,7 @@ class TranslationService:
                     file_type="document"
                 )
                 self.db.add(result_asset)
-                await self.db.flush()  # Lấy ID của result_asset trước khi commit
+                await self.db.flush()
 
                 # 4. Móc vào Translation
                 translation.result_file_id = result_asset.id
@@ -122,10 +126,47 @@ class TranslationService:
                 translation.status = "failed"
 
             await self.db.commit()
+
+            # 6. BẮN SSE SAU KHI DB ĐÃ COMMIT — Frontend nhận được = DB sẵn sàng
+            if payload.status == "success":
+                await sse_manager.publish_message(
+                    client_id=payload.client_id,
+                    message={
+                        "status": "completed",
+                        "progress": 100,
+                        "message": "Hoàn tất! Bản dịch đã sẵn sàng.",
+                        "translation_id": str(payload.translation_id),
+                        "result_path": payload.result_path,
+                    }
+                )
+            else:
+                await sse_manager.publish_message(
+                    client_id=payload.client_id,
+                    message={
+                        "status": "failed",
+                        "progress": 0,
+                        "message": payload.error_message or "Dịch tài liệu thất bại.",
+                        "translation_id": str(payload.translation_id),
+                    }
+                )
+
             return {"success": True}
 
         except Exception as e:
             await self.db.rollback()
+            # Bắn SSE lỗi để FE không bị treo
+            try:
+                await sse_manager.publish_message(
+                    client_id=payload.client_id,
+                    message={
+                        "status": "failed",
+                        "progress": 0,
+                        "message": "Lỗi hệ thống khi lưu kết quả.",
+                        "translation_id": str(payload.translation_id),
+                    }
+                )
+            except Exception:
+                pass
             print(f"Lỗi xử lý Webhook: {e}")
             raise HTTPException(status_code=500, detail="Lỗi khi lưu kết quả vào Database")
 

@@ -59,14 +59,14 @@ async def sse_endpoint(client_id: str, request: Request):
 @router.post("/send-translation/{client_id}", tags=["SSE"])
 async def trigger_translation_result(client_id: str, payload: TranslationMessage):
     """
-    API dùng để đẩy thông báo xuống Frontend đang mở kết nối.
+    API test — đẩy thông báo SSE xuống Frontend đang mở kết nối.
     Nhận payload chuẩn theo Schema TranslationMessage.
     """
-    # Chuyển Pydantic model thành Dictionary và gửi cho Redis Manager
-    await sse_manager.publish_message(client_id, payload.model_dump())
+    message_dict = payload.model_dump(exclude_none=True)
+    await sse_manager.publish_message(client_id, message_dict)
 
     return {
         "status": "success",
         "message": f"Đã publish tiến độ vào kênh sse_{client_id}",
-        "data_sent": payload.model_dump()
+        "data_sent": message_dict
     }

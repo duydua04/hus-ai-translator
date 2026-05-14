@@ -86,9 +86,8 @@ def process_file_task(task_data: dict):
             minio_client.fput_object(BUCKET_NAME, output_obj_name, local_output)
             result_path = f"{BUCKET_NAME}/{output_obj_name}"
 
-            # 5. BÁO CÁO HOÀN THÀNH SSE & WEBHOOK
             print(f"[-] Dịch xong! File: {result_path}")
-            sse_callback({"status": "completed", "progress": 100, "message": "Hoàn tất!", "result_path": result_path})
+            sse_callback({"status": "finalizing", "progress": 98, "message": "Đang lưu kết quả vào hệ thống..."})
 
             requests.post(BACKEND_WEBHOOK_URL, json={
                 "translation_id": translation_id,
@@ -124,8 +123,8 @@ def process_file_task(task_data: dict):
 
 def start_worker():
     print("==================================================")
-    print("🚀 AI WORKER (GOOGLE TRANSLATE) SẴN SÀNG")
-    print(f"🎧 Lắng nghe Redis Queue: {QUEUE_NAME}")
+    print("WORKER (GOOGLE TRANSLATE) SẴN SÀNG")
+    print(f"Lắng nghe Redis Queue: {QUEUE_NAME}")
     print("==================================================")
 
     while True:
