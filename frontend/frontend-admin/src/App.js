@@ -10,7 +10,7 @@ import Layout from "./components/layout/Layout";
 
 import Login from "./pages/auth/Login";
 import UsersPage from "./pages/users/UsersPage";
-import FeedbackDashPage from "./pages/feedback/FeedbackDashPage";
+import DashPage from "./pages/dashboard/DashPage";
 import FeedbackListPage from "./pages/feedback/FeedbackListPage";
 import NotFound from "./pages/nf/NotFound";
 import LanguagesPage from "./pages/language/Language";
@@ -39,7 +39,7 @@ export default function App() {
           path="/login"
           element={
             admin ? (
-              <Navigate to="/users" />
+              <Navigate to="/dash" />
             ) : (
               <Login login={login} loading={loading} error={error} />
             )
@@ -54,9 +54,9 @@ export default function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Navigate to="/users" />} />
+          <Route index element={<Navigate to="/dash" />} />
           <Route path="users" element={<UsersPage />} />
-          <Route path="feedback/dash" element={<FeedbackDashPage />} />
+          <Route path="dash" element={<DashPage />} />
           <Route path="feedback/list" element={<FeedbackListPage />} />
           <Route path="languages" element={<LanguagesPage />} />
         </Route>

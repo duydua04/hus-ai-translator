@@ -3,7 +3,7 @@ import MetricCard from "./MetricCard";
 import BarChartCard from "./BarChartCard";
 import DonutChartCard from "./DonutChartCard";
 import { useFeedbackDashboard } from "../../hooks/useFeedback";
-import "./FeedbackDashPage.scss";
+import "./DashPage.scss";
 
 export default function FeedbackDashPage() {
   const { data, loading, period, setPeriod } = useFeedbackDashboard();
@@ -19,8 +19,7 @@ export default function FeedbackDashPage() {
     <div className="page page--active" id="page-feedback-dash">
       <div className="page__header">
         <div>
-          <div className="page__title">Dashboard Feedback</div>
-          <div className="page__subtitle">Tổng quan đánh giá người dùng</div>
+          <div className="page__title">Tổng quan hệ thống</div>
         </div>
         <select
           className="filter-select"
