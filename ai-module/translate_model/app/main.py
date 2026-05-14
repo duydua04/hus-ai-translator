@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from api import router as translation_router
+from app.api import router as translation_router
 
 app = FastAPI(
     title="AI Translation Service",

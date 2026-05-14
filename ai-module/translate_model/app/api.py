@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from schema import TranslateRequest, TranslateResponse
-from engine import translation_engine
+from app.schema import TranslateRequest, TranslateResponse
+from app.engine import translation_engine
 
 router = APIRouter(
     prefix="/api/v1",

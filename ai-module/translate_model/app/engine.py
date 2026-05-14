@@ -3,7 +3,7 @@ import ctranslate2
 from transformers import AutoTokenizer
 import nltk
 from nltk.tokenize import sent_tokenize
-from schema import TranslateRequest
+from app.schema import TranslateRequest
 
 try:
     nltk.data.find('tokenizers/punkt')
