@@ -115,7 +115,6 @@ class AdminFeedbackService:
                 "type": translation.type if translation else None,
                 "input_content": translation.input_content if translation else None,
                 "translated_content": translation.translated_content if translation else None,
-                "llm_model": translation.llm_model if translation else None,
                 "status": translation.status if translation else None,
             },
             "user": {
@@ -129,86 +128,44 @@ class AdminFeedbackService:
     # --------------------------------------------------
     # THỐNG KÊ CHẤT LƯỢNG THEO RATING
     # --------------------------------------------------
-    async def get_quality_stats(self, llm_model: Optional[str] = None) -> dict:
+    async def get_quality_stats(self) -> dict:
         """
         Thống kê chất lượng bản dịch theo rating:
           - Điểm trung bình toàn hệ thống
           - Phân bổ số lượng theo từng mức sao (1★ → 5★)
           - Tổng số bản dịch đã có bản sửa tay (corrected_content)
-          - Nếu truyền llm_model thì lọc thống kê cho model đó
-        Dùng để so sánh chất lượng giữa các model AI.
         """
-        # Base query — join với translations để lọc theo llm_model nếu cần
-        base_stmt = select(TranslationFeedback)
-        if llm_model:
-            base_stmt = (
-                base_stmt
-                .join(Translation, TranslationFeedback.translation_id == Translation.id)
-                .where(Translation.llm_model == llm_model)
-            )
-
         # Điểm trung bình
-        avg_stmt = select(func.avg(TranslationFeedback.rating).cast(Float))
-        if llm_model:
-            avg_stmt = (
-                avg_stmt
-                .select_from(TranslationFeedback)
-                .join(Translation, TranslationFeedback.translation_id == Translation.id)
-                .where(Translation.llm_model == llm_model)
-            )
-        avg_result = await self.db.execute(avg_stmt)
+        avg_result = await self.db.execute(
+            select(func.avg(TranslationFeedback.rating).cast(Float))
+        )
         avg_rating = avg_result.scalar_one()
 
         # Phân bổ theo từng mức sao
         distribution = {}
         for star in range(1, 6):
-            star_stmt = select(func.count(TranslationFeedback.id)).where(
-                TranslationFeedback.rating == star
-            )
-            if llm_model:
-                star_stmt = (
-                    select(func.count(TranslationFeedback.id))
-                    .select_from(TranslationFeedback)
-                    .join(Translation, TranslationFeedback.translation_id == Translation.id)
-                    .where(
-                        TranslationFeedback.rating == star,
-                        Translation.llm_model == llm_model,
-                    )
+            star_result = await self.db.execute(
+                select(func.count(TranslationFeedback.id)).where(
+                    TranslationFeedback.rating == star
                 )
-            star_result = await self.db.execute(star_stmt)
+            )
             distribution[f"{star}_star"] = star_result.scalar_one()
 
         # Tổng số bản dịch có bản sửa tay
-        corrected_stmt = select(func.count(TranslationFeedback.id)).where(
-            TranslationFeedback.corrected_content.isnot(None)
-        )
-        if llm_model:
-            corrected_stmt = (
-                select(func.count(TranslationFeedback.id))
-                .select_from(TranslationFeedback)
-                .join(Translation, TranslationFeedback.translation_id == Translation.id)
-                .where(
-                    TranslationFeedback.corrected_content.isnot(None),
-                    Translation.llm_model == llm_model,
-                )
+        corrected_result = await self.db.execute(
+            select(func.count(TranslationFeedback.id)).where(
+                TranslationFeedback.corrected_content.isnot(None)
             )
-        corrected_result = await self.db.execute(corrected_stmt)
+        )
         total_corrected = corrected_result.scalar_one()
 
         # Tổng số feedback
-        total_stmt = select(func.count(TranslationFeedback.id))
-        if llm_model:
-            total_stmt = (
-                select(func.count(TranslationFeedback.id))
-                .select_from(TranslationFeedback)
-                .join(Translation, TranslationFeedback.translation_id == Translation.id)
-                .where(Translation.llm_model == llm_model)
-            )
-        total_result = await self.db.execute(total_stmt)
+        total_result = await self.db.execute(
+            select(func.count(TranslationFeedback.id))
+        )
         total = total_result.scalar_one()
 
         return {
-            "llm_model": llm_model or "all",
             "total_feedbacks": total,
             "average_rating": round(avg_rating, 2) if avg_rating else 0,
             "distribution": distribution,

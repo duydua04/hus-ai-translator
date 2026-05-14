@@ -1,0 +1,193 @@
+# ====================================================================
+# docker-compose.yml — HUS AI Translator
+# ====================================================================
+# Chạy:  docker compose up -d
+#
+# Các service:
+#   - postgres        : Cơ sở dữ liệu PostgreSQL 15
+#   - redis           : Message queue + Pub/Sub + Cache
+#   - minio           : Object storage (lưu file PDF)
+#   - backend         : FastAPI Backend (Python 3.11)
+#   - translate_model : AI dịch text EN↔VI (CTranslate2, port 8001)
+#   - layout_model    : AI Worker dịch file PDF (Google Translate)
+#
+# Frontend KHÔNG đóng gói (chạy riêng trên host).
+# ====================================================================
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:15
+    container_name: transminer_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secretpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_translator}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - transminer_net
+
+  # ── Redis ───────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: transminer_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - transminer_net
+
+  # ── MinIO ───────────────────────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: transminer_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-admin123}
+    ports:
+      - "9004:9000"    # API port
+      - "9001:9001"    # Console UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - transminer_net
+
+  # ── Backend (FastAPI) ───────────────────────────────────────────
+  # Python 3.11 — API chính của hệ thống
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: transminer_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # Database — hostname nội bộ Docker
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secretpassword}@postgres:5432/${POSTGRES_DB:-ai_translator}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secretpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_translator}
+      # JWT
+      OAUTH2_SECRET_KEY: ${OAUTH2_SECRET_KEY:-RKHm51AS114286DEAmzIhcQ1F2yyriK6_FGZTRtE3vNQBNMUXEHPkSF85x3W9pm-4i2hJRt9CVxVSLdvDFPdCg}
+      OAUTH2_ALGORITHM: HS256
+      OAUTH2_ACCESS_TOKEN_EXPIRE_MINUTES: "180"
+      OAUTH2_REFRESH_TOKEN_EXPIRE_DAYS: "30"
+      # Admin
+      FIRST_ADMIN_SECRET: ${FIRST_ADMIN_SECRET:-VungOiMoRa123}
+      # Session
+      SECRET_KEY: ${SECRET_KEY:-eBhsvz-1DGtbncyPEZN5CyfSqqkaRHZZMWjM0KCCgWtHNzHuZS0vmGMRjGdSLd1ID__fA8ZGu4f8NhuA-0rarA}
+      # App
+      APP_ENV: production
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      ADMIN_URL: ${ADMIN_URL:-http://localhost:3001}
+      # MinIO — hostname nội bộ Docker, port nội bộ 9000
+      MINIO_ENDPOINT: minio:9000
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-localhost:9004}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-admin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-admin123}
+      MINIO_SECURE: "False"
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-transminer-uploads}
+      # Redis — hostname nội bộ Docker
+      REDIS_URL: redis://redis:6379
+      # Translate Model — hostname nội bộ Docker
+      TRANSLATE_MODEL_URL: http://translate_model:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - transminer_net
+
+  # ── Translate Model (FastAPI) ───────────────────────────────────
+  # Python 3.10 — API dịch text EN↔VI bằng CTranslate2
+  translate_model:
+    build:
+      context: ./ai-module/translate_model
+      dockerfile: Dockerfile
+    container_name: transminer_translate_model
+    restart: always
+    ports:
+      - "8001:8001"
+    volumes:
+      # Mount models riêng — không copy ~1.2GB vào image
+      - ./ai-module/translate_model/models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/docs')"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - transminer_net
+
+  # ── Layout Model (AI Worker) ────────────────────────────────────
+  # Python 3.10 — Worker dịch file PDF, lắng nghe Redis Queue
+  # KHÔNG expose port — giao tiếp qua Redis + Webhook
+  layout_model:
+    build:
+      context: ./ai-module/layout-model
+      dockerfile: Dockerfile
+    container_name: transminer_layout_model
+    restart: always
+    environment:
+      # Redis — hostname nội bộ Docker
+      REDIS_URL: redis://redis:6379
+      TRANSLATION_FILE_QUEUE: translation_tasks_queue
+      # MinIO — hostname nội bộ Docker, port nội bộ 9000
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-admin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-admin123}
+      MINIO_SECURE: "False"
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-transminer-uploads}
+      # Backend Webhook — cùng Docker network, gọi trực tiếp
+      BACKEND_WEBHOOK_URL: http://backend:8000/api/webhook/translation-done
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      backend:
+        condition: service_started
+    networks:
+      - transminer_net
+
+# ── Volumes ─────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+# ── Network ─────────────────────────────────────────────────────
+networks:
+  transminer_net:
+    driver: bridge

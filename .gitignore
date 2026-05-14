@@ -2,6 +2,11 @@
 venv/
 .idea/
 __pycache__/
+*.pyc
+logs/
+plugins/
 airflow/
 .vscode/
 node_modules/
+ai-module/translate_model/models/**/*.bin
+.venv/
