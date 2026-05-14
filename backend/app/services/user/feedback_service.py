@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...config.db import get_db
 from ...models.models import Translation, TranslationFeedback
+from ...services.admin.admin_dashboard_service import AdminDashboardService
 from ...schemas.user.feedback_schema import (
     FeedbackCreateRequest,
     FeedbackUpdateRequest,
@@ -75,6 +76,18 @@ class FeedbackService:
         self.db.add(new_feedback)
         await self.db.commit()
         await self.db.refresh(new_feedback)
+
+        # Notify admin dashboard
+        try:
+            admin_svc = AdminDashboardService(self.db)
+            await admin_svc.invalidate_on_feedback()
+            await AdminDashboardService.notify_admin(
+                event_type="new_feedback",
+                message=f"Có đánh giá mới: {payload.rating}★",
+                data={"feedback_id": str(new_feedback.id), "rating": payload.rating},
+            )
+        except Exception:
+            pass
 
         return FeedbackResponse.model_validate(new_feedback)
 

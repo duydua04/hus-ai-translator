@@ -1,4 +1,3 @@
-# Đường dẫn: layout-model/worker.py
 import os
 import json
 import time
@@ -8,12 +7,8 @@ import traceback
 from minio import Minio
 from dotenv import load_dotenv
 
-# Import Pipeline ổn định của bạn
 from pipeline import DocumentTranslationPipeline
 
-# ==========================================
-# 1. CẤU HÌNH HẠ TẦNG TỪ .env
-# ==========================================
 load_dotenv()
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")

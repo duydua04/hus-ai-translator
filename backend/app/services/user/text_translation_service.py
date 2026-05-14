@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...config.db import get_db
 from ...config.settings import settings
 from ...models.models import Translation, Language
+from ...services.admin.admin_dashboard_service import AdminDashboardService
 
 TRANSLATE_MODEL_URL = settings.TRANSLATE_MODEL_URL
 
@@ -64,6 +65,18 @@ class TextTranslationService:
             new_translation.status = "success"
             await self.db.commit()
             await self.db.refresh(new_translation)
+
+            # Notify admin dashboard
+            try:
+                admin_svc = AdminDashboardService(self.db)
+                await admin_svc.invalidate_on_translation()
+                await AdminDashboardService.notify_admin(
+                    event_type="new_translation",
+                    message="Có bản dịch text mới.",
+                    data={"translation_id": str(new_translation.id)},
+                )
+            except Exception:
+                pass
 
             return {
                 "success": True,

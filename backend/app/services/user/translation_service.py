@@ -9,6 +9,7 @@ from ...config.db import get_db
 from ...schemas.common.translation import FileTranslationStartRequest, WebhookTranslationDone
 from ...models.models import Translation, MediaAsset
 from ...services.sse_manager import sse_manager
+from ...services.admin.admin_dashboard_service import AdminDashboardService
 
 QUEUE_NAME = "translation_tasks_queue"
 
@@ -149,6 +150,18 @@ class TranslationService:
                         "translation_id": str(payload.translation_id),
                     }
                 )
+
+            # 7. INVALIDATE ADMIN DASHBOARD CACHE + NOTIFY
+            try:
+                admin_svc = AdminDashboardService(self.db)
+                await admin_svc.invalidate_on_translation()
+                await AdminDashboardService.notify_admin(
+                    event_type="new_translation",
+                    message="Có bản dịch file mới hoàn thành.",
+                    data={"translation_id": str(payload.translation_id)},
+                )
+            except Exception:
+                pass  # Không để lỗi dashboard ảnh hưởng flow chính
 
             return {"success": True}
 
