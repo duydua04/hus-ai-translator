@@ -34,7 +34,6 @@ class TranslationSummary(BaseModel):
     type: Optional[str] = None
     input_content: Optional[str] = None
     translated_content: Optional[str] = None
-    llm_model: Optional[str] = None
     status: Optional[str] = None
 
 
@@ -86,7 +85,6 @@ class RatingDistribution(BaseModel):
 
 class FeedbackStatsResponse(BaseModel):
     """Response của GET /admin/feedback/stats — thống kê chất lượng."""
-    llm_model: str
     total_feedbacks: int
     average_rating: float
     distribution: Dict[str, int]   # giữ nguyên key "1_star"..."5_star" từ service

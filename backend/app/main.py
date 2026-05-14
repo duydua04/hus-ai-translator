@@ -17,22 +17,20 @@ from .config.settings import settings
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-# --- Import các API router ---
-# auth_api_router là router chính (services/common/auth_service.py)
 
+# --- Import các API router ---
 from .api.common.auth_api import router as auth_api_router
+from .api.common.language_router import router as language_router
+from .api.common.upload_router import upload_router
 from .api.admin.admin_user_router import router as admin_user_router
 from .api.admin.admin_feedback_router import router as admin_feedback_router
 from .api.admin.setup_admin import router as setup_admin_router
-from .api.common.language_router import router as language_router
 from .api.user.user_router import router as user_router
-
-from .api.feedback.feedback_router import router as feedback_router
-from .api.chat.chat_router import router as chat_router
-from .api import sse_route
-from .api.common.upload_router import upload_router
 from .api.user.translation_router import translate_router
+from .api.user.feedback_router import router as feedback_router
+from .api import sse_route
 from .services.sse_manager import sse_manager
+
 # =========================================================
 # KHỞI TẠO APP
 # =========================================================
@@ -67,18 +65,22 @@ app.add_middleware(
 # INCLUDE ROUTERS
 # =========================================================
 
-app.include_router(auth_api_router)         # /auth/...   (login, register, refresh, logout, forgot-password...)
+# --- Common ---
+app.include_router(auth_api_router)         # /auth/...
+app.include_router(language_router)         # /languages/...
+app.include_router(upload_router)           # /upload/...
+app.include_router(sse_route.router)        # /stream/...
+
+# --- Admin ---
 app.include_router(setup_admin_router)      # /api/internal/...
 app.include_router(admin_user_router)       # /api/admin/users/...
 app.include_router(admin_feedback_router)   # /api/admin/feedback/...
-app.include_router(language_router)         # /languages/...
-app.include_router(user_router)             # /user/...
 
-app.include_router(feedback_router)         # /feedback/...
-app.include_router(chat_router)             # /chat/...
-app.include_router(sse_route.router)   # /stream/...
-app.include_router(upload_router)
-app.include_router(translate_router)
+# --- User ---
+app.include_router(user_router)             # /user/...
+app.include_router(translate_router)        # /api/translations/...
+app.include_router(feedback_router)         # /api/user/feedbacks/...
+
 # =========================================================
 # HEALTH CHECK
 # =========================================================
