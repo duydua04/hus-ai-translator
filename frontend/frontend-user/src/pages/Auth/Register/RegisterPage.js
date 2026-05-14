@@ -29,7 +29,7 @@ export default function RegisterPage({ register, loading, error }) {
   const validate = () => {
     if (!form.full_name.trim()) return "Vui lòng nhập họ tên.";
     if (!form.email.trim()) return "Vui lòng nhập email.";
-    if (form.password.length < 6) return "Mật khẩu tối thiểu 6 ký tự.";
+    if (form.password.length < 8) return "Mật khẩu tối thiểu 8 ký tự.";
     if (form.password !== form.confirm_password)
       return "Mật khẩu xác nhận không khớp.";
     return null;
@@ -120,7 +120,7 @@ export default function RegisterPage({ register, loading, error }) {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder="Tối thiểu 6 ký tự"
+                placeholder="Tối thiểu 8 ký tự"
                 className="auth-form__input"
                 value={form.password}
                 onChange={handleChange}
