@@ -74,8 +74,6 @@ export default function DashPage() {
 
   return (
     <div className="dash-page">
-      <div className="dash-page__heading">Tổng quan hôm nay</div>
-
       <div className="metrics-grid">
         {METRICS.map((m) => (
           <MetricCard key={m.label} {...m} />

@@ -18,10 +18,17 @@ const fmt = (n) =>
     : String(n);
 
 export default function HourlyBarChart({ data, peakMorning, peakEvening }) {
-  const chartData = (data ?? []).map((d) => ({
-    hour: d.hour,
-    count: (d.text_count ?? 0) + (d.file_count ?? 0),
-  }));
+  const TIMEZONE_OFFSET = 7;
+
+  const chartData = (data ?? [])
+    .map((d) => {
+      const localHour = (d.hour + TIMEZONE_OFFSET) % 24;
+      return {
+        hour: localHour,
+        count: (d.text_count ?? 0) + (d.file_count ?? 0),
+      };
+    })
+    .sort((a, b) => a.hour - b.hour);
 
   const maxCount = Math.max(...chartData.map((d) => d.count), 0);
 
