@@ -9,7 +9,10 @@ const FeedbackAPI = {
     rating,
     translation_id,
   } = {}) => {
-    const params = { page, limit };
+    const params = {
+      limit,
+      offset: (page - 1) * limit,
+    };
     if (search) params.search = search;
     if (rating !== undefined && rating !== "") params.rating = rating;
     if (translation_id) params.translation_id = translation_id;

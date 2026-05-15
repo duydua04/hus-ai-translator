@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import FeedbackAPI from "../api/FeedbackApi";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function getInitials(name) {
   if (!name) return "?";
   return name
@@ -20,9 +18,6 @@ function resolveType(rating) {
   return { type: "negative", typeLabel: "Tiêu cực" };
 }
 
-// ─── Normalizers ──────────────────────────────────────────────────────────────
-
-// Dùng cho list (không có user info)
 function normalizeFeedbackItem(f) {
   const { type, typeLabel } = resolveType(f.rating);
   return {
@@ -44,7 +39,6 @@ function normalizeFeedbackItem(f) {
   };
 }
 
-// Dùng cho detail (có đầy đủ user + translation)
 function normalizeFeedbackDetail({ feedback, translation, user }) {
   const { type, typeLabel } = resolveType(feedback.rating);
   const name = user?.full_name || user?.email || "Ẩn danh";
@@ -52,14 +46,12 @@ function normalizeFeedbackDetail({ feedback, translation, user }) {
     id: feedback.id,
     translationId: feedback.translation_id,
     userId: feedback.user_id,
-    // User info
     name,
     email: user?.email || "—",
     tier: user?.tier || "—",
     initials: getInitials(name),
     avatarBg: "#e0e7ff",
     avatarColor: "#4f46e5",
-    // Feedback info
     rating: feedback.rating,
     correctedContent: feedback.corrected_content || "",
     feedbackNote: feedback.feedback_note || "",
@@ -68,7 +60,6 @@ function normalizeFeedbackDetail({ feedback, translation, user }) {
     createdAt: feedback.created_at
       ? new Date(feedback.created_at).toLocaleDateString("vi-VN")
       : "—",
-    // Translation info
     translation: translation
       ? {
           id: translation.id,
@@ -81,7 +72,6 @@ function normalizeFeedbackDetail({ feedback, translation, user }) {
   };
 }
 
-// Stats: rename fields cho dễ dùng ở UI
 function normalizeStats(s) {
   return {
     totalFeedbacks: s.total_feedbacks ?? 0,
@@ -90,8 +80,6 @@ function normalizeStats(s) {
     totalWithCorrection: s.total_with_correction ?? 0,
   };
 }
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useFeedbacks() {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -105,26 +93,24 @@ export function useFeedbacks() {
     limit: 5,
     search: "",
     rating: "",
-    tab: "all",
   });
 
-  // --- Detail modal ---
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
-
-  const buildParams = (f) => {
-    const params = { page: f.page, limit: f.limit };
-    if (f.search) params.search = f.search;
-    if (f.rating !== "") params.rating = Number(f.rating);
-    return params;
-  };
 
   const fetchFeedbacks = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await FeedbackAPI.getFeedbacks(buildParams(filters));
+      const params = {
+        page: filters.page,
+        limit: filters.limit,
+      };
+      if (filters.search) params.search = filters.search;
+      if (filters.rating !== "") params.rating = Number(filters.rating);
+
+      const data = await FeedbackAPI.getFeedbacks(params);
       setFeedbacks((data.data ?? []).map(normalizeFeedbackItem));
       setTotal(data.total ?? 0);
     } catch (err) {
@@ -154,7 +140,6 @@ export function useFeedbacks() {
     }
   }, []);
 
-  // Detail: API trả về { feedback, translation, user }
   const openDetail = async (feedbackId) => {
     setSelectedFeedback(null);
     setDetailError(null);

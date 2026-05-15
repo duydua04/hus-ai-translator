@@ -37,66 +37,105 @@ function getInitials(name) {
 }
 
 export default function Sidebar({ admin, onLogout }) {
-  const [hovered, setHovered] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const displayName = admin?.name || admin?.email || "Administrator";
   const role = admin?.role || "Toàn quyền truy cập";
   const initials = getInitials(admin?.name);
 
+  const handleAvatarClick = () => {
+    if (confirmLogout) {
+      onLogout();
+    } else {
+      setConfirmLogout(true);
+      setTimeout(() => setConfirmLogout(false), 3000);
+    }
+  };
+
   return (
-    <aside className="sidebar">
-      <div className="sidebar__logo">
-        <div className="sidebar__logo-icon">
-          <i className="bx bx-store" />
+    <>
+      <aside className="sidebar sidebar--desktop">
+        <div className="sidebar__logo">
+          <div className="sidebar__logo-icon">
+            <i className="bx bx-store" />
+          </div>
+          <div>
+            <div className="sidebar__logo-text">TRANSDE</div>
+            <div className="sidebar__logo-ver">admin</div>
+          </div>
         </div>
-        <div>
-          <div className="sidebar__logo-text">Admin</div>
-          <div className="sidebar__logo-ver">v2.0</div>
+
+        {NAV_ITEMS.map(({ section, items }) => (
+          <div className="sidebar__section" key={section}>
+            <div className="sidebar__section-label">{section}</div>
+            {items.map(({ path, icon, label }) => (
+              <NavLink
+                key={path}
+                to={path}
+                className={({ isActive }) =>
+                  `nav-item${isActive ? " nav-item--active" : ""}`
+                }
+              >
+                <i className={`bx ${icon} nav-item__icon`} />
+                <span className="nav-item__text">{label}</span>
+              </NavLink>
+            ))}
+          </div>
+        ))}
+
+        <div className="sidebar__footer">
+          <div className="admin-card">
+            <div className="admin-card__avatar">{initials}</div>
+            <div className="admin-card__info">
+              <div className="admin-card__name">{displayName}</div>
+              <div className="admin-card__role">{role}</div>
+            </div>
+            <button
+              className="admin-card__logout"
+              onClick={onLogout}
+              title="Đăng xuất"
+              aria-label="Đăng xuất"
+            >
+              <i className="bx bx-log-out" />
+            </button>
+          </div>
         </div>
-      </div>
+      </aside>
 
-      {NAV_ITEMS.map(({ section, items }) => (
-        <div className="sidebar__section" key={section}>
-          <div className="sidebar__section-label">{section}</div>
-
-          {items.map(({ path, icon, label }) => (
+      <nav className="mobile-bar">
+        {NAV_ITEMS.flatMap(({ items }) => items).map(
+          ({ path, icon, label }) => (
             <NavLink
               key={path}
               to={path}
               className={({ isActive }) =>
-                `nav-item${isActive ? " nav-item--active" : ""}`
+                `mobile-bar__item${isActive ? " mobile-bar__item--active" : ""}`
               }
             >
-              <i className={`bx ${icon} nav-item__icon`} />
-              <span className="nav-item__text">{label}</span>
+              <i className={`bx ${icon}`} />
             </NavLink>
-          ))}
-        </div>
-      ))}
+          )
+        )}
 
-      <div className="sidebar__footer">
-        <div
-          className={`admin-card${hovered ? " admin-card--hovered" : ""}`}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
+        <button
+          className={`mobile-bar__item mobile-bar__avatar${
+            confirmLogout ? " mobile-bar__avatar--confirm" : ""
+          }`}
+          onClick={handleAvatarClick}
+          title={confirmLogout ? "Bấm lần nữa để đăng xuất" : "Đăng xuất"}
         >
-          <div className="admin-card__avatar">{initials}</div>
-
-          <div className="admin-card__info">
-            <div className="admin-card__name">{displayName}</div>
-            <div className="admin-card__role">{role}</div>
-          </div>
-
-          <button
-            className="admin-card__logout"
-            onClick={onLogout}
-            title="Đăng xuất"
-            aria-label="Đăng xuất"
-          >
+          {confirmLogout ? (
             <i className="bx bx-log-out" />
-          </button>
-        </div>
-      </div>
-    </aside>
+          ) : (
+            <span className="mobile-bar__initials">{initials}</span>
+          )}
+          {confirmLogout && (
+            <span className="mobile-bar__tooltip">
+              Bấm lần nữa để đăng xuất
+            </span>
+          )}
+        </button>
+      </nav>
+    </>
   );
 }

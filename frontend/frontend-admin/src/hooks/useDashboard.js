@@ -5,24 +5,24 @@ export function useDashboard() {
   const [overview, setOverview] = useState(null);
   const [weeklyChart, setWeeklyChart] = useState([]);
   const [hourlyChart, setHourlyChart] = useState([]);
-  const [ratingDistribution, setRatingDistribution] = useState([]);
-  const [directionStats, setDirectionStats] = useState([]);
+  const [ratingDistribution, setRatingDistribution] = useState([null]);
+  const [directionStats, setDirectionStats] = useState([null]);
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentFeedbacks, setRecentFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch tất cả trong một lần (dùng cho lần load đầu)
+  // Fetch tất cả trong một lần
   const fetchFullDashboard = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await DashboardAPI.getFullDashboard();
       setOverview(data.overview ?? null);
-      setWeeklyChart(data.weekly_chart ?? []);
-      setHourlyChart(data.hourly_chart ?? []);
-      setRatingDistribution(data.ratings ?? []);
-      setDirectionStats(data.directions ?? []);
+      setWeeklyChart(data.weekly_chart?.data ?? []);
+      setHourlyChart(data.hourly_chart?.data ?? []);
+      setRatingDistribution(data.rating_distribution ?? null);
+      setDirectionStats(data.direction_stats ?? null);
       setRecentUsers(data.recent_users ?? []);
       setRecentFeedbacks(data.recent_feedbacks ?? []);
     } catch (err) {
@@ -34,7 +34,7 @@ export function useDashboard() {
     }
   }, []);
 
-  // Fetch riêng từng phần (dùng khi cần refresh một section)
+  // Fetch riêng từng phần
   const fetchOverview = useCallback(async () => {
     try {
       const data = await DashboardAPI.getOverview();
