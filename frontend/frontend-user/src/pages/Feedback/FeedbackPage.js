@@ -4,6 +4,30 @@ import { FeedbackModal } from "./FeedbackModal";
 import { FeedbackCard } from "./FeedbackCard";
 import "./FeedbackPage.scss";
 
+function ConfirmModal({ onConfirm, onCancel }) {
+  return (
+    <div className="modal-overlay modal-overlay--confirm" onClick={onCancel}>
+      <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="confirm-modal__icon">
+          <i className="bx bx-trash" />
+        </div>
+        <h3 className="confirm-modal__title">Xóa feedback?</h3>
+        <p className="confirm-modal__desc">
+          Hành động này không thể hoàn tác. Feedback sẽ bị xóa vĩnh viễn.
+        </p>
+        <div className="confirm-modal__actions">
+          <button className="btn btn--ghost" onClick={onCancel}>
+            Hủy
+          </button>
+          <button className="btn btn--danger" onClick={onConfirm}>
+            Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FeedbackPage() {
   const {
     feedbacks,
@@ -20,9 +44,29 @@ function FeedbackPage() {
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
 
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+
   useEffect(() => {
     fetchMyFeedbacks();
   }, [fetchMyFeedbacks]);
+
+  const handleOpenDelete = (id) => {
+    clearMessages();
+    setDeleteTargetId(id);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteTargetId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    const res = await removeFeedback(deleteTargetId);
+    if (res?.success) {
+      setDeleteTargetId(null);
+      fetchMyFeedbacks();
+    }
+  };
 
   const handleOpenEdit = (freshFeedback) => {
     clearMessages();
@@ -41,12 +85,6 @@ function FeedbackPage() {
       handleCloseModal();
       fetchMyFeedbacks();
     }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa đánh giá này?")) return;
-    const res = await removeFeedback(id);
-    if (res?.success) fetchMyFeedbacks();
   };
 
   const avgRating =
@@ -105,19 +143,28 @@ function FeedbackPage() {
               key={fb.id}
               feedback={fb}
               onEdit={handleOpenEdit}
-              onDelete={handleDelete}
+              onDelete={handleOpenDelete}
               onFetchDetail={fetchFeedbackDetail}
             />
           ))}
         </div>
       )}
 
+      {/* Modal Chỉnh sửa */}
       {showModal && (
         <FeedbackModal
           feedback={editTarget}
           onClose={handleCloseModal}
           onSubmit={handleSubmit}
           loading={loading}
+        />
+      )}
+
+      {/* Modal Xác nhận xóa */}
+      {deleteTargetId && (
+        <ConfirmModal
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
         />
       )}
     </div>

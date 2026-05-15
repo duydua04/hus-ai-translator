@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TranslatorBox from "../../components/TranslatorBox/TranslatorBox";
 import ModeSwitcher from "../../components/ModeSwitcher/ModeSwitcher";
@@ -14,6 +14,7 @@ const MODES = [
 ];
 
 const MAX_TEXT_LENGTH = 1024;
+const DEBOUNCE_DELAY_MS = 800;
 
 function TransFilesPage({ user }) {
   const navigate = useNavigate();
@@ -29,6 +30,9 @@ function TransFilesPage({ user }) {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackTranslationId, setFeedbackTranslationId] = useState(null);
   const [feedbackDone, setFeedbackDone] = useState(null);
+  const [showThankYou, setShowThankYou] = useState(false);
+
+  const debounceTimerRef = useRef(null);
 
   const {
     languages,
@@ -43,12 +47,51 @@ function TransFilesPage({ user }) {
     clearMessages,
   } = useTranslation();
 
-  const {
-    submitFeedback,
-    fetchFeedbackByTranslation,
-    loading: feedbackLoading,
-  } = useFeedback();
+  const { submitFeedback, loading: feedbackLoading } = useFeedback();
 
+  const translatedText = result?.data?.translated_text || "";
+  const translationId = result?.data?.translation_id || result?.translation_id;
+  const isOverLimit = inputText.length >= MAX_TEXT_LENGTH;
+
+  const sseStatus = isFile ? result?.status : null;
+  const sseProgress = isFile ? result?.progress ?? 0 : 0;
+  const sseMessage = isFile ? result?.message : null;
+
+  const showFeedbackBtn =
+    !!translationId &&
+    !error &&
+    feedbackDone === false &&
+    (isFile ? sseStatus === "completed" : true);
+
+  const isActionLoading = isFile
+    ? loading ||
+      (!!translationId &&
+        !error &&
+        feedbackDone === null &&
+        sseStatus === "completed")
+    : loading || (!!translationId && !error && feedbackDone === null);
+
+  // Helpers
+  const clearDebounce = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+  };
+
+  const scheduleTranslate = (text, srcLang, tgtLang) => {
+    clearDebounce();
+    debounceTimerRef.current = setTimeout(() => {
+      runTranslateText(text, srcLang, tgtLang);
+    }, DEBOUNCE_DELAY_MS);
+  };
+
+  const resetFeedbackState = () => {
+    setFeedbackTranslationId(null);
+    setFeedbackDone(null);
+  };
+
+  // Effects
   useEffect(() => {
     fetchLanguages();
   }, [fetchLanguages]);
@@ -61,45 +104,79 @@ function TransFilesPage({ user }) {
   }, [languages]);
 
   useEffect(() => {
-    const translationId =
-      result?.data?.translation_id || result?.translation_id;
-
     if (!translationId) {
       setFeedbackDone(null);
       return;
     }
-
     setFeedbackTranslationId(translationId);
-    setFeedbackDone(null);
-
-    fetchFeedbackByTranslation(translationId).then((res) => {
-      setFeedbackDone(res?.success && res?.data ? true : false);
-    });
+    setFeedbackDone(false);
   }, [result]);
+
+  useEffect(() => {
+    return () => clearDebounce();
+  }, []);
+
+  // Handlers
+  const runTranslateText = useCallback(
+    async (text, srcLang, tgtLang) => {
+      if (!text.trim()) return;
+      const sourceLangObj = languages.find((l) => l.id === srcLang);
+      const targetLangObj = languages.find((l) => l.id === tgtLang);
+      await translateText({
+        text,
+        source_lang_code: sourceLangObj?.language_code || "",
+        target_lang_code: targetLangObj?.language_code || "",
+        llm_model: "gpt-4o",
+      });
+    },
+    [languages, translateText]
+  );
+
+  const handleTextChange = (e) => {
+    const newText = e.target.value;
+    if (newText.length > MAX_TEXT_LENGTH) return;
+
+    setInputText(newText);
+
+    if (!newText.trim()) {
+      clearDebounce();
+      setResult(null);
+      return;
+    }
+
+    scheduleTranslate(newText, sourceLang, targetLang);
+  };
+
+  const handleSourceLangChange = (langId) => {
+    setSourceLang(langId);
+    if (inputText.trim() && !isFile)
+      scheduleTranslate(inputText, langId, targetLang);
+  };
+
+  const handleTargetLangChange = (langId) => {
+    setTargetLang(langId);
+    if (inputText.trim() && !isFile)
+      scheduleTranslate(inputText, sourceLang, langId);
+  };
 
   const handleModeChange = (newMode) => {
     if (newMode === "file" && !user) {
       navigate("/login");
       return;
     }
+    clearDebounce();
     clearMessages();
-    setResult(null); // ← thêm dòng này
-    setSelectedFile(null); // ← thêm dòng này
-    setFeedbackTranslationId(null); // ← thêm dòng này
-    setFeedbackDone(null); // ← thêm dòng này
+    setResult(null);
+    setSelectedFile(null);
+    resetFeedbackState();
     navigate(`/home/${newMode}`);
-  };
-  const handleTextChange = (e) => {
-    if (e.target.value.length <= MAX_TEXT_LENGTH) {
-      setInputText(e.target.value);
-    }
   };
 
   const handleSwapLangs = () => {
     setSourceLang(targetLang);
     setTargetLang(sourceLang);
-    if (result?.data?.translated_text) {
-      setInputText(result.data.translated_text);
+    if (translatedText) {
+      setInputText(translatedText);
       clearMessages();
     }
   };
@@ -117,33 +194,22 @@ function TransFilesPage({ user }) {
     }
 
     if (!inputText.trim()) return;
-
-    const sourceLangObj = languages.find((l) => l.id === sourceLang);
-    const targetLangObj = languages.find((l) => l.id === targetLang);
-
-    await translateText({
-      text: inputText,
-      source_lang_code: sourceLangObj?.language_code || "",
-      target_lang_code: targetLangObj?.language_code || "",
-      llm_model: "gpt-4o",
-    });
+    clearDebounce();
+    await runTranslateText(inputText, sourceLang, targetLang);
   };
 
   const handleClearText = () => {
+    clearDebounce();
     setInputText("");
     setSelectedFile(null);
-    setFeedbackTranslationId(null);
-    setFeedbackDone(null);
     setResult(null);
+    resetFeedbackState();
     clearMessages();
   };
 
   const handleCopyResult = () => {
-    const text = result?.data?.translated_text || "";
-    if (text) navigator.clipboard.writeText(text);
+    if (translatedText) navigator.clipboard.writeText(translatedText);
   };
-
-  const handleOpenFeedback = () => setShowFeedbackModal(true);
 
   const handleFeedbackSubmit = async (payload) => {
     const res = await submitFeedback({
@@ -153,32 +219,15 @@ function TransFilesPage({ user }) {
     if (res?.success) {
       setShowFeedbackModal(false);
       setFeedbackDone(true);
+      setShowThankYou(true);
+      setTimeout(() => setShowThankYou(false), 3000);
     }
   };
 
-  const sseStatus = isFile ? result?.status : null;
-  const sseProgress = isFile ? result?.progress ?? 0 : 0;
-  const sseMessage = isFile ? result?.message : null;
-
-  const translationId = result?.data?.translation_id || result?.translation_id;
-  const isOverLimit = inputText.length >= MAX_TEXT_LENGTH;
-
-  const showFeedbackBtn =
-    !!translationId &&
-    !error &&
-    feedbackDone === false &&
-    (isFile ? sseStatus === "completed" : true);
-
-  const isActionLoading = isFile
-    ? loading ||
-      (!!translationId &&
-        !error &&
-        feedbackDone === null &&
-        sseStatus === "completed")
-    : loading || (!!translationId && !error && feedbackDone === null);
-
   const mainActionLabel = showFeedbackBtn ? "Đánh giá bản dịch" : "Dịch ngay";
-  const onMainAction = showFeedbackBtn ? handleOpenFeedback : handleAction;
+  const onMainAction = showFeedbackBtn
+    ? () => setShowFeedbackModal(true)
+    : handleAction;
 
   return (
     <div className="transfiles-page">
@@ -193,8 +242,8 @@ function TransFilesPage({ user }) {
           languages={languages}
           sourceLang={sourceLang}
           targetLang={targetLang}
-          setSourceLang={setSourceLang}
-          setTargetLang={setTargetLang}
+          setSourceLang={handleSourceLangChange}
+          setTargetLang={handleTargetLangChange}
           onSwapLangs={handleSwapLangs}
           onTranslate={onMainAction}
           actionLabel={mainActionLabel}
@@ -225,7 +274,7 @@ function TransFilesPage({ user }) {
                 <textarea
                   className="translator__output"
                   placeholder="Bản dịch..."
-                  value={result?.data?.translated_text || ""}
+                  value={translatedText}
                   readOnly
                 />
               </div>
@@ -251,20 +300,19 @@ function TransFilesPage({ user }) {
                     className="action-btn"
                     onClick={handleCopyResult}
                     title="Sao chép"
-                    disabled={!result?.data?.translated_text}
+                    disabled={!translatedText}
                   >
                     <i className="bx bx-copy" />
                   </button>
                 </div>
               </div>
 
-              {feedbackDone === true && (
+              {showThankYou && (
                 <p className="status-msg success">
                   <i className="bx bx-check-circle" /> Cảm ơn bạn đã đóng góp ý
                   kiến!
                 </p>
               )}
-
               {error && (
                 <p className="status-msg error">
                   <i className="bx bx-error-circle" />
@@ -273,7 +321,6 @@ function TransFilesPage({ user }) {
                     : error}
                 </p>
               )}
-
               {success && (
                 <p className="status-msg success">
                   <i className="bx bx-check-circle" /> {success}

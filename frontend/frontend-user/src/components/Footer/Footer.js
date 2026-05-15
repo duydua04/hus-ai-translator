@@ -4,7 +4,7 @@ import "./Footer.scss";
 function Footer() {
   return (
     <footer className="footer">
-      <p className="footer__text">© 2026 Site name</p>
+      <p className="footer__text">© 2026 TRANSDE</p>
     </footer>
   );
 }

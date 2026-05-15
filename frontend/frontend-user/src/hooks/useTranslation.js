@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   getLanguage as apiGetLanguages,
   translateText as apiTranslateText,
@@ -19,6 +19,8 @@ export default function useTranslation() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  const abortControllerRef = useRef(null);
+
   const clearMessages = useCallback(() => {
     setError(null);
     setSuccess(null);
@@ -34,6 +36,16 @@ export default function useTranslation() {
     setTimeout(() => setSuccess(null), MESSAGE_DURATION_MS);
   }, []);
 
+  const createAbortSignal = useCallback(() => {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    return controller.signal;
+  }, []);
+
+  const isAbortError = (err) =>
+    err.name === "AbortError" || err.code === "ERR_CANCELED";
+
   const fetchLanguages = useCallback(async () => {
     try {
       const data = await apiGetLanguages();
@@ -43,105 +55,126 @@ export default function useTranslation() {
     }
   }, []);
 
-  const translateText = useCallback(async (payload) => {
-    if (payload.input_content?.length > MAX_TEXT_LENGTH) {
-      showError(`Văn bản không được vượt quá ${MAX_TEXT_LENGTH} ký tự.`);
-      return { success: false };
-    }
+  const translateText = useCallback(
+    async (payload) => {
+      if (payload.input_content?.length > MAX_TEXT_LENGTH) {
+        showError(`Văn bản không được vượt quá ${MAX_TEXT_LENGTH} ký tự.`);
+        return { success: false };
+      }
 
-    setLoading(true);
-    clearMessages();
-    try {
-      const data = await apiTranslateText(payload);
-      setResult(data);
-      showSuccess("Dịch văn bản thành công.");
-      return { success: true, data };
-    } catch (err) {
-      const msg = err.response?.data?.detail || "Dịch văn bản thất bại.";
-      showError(msg);
-      return { success: false, message: msg };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      const signal = createAbortSignal();
+      setLoading(true);
+      clearMessages();
 
-  // upload => SSE stream => startFileTranslation
-  const translateDocument = useCallback(async (payload) => {
-    const { file, source_lang_id, target_lang_id, llm_model } = payload;
+      try {
+        const data = await apiTranslateText(payload, signal);
+        setResult(data);
+        showSuccess("Dịch văn bản thành công.");
+        return { success: true, data };
+      } catch (err) {
+        if (isAbortError(err)) return { success: false, aborted: true };
+        const msg = err.response?.data?.detail || "Dịch văn bản thất bại.";
+        showError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [createAbortSignal, clearMessages, showError, showSuccess]
+  );
 
-    if (file?.size > MAX_FILE_SIZE_BYTES) {
-      showError(`File không được vượt quá ${MAX_FILE_SIZE_MB}MB.`);
-      return { success: false };
-    }
+  const translateDocument = useCallback(
+    async ({ file, source_lang_id, target_lang_id, llm_model }) => {
+      if (file?.size > MAX_FILE_SIZE_BYTES) {
+        showError(`File không được vượt quá ${MAX_FILE_SIZE_MB}MB.`);
+        return { success: false };
+      }
 
-    setLoading(true);
-    setResult(null);
-    clearMessages();
+      const signal = createAbortSignal();
+      setLoading(true);
+      setResult(null);
+      clearMessages();
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const uploadData = await apiUploadFile(formData);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadData = await apiUploadFile(formData, signal);
 
-      const fileId =
-        uploadData?.data?.file_id ||
-        uploadData?.data?.id ||
-        uploadData?.file_id ||
-        uploadData?.id;
+        const fileId =
+          uploadData?.data?.file_id ||
+          uploadData?.data?.id ||
+          uploadData?.file_id ||
+          uploadData?.id;
 
-      if (!fileId)
-        throw new Error("Upload file thất bại, không nhận được file_id.");
+        if (!fileId)
+          throw new Error("Upload file thất bại, không nhận được file_id.");
 
-      const clientId = crypto.randomUUID();
+        const clientId = crypto.randomUUID();
 
-      await new Promise((resolve, reject) => {
-        const es = openSSEStream(
-          clientId,
-          (data) => {
-            setResult(data);
-
-            if (data.status === "success" || data.status === "completed") {
-              showSuccess("Dịch tài liệu thành công.");
-              es.close();
-              resolve(data);
-            }
-            if (data.status === "error") {
-              es.close();
-              reject(new Error(data.message));
-            }
-          },
-          (err) => {
-            reject(new Error("Kết nối SSE thất bại."));
+        await new Promise((resolve, reject) => {
+          if (signal.aborted) {
+            reject(new DOMException("Aborted", "AbortError"));
+            return;
           }
-        );
 
-        apiStartFileTranslation(clientId, {
-          input_file_id: fileId,
-          source_lang_id,
-          target_lang_id,
-          llm_model,
-        }).catch(reject);
-      });
+          const es = openSSEStream(
+            clientId,
+            (data) => {
+              setResult(data);
+              if (data.status === "success" || data.status === "completed") {
+                showSuccess("Dịch tài liệu thành công.");
+                es.close();
+                resolve(data);
+              }
+              if (data.status === "error") {
+                es.close();
+                reject(new Error(data.message));
+              }
+            },
+            () => reject(new Error("Kết nối SSE thất bại."))
+          );
 
-      return { success: true };
-    } catch (err) {
-      const msg =
-        err.response?.data?.detail || err.message || "Dịch tài liệu thất bại.";
-      showError(msg);
-      return { success: false, message: msg };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+          signal.addEventListener("abort", () => {
+            es.close();
+            reject(new DOMException("Aborted", "AbortError"));
+          });
+
+          apiStartFileTranslation(
+            clientId,
+            {
+              input_file_id: fileId,
+              source_lang_id,
+              target_lang_id,
+              llm_model,
+            },
+            signal
+          ).catch(reject);
+        });
+
+        return { success: true };
+      } catch (err) {
+        if (isAbortError(err)) return { success: false, aborted: true };
+        const msg =
+          err.response?.data?.detail ||
+          err.message ||
+          "Dịch tài liệu thất bại.";
+        showError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [createAbortSignal, clearMessages, showError, showSuccess]
+  );
 
   return {
     languages,
     fetchLanguages,
     result,
+    setResult,
     loading,
     error,
     success,
-    setResult,
     clearMessages,
     translateText,
     translateDocument,
