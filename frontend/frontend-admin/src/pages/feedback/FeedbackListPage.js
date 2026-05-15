@@ -1,44 +1,161 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserCell from "../../components/common/UserCell";
 import Badge from "../../components/common/Badge";
-import StarRating from "../../components/common/StarRating";
 import Pagination from "../../components/common/Pagination";
-import { useFeedbackList } from "../../hooks/useFeedback";
+import { useFeedbacks } from "../../hooks/useFeedback";
 import "./FeedbackListPage.scss";
 
-const TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "pending", label: "Cần xử lý" },
-  { key: "resolved", label: "Đã xử lý" },
-];
+const STAR_OPTIONS = [5, 4, 3, 2, 1];
+
+function StarRating({ value }) {
+  return (
+    <div className="star-rating" aria-label={`${value} sao`}>
+      {[1, 2, 3, 4, 5].map((s) => (
+        <i key={s} className={`bx ${s <= value ? "bxs-star" : "bx-star"}`} />
+      ))}
+    </div>
+  );
+}
+
+function ConfirmModal({ onConfirm, onCancel }) {
+  return (
+    <div className="modal-overlay modal-overlay--confirm" onClick={onCancel}>
+      <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="confirm-modal__icon">
+          <i className="bx bx-trash" />
+        </div>
+        <h3 className="confirm-modal__title">Xóa feedback?</h3>
+        <p className="confirm-modal__desc">
+          Hành động này không thể hoàn tác. Feedback sẽ bị xóa vĩnh viễn.
+        </p>
+        <div className="confirm-modal__actions">
+          <button className="btn btn--ghost" onClick={onCancel}>
+            Hủy
+          </button>
+          <button className="btn btn--danger" onClick={onConfirm}>
+            <i className="bx bx-trash" /> Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function FeedbackListPage() {
-  const { feedbacks, total, loading, filters, setFilters } = useFeedbackList();
-  const [activeTab, setActiveTab] = useState("all");
+  const {
+    feedbacks,
+    total,
+    stats,
+    loading,
+    statsLoading,
+    error,
+    filters,
+    setFilters,
+    fetchStats,
+    selectedFeedback,
+    detailLoading,
+    detailError,
+    openDetail,
+    closeDetail,
+    deleteFeedback,
+  } = useFeedbacks();
 
-  const handleTab = (key) => {
-    setActiveTab(key);
-    setFilters((f) => ({ ...f, tab: key, page: 1 }));
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const handleDeleteConfirm = (feedbackId) => {
+    setPendingDeleteId(feedbackId);
+  };
+
+  const handleDeleteExecute = () => {
+    deleteFeedback(pendingDeleteId);
+    setPendingDeleteId(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setPendingDeleteId(null);
   };
 
   return (
-    <div className="page page--active" id="page-feedback-list">
-      <div className="page__header">
-        <div>
-          <div className="page__title">Danh sách Feedback</div>
-          <div className="page__subtitle">
-            {total.toLocaleString()} đánh giá từ người dùng
+    <div className="page page--active" id="page-feedback">
+      {/* Stats */}
+      {!statsLoading && stats && (
+        <div className="stats-strip">
+          <div className="stats-card">
+            <i className="bx bx-message-square-detail stats-card__icon stats-card__icon--blue" />
+            <div className="stats-card__body">
+              <span className="stats-card__label">Tổng feedback</span>
+              <span className="stats-card__value">
+                {stats.totalFeedbacks.toLocaleString()}
+              </span>
+            </div>
+          </div>
+          <div className="stats-card">
+            <i className="bx bxs-star stats-card__icon stats-card__icon--amber" />
+            <div className="stats-card__body">
+              <span className="stats-card__label">Điểm trung bình</span>
+              <span className="stats-card__value stats-card__value--amber">
+                {stats.averageRating.toFixed(1)}
+              </span>
+            </div>
+          </div>
+          <div className="stats-card">
+            <i className="bx bx-edit-alt stats-card__icon stats-card__icon--green" />
+            <div className="stats-card__body">
+              <span className="stats-card__label">Có chỉnh sửa</span>
+              <span className="stats-card__value">
+                {stats.totalWithCorrection.toLocaleString()}
+              </span>
+            </div>
+          </div>
+          <div className="stats-card stats-card--dist">
+            <i className="bx bx-bar-chart-alt-2 stats-card__icon stats-card__icon--purple" />
+            <div className="stats-card__body">
+              <span className="stats-card__label">Phân phối sao</span>
+              <div className="stats-card__dist">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const key = `${star}_star`;
+                  const count = stats.distribution[key] ?? 0;
+                  const maxCount = Math.max(
+                    ...Object.values(stats.distribution),
+                    1
+                  );
+                  return (
+                    <div className="dist-row" key={star}>
+                      <span className="dist-row__star">
+                        {star}
+                        <i
+                          className="bx bxs-star"
+                          style={{ color: "#f9c74f" }}
+                        />
+                      </span>
+                      <div className="dist-row__track">
+                        <div
+                          className="dist-row__fill"
+                          style={{ width: `${(count / maxCount) * 100}%` }}
+                        />
+                      </div>
+                      <span className="dist-row__count">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
-        <button className="btn btn--secondary">Xuất CSV</button>
-      </div>
+      )}
 
+      {/* Filter bar */}
       <div className="filter-bar">
         <div className="search">
           <i className="bx bx-search search__icon" />
           <input
             className="search__input"
-            placeholder="Tìm nội dung, người dùng..."
+            placeholder="Tìm theo nội dung feedback..."
+            value={filters.search}
             onChange={(e) =>
               setFilters((f) => ({ ...f, search: e.target.value, page: 1 }))
             }
@@ -47,123 +164,113 @@ export default function FeedbackListPage() {
         <div className="filter-bar__actions">
           <select
             className="filter-select"
+            value={filters.rating}
             onChange={(e) =>
-              setFilters((f) => ({ ...f, type: e.target.value, page: 1 }))
-            }
-          >
-            <option value="">Tất cả loại</option>
-            <option value="positive">Tích cực</option>
-            <option value="negative">Tiêu cực</option>
-          </select>
-          <select
-            className="filter-select"
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, status: e.target.value, page: 1 }))
+              setFilters((f) => ({ ...f, rating: e.target.value, page: 1 }))
             }
           >
             <option value="">Tất cả sao</option>
-            {[5, 4, 3, 2, 1].map((s) => (
+            {STAR_OPTIONS.map((s) => (
               <option key={s} value={s}>
                 {s} sao
               </option>
             ))}
           </select>
-          <select
-            className="filter-select"
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, type: e.target.value, page: 1 }))
-            }
-          >
-            <option value="">Tất cả ngôn ngữ</option>
-            <option value="">Anh - Việt</option>
-            <option value="">Việt - Anh</option>
-          </select>
         </div>
       </div>
-      <div className="tab-bar" style={{ marginLeft: "auto" }}>
-        {TABS.map(({ key, label }) => (
-          <div
-            key={key}
-            className={`tab-bar__item${
-              activeTab === key ? " tab-bar__item--active" : ""
-            }`}
-            onClick={() => handleTab(key)}
-          >
-            {label}
-          </div>
-        ))}
-      </div>
 
+      {/* Error */}
+      {error && (
+        <div className="page-error">
+          <i className="bx bx-error-circle" /> {error}
+        </div>
+      )}
+
+      {/* Table */}
       <div className="data-table">
         <table>
           <colgroup>
-            <col style={{ width: "17%" }} />
-            <col style={{ width: "22%" }} />
-            <col style={{ width: "9%" }} />
-            <col style={{ width: "11%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "14%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "7%" }} />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
           </colgroup>
           <thead>
             <tr>
-              <th>Người dùng</th>
-              <th>Nội dung</th>
               <th>Đánh giá</th>
+              <th>Nội dung chỉnh sửa</th>
+              <th>Ghi chú</th>
               <th>Loại</th>
-              <th>Ngôn ngữ</th>
+              <th>Chỉnh sửa</th>
               <th>Thời gian</th>
-              <th>Trạng thái</th>
-              <th>Xem</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="data-table__empty">
-                  Đang tải...
+                <td colSpan={7} className="data-table__empty">
+                  <i className="bx bx-loader-alt bx-spin" /> Đang tải...
+                </td>
+              </tr>
+            ) : feedbacks.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="data-table__empty">
+                  Không có feedback nào.
                 </td>
               </tr>
             ) : (
               feedbacks.map((fb) => (
                 <tr key={fb.id}>
                   <td>
-                    <UserCell
-                      initials={fb.initials}
-                      name={fb.name}
-                      avatarBg={fb.avatarBg}
-                      avatarColor={fb.avatarColor}
-                      size={26}
-                    />
+                    <StarRating value={fb.rating} />
                   </td>
                   <td>
-                    <div className="feedback-text">{fb.content}</div>
+                    <div className="cell-truncate" title={fb.correctedContent}>
+                      {fb.correctedContent || (
+                        <span className="cell-empty">Không có</span>
+                      )}
+                    </div>
                   </td>
                   <td>
-                    <StarRating value={fb.stars} />
+                    <div className="cell-truncate" title={fb.feedbackNote}>
+                      {fb.feedbackNote || (
+                        <span className="cell-empty">Không có</span>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <Badge variant={fb.type}>{fb.typeLabel}</Badge>
                   </td>
                   <td>
-                    <span className="lang-chip">{fb.lang}</span>
-                  </td>
-                  <td>
-                    <span className="cell-date">{fb.date}</span>
-                  </td>
-                  <td>
                     <Badge
-                      variant={
-                        fb.status === "resolved" ? "resolved" : "pending-review"
-                      }
-                      dot
+                      variant={fb.correctedContent ? "positive" : "neutral"}
                     >
-                      {fb.status === "resolved" ? "Hoàn tất" : "Cần xử lý"}
+                      {fb.correctedContent ? "Có" : "Không"}
                     </Badge>
                   </td>
                   <td>
-                    <button className="table-action">Xem</button>
+                    <span className="cell-date">{fb.createdAt}</span>
+                  </td>
+                  <td>
+                    <button
+                      className="table-action"
+                      onClick={() => openDetail(fb.id)}
+                      title="Xem chi tiết"
+                    >
+                      <i className="bx bx-show" />
+                    </button>
+                    <button
+                      className="table-action table-action--delete"
+                      style={{ marginLeft: 4 }}
+                      onClick={() => handleDeleteConfirm(fb.id)}
+                      title="Xóa"
+                    >
+                      <i className="bx bx-trash" />
+                    </button>
                   </td>
                 </tr>
               ))
@@ -173,10 +280,110 @@ export default function FeedbackListPage() {
         <Pagination
           current={filters.page}
           total={total}
-          limit={10}
+          limit={filters.limit}
           onChange={(p) => setFilters((f) => ({ ...f, page: p }))}
         />
       </div>
+
+      {/* Detail Modal */}
+      {(selectedFeedback || detailLoading || detailError) && (
+        <div className="modal-overlay" onClick={closeDetail}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal__header">
+              <h2 className="modal__title">Chi tiết Feedback</h2>
+              <button className="modal__close" onClick={closeDetail}>
+                <i className="bx bx-x" />
+              </button>
+            </div>
+            {detailLoading ? (
+              <div className="modal__state">
+                <i className="bx bx-loader-alt bx-spin" /> Đang tải...
+              </div>
+            ) : detailError ? (
+              <div className="modal__state modal__state--error">
+                <i className="bx bx-error-circle" /> {detailError}
+              </div>
+            ) : (
+              selectedFeedback && (
+                <div className="modal__body">
+                  <div className="modal__user-row">
+                    <UserCell
+                      initials={selectedFeedback.initials}
+                      name={selectedFeedback.name}
+                      sub={selectedFeedback.email}
+                      avatarBg={selectedFeedback.avatarBg}
+                      avatarColor={selectedFeedback.avatarColor}
+                      size={36}
+                    />
+                    <div className="modal__badges">
+                      <StarRating value={selectedFeedback.rating} />
+                      <Badge variant={selectedFeedback.type}>
+                        {selectedFeedback.typeLabel}
+                      </Badge>
+                      <Badge variant="neutral">{selectedFeedback.tier}</Badge>
+                    </div>
+                  </div>
+                  <div className="modal__section">
+                    <span className="modal__label">Ghi chú</span>
+                    <p className="modal__content">
+                      {selectedFeedback.feedbackNote || "Không có ghi chú"}
+                    </p>
+                  </div>
+                  {selectedFeedback.correctedContent && (
+                    <div className="modal__section">
+                      <span className="modal__label">Nội dung chỉnh sửa</span>
+                      <p className="modal__content">
+                        {selectedFeedback.correctedContent}
+                      </p>
+                    </div>
+                  )}
+                  {selectedFeedback.translation && (
+                    <div className="modal__section">
+                      <span className="modal__label">Bản dịch gốc</span>
+                      <div className="translation-pair">
+                        <div className="translation-pair__col">
+                          <span className="translation-pair__lang">Nguồn</span>
+                          <p>{selectedFeedback.translation.inputContent}</p>
+                        </div>
+                        <div className="translation-pair__col">
+                          <span className="translation-pair__lang">
+                            Kết quả
+                          </span>
+                          <p>
+                            {selectedFeedback.translation.translatedContent}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="modal__meta">
+                    <span className="modal__label">Thời gian</span>
+                    <span className="cell-date">
+                      {selectedFeedback.createdAt}
+                    </span>
+                  </div>
+                  <div className="modal__footer">
+                    <button
+                      className="btn btn--danger"
+                      onClick={() => handleDeleteConfirm(selectedFeedback.id)}
+                    >
+                      <i className="bx bx-trash" /> Xóa feedback
+                    </button>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {pendingDeleteId && (
+        <ConfirmModal
+          onConfirm={handleDeleteExecute}
+          onCancel={handleDeleteCancel}
+        />
+      )}
     </div>
   );
 }

@@ -1,47 +1,102 @@
-import React from "react";
-import MetricCard from "./MetricCard";
-import BarChartCard from "./BarChartCard";
-import DonutChartCard from "./DonutChartCard";
-import { useFeedbackDashboard } from "../../hooks/useFeedback";
+import React, { useEffect } from "react";
+import { useDashboard } from "../../hooks/useDashboard";
+import WeeklyLineChart from "./charts/WeeklyLineChart";
+import RatingCard from "./charts/RatingCard";
+import HourlyBarChart from "./charts/HourlyBarChart";
+import DirectionCard from "./charts/DirectionCard";
+import RecentUsersCard from "./charts/RecentUserCard";
+import FeedbackCard from "./charts/FeedbackCard";
 import "./DashPage.scss";
 
-export default function FeedbackDashPage() {
-  const { data, loading, period, setPeriod } = useFeedbackDashboard();
+const fmt = (n) =>
+  n == null
+    ? "—"
+    : n >= 1_000_000
+    ? (n / 1_000_000).toFixed(1) + "M"
+    : n >= 1_000
+    ? (n / 1_000).toFixed(1).replace(".0", "") + "k"
+    : String(n);
 
-  if (loading || !data)
-    return (
-      <div className="page page--active">
-        <p style={{ padding: 24, color: "var(--ink4)" }}>Đang tải...</p>
-      </div>
-    );
+function MetricCard({ label, value, change, change_label, extra, variant }) {
+  const trendDir = change < 0 ? "down" : "up";
+  return (
+    <div className={`metric-card metric-card--${variant}`}>
+      <div className="metric-card__label">{label}</div>
+      <div className="metric-card__value">{fmt(value)}</div>
+      {extra ? (
+        <div className="metric-card__trend metric-card__trend--neutral">
+          {extra}
+        </div>
+      ) : change !== 0 ? (
+        <div className={`metric-card__trend metric-card__trend--${trendDir}`}>
+          {change > 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}% {change_label}
+        </div>
+      ) : (
+        <div className="metric-card__trend metric-card__trend--neutral">
+          — {change_label}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function DashPage() {
+  const {
+    overview,
+    weeklyChart,
+    hourlyChart,
+    ratingDistribution,
+    directionStats,
+    recentUsers,
+    recentFeedbacks,
+    loading,
+    error,
+    fetchFullDashboard,
+  } = useDashboard();
+
+  useEffect(() => {
+    fetchFullDashboard();
+  }, [fetchFullDashboard]);
+
+  if (loading) return <div className="dash-loading">Đang tải dữ liệu…</div>;
+  if (error) return <div className="dash-error">{error}</div>;
+
+  const METRICS = [
+    { label: "Tổng người dùng", variant: "blue", ...overview?.total_users },
+    { label: "Đăng ký mới", variant: "green", ...overview?.new_registrations },
+    {
+      label: "Lượt dịch hôm nay",
+      variant: "amber",
+      ...overview?.translations_today,
+    },
+    { label: "Đánh giá mới", variant: "purple", ...overview?.new_feedbacks },
+  ];
 
   return (
-    <div className="page page--active" id="page-feedback-dash">
-      <div className="page__header">
-        <div>
-          <div className="page__title">Tổng quan hệ thống</div>
-        </div>
-        <select
-          className="filter-select"
-          value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-        >
-          <option value="month">Tháng này</option>
-          <option value="last_month">Tháng trước</option>
-          <option value="quarter">Quý này</option>
-          <option value="year">Năm nay</option>
-        </select>
-      </div>
-
+    <div className="dash-page">
       <div className="metrics-grid">
-        {data.metrics.map((m) => (
-          <MetricCard key={m.id} {...m} />
+        {METRICS.map((m) => (
+          <MetricCard key={m.label} {...m} />
         ))}
       </div>
 
       <div className="charts-row">
-        <BarChartCard data={data.ratingDistribution} total={1020} />
-        <DonutChartCard categories={data.categoryDistribution} avgScore="4.3" />
+        <WeeklyLineChart data={weeklyChart} />
+        <RatingCard ratingData={ratingDistribution} />
+      </div>
+
+      <div className="charts-row">
+        <HourlyBarChart
+          data={hourlyChart}
+          peakMorning={hourlyChart?.peak_morning}
+          peakEvening={hourlyChart?.peak_evening}
+        />
+        <DirectionCard stats={directionStats} />
+      </div>
+
+      <div className="charts-row charts-row--equal">
+        <RecentUsersCard users={recentUsers} />
+        <FeedbackCard feedbacks={recentFeedbacks} />
       </div>
     </div>
   );

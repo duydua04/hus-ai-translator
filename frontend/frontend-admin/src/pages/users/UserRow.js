@@ -40,27 +40,30 @@ export default function UserRow({ user, onDetail, onLock, onUnlock }) {
         <span className="cell-date">{user.joinDate}</span>
       </td>
       <td>
-        <span className="cell-number">{user.translations}</span>
-      </td>
-      <td>
-        <button className="table-action" onClick={() => onDetail(user.id)}>
-          Chi tiết
+        <button
+          className="table-action"
+          onClick={() => onDetail(user.id)}
+          title="Xem chi tiết"
+        >
+          <i className="bx bx-show" />
         </button>
         {user.status === "locked" ? (
           <button
             className="table-action table-action--unlock"
             style={{ marginLeft: 4 }}
             onClick={() => onUnlock(user.id)}
+            title="Mở khóa"
           >
-            Mở khóa
+            <i className="bx bx-lock-open" />
           </button>
         ) : (
           <button
             className="table-action table-action--lock"
             style={{ marginLeft: 4 }}
             onClick={() => onLock(user.id)}
+            title="Khóa"
           >
-            Khóa
+            <i className="bx bx-lock" />
           </button>
         )}
       </td>
