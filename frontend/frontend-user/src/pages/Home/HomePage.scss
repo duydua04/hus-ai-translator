@@ -185,10 +185,10 @@
   }
 }
 
+// Upload box — single PDF item layout
 .upload__box {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  display: flex;
+  justify-content: center;
   padding: 28px 24px 20px;
 }
 
@@ -197,48 +197,49 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 24px 12px;
+  gap: 12px;
+  padding: 28px 24px;
   border: 2px dashed var(--clr-border);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s,
+    box-shadow 0.2s;
   background: var(--clr-primary-light);
-  min-height: 120px;
+  width: 100%;
+  min-height: 130px;
 
   &:hover {
-    border-color: var(--clr-primary);
-    background: #d4eddf;
+    border-color: #e53935;
+    background: #fff5f5;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(229, 57, 53, 0.1);
   }
 
   i {
-    font-size: 2.2rem;
-    color: var(--clr-primary);
+    font-size: 2.8rem;
+    color: #e53935;
     line-height: 1;
   }
 
-  &:nth-child(1) i {
-    color: #1a73e8;
-  }
-  &:nth-child(2) i {
-    color: #e53935;
-  }
-  &:nth-child(3) i {
-    color: var(--clr-primary);
-  }
-
   p {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--clr-text);
     text-align: center;
   }
 
   small {
-    font-size: 0.74rem;
+    font-size: 0.76rem;
     color: var(--clr-text-muted);
     text-align: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 }
 
@@ -377,18 +378,17 @@
   }
 
   .upload__box {
-    gap: 12px;
     padding: 20px 16px 14px;
   }
 
   .upload__item {
-    min-height: 96px;
-    padding: 16px 10px;
+    min-height: 110px;
+    padding: 20px 40px;
     i {
-      font-size: 1.8rem;
+      font-size: 2.4rem;
     }
     p {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
     }
   }
 
@@ -427,15 +427,14 @@
   }
 
   .upload__box {
-    gap: 20px;
     padding: 32px 28px 24px;
   }
 
   .upload__item {
-    min-height: 130px;
-    padding: 28px 16px;
+    min-height: 140px;
+    padding: 32px 64px;
     i {
-      font-size: 2.5rem;
+      font-size: 3rem;
     }
   }
 
@@ -466,23 +465,21 @@
   }
 
   .upload__box {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
     padding: 14px 12px 10px;
   }
 
   .upload__item {
-    min-height: 76px;
-    padding: 12px 6px;
-    gap: 6px;
+    min-height: 100px;
+    padding: 16px 32px;
+    gap: 8px;
     i {
-      font-size: 1.4rem;
+      font-size: 2rem;
     }
     p {
-      font-size: 0.72rem;
+      font-size: 0.8rem;
     }
     small {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
     }
   }
 

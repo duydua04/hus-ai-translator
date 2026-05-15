@@ -10,6 +10,7 @@ import {
 const MAX_TEXT_LENGTH = 1024;
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MESSAGE_DURATION_MS = 3000;
 
 export default function useTranslation() {
   const [languages, setLanguages] = useState([]);
@@ -25,12 +26,12 @@ export default function useTranslation() {
 
   const showError = useCallback((msg) => {
     setError(msg);
-    setTimeout(() => setError(null), 3000);
+    setTimeout(() => setError(null), MESSAGE_DURATION_MS);
   }, []);
 
   const showSuccess = useCallback((msg) => {
     setSuccess(msg);
-    setTimeout(() => setSuccess(null), 3000);
+    setTimeout(() => setSuccess(null), MESSAGE_DURATION_MS);
   }, []);
 
   const fetchLanguages = useCallback(async () => {

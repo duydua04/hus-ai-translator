@@ -63,34 +63,25 @@ export default function UsersPage() {
 
       <div className="data-table">
         <table>
-          <colgroup>
-            <col style={{ width: "24%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "13%" }} />
-            <col style={{ width: "13%" }} />
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "14%" }} />
-          </colgroup>
           <thead>
             <tr>
               <th>Người dùng</th>
               <th>Gói</th>
               <th>Trạng thái</th>
               <th>Ngày đăng ký</th>
-              <th>Bản dịch</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="data-table__empty">
+                <td colSpan={5} className="data-table__empty">
                   Đang tải...
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={6} className="data-table__empty">
+                <td colSpan={5} className="data-table__empty">
                   Không có dữ liệu
                 </td>
               </tr>

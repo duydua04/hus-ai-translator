@@ -83,9 +83,12 @@ function TransFilesPage({ user }) {
       return;
     }
     clearMessages();
+    setResult(null); // ← thêm dòng này
+    setSelectedFile(null); // ← thêm dòng này
+    setFeedbackTranslationId(null); // ← thêm dòng này
+    setFeedbackDone(null); // ← thêm dòng này
     navigate(`/home/${newMode}`);
   };
-
   const handleTextChange = (e) => {
     if (e.target.value.length <= MAX_TEXT_LENGTH) {
       setInputText(e.target.value);
@@ -153,18 +156,29 @@ function TransFilesPage({ user }) {
     }
   };
 
-  const translationId = result?.data?.translation_id || result?.translation_id;
-  const isOverLimit = inputText.length >= MAX_TEXT_LENGTH;
-  const showFeedbackBtn = !!translationId && !error && feedbackDone === false;
-  const isActionLoading =
-    loading || (!!translationId && !error && feedbackDone === null);
-
-  const mainActionLabel = showFeedbackBtn ? "Đánh giá bản dịch" : "Dịch ngay";
-  const onMainAction = showFeedbackBtn ? handleOpenFeedback : handleAction;
-
   const sseStatus = isFile ? result?.status : null;
   const sseProgress = isFile ? result?.progress ?? 0 : 0;
   const sseMessage = isFile ? result?.message : null;
+
+  const translationId = result?.data?.translation_id || result?.translation_id;
+  const isOverLimit = inputText.length >= MAX_TEXT_LENGTH;
+
+  const showFeedbackBtn =
+    !!translationId &&
+    !error &&
+    feedbackDone === false &&
+    (isFile ? sseStatus === "completed" : true);
+
+  const isActionLoading = isFile
+    ? loading ||
+      (!!translationId &&
+        !error &&
+        feedbackDone === null &&
+        sseStatus === "completed")
+    : loading || (!!translationId && !error && feedbackDone === null);
+
+  const mainActionLabel = showFeedbackBtn ? "Đánh giá bản dịch" : "Dịch ngay";
+  const onMainAction = showFeedbackBtn ? handleOpenFeedback : handleAction;
 
   return (
     <div className="transfiles-page">
@@ -197,6 +211,7 @@ function TransFilesPage({ user }) {
               sseStatus={sseStatus}
               sseProgress={sseProgress}
               sseMessage={sseMessage}
+              feedbackDone={feedbackDone}
             />
           ) : (
             <div className="text-mode-container">

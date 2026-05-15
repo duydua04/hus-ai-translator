@@ -39,7 +39,7 @@ export default function App() {
           path="/login"
           element={
             admin ? (
-              <Navigate to="/dash" />
+              <Navigate to="/users" />
             ) : (
               <Login login={login} loading={loading} error={error} />
             )
@@ -54,7 +54,7 @@ export default function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Navigate to="/dash" />} />
+          <Route index element={<Navigate to="/users" />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="dash" element={<DashPage />} />
           <Route path="feedback/list" element={<FeedbackListPage />} />

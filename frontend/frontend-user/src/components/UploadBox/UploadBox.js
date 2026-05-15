@@ -1,15 +1,8 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import axiosUser from "../../api/axiosUser";
 import "./UploadBox.scss";
 
 const UPLOAD_TYPES = [
-  {
-    id: "docx",
-    icon: "bx bx-file",
-    label: "Tài liệu Word",
-    ext: ".docx",
-    accept:
-      ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  },
   {
     id: "pdf",
     icon: "bx bxs-file-pdf",
@@ -17,21 +10,16 @@ const UPLOAD_TYPES = [
     ext: ".pdf",
     accept: ".pdf,application/pdf",
   },
-  {
-    id: "image",
-    icon: "bx bx-image",
-    label: "Hình ảnh",
-    ext: ".jpg, .png, .webp",
-    accept: ".jpg,.jpeg,.png,.webp,image/*",
-  },
 ];
 
-/**
- * result shape từ SSE (translateDocument):
- *   { status: "processing"|"completed"|"failed", progress: 0-100, message, translation_id, result_path }
- * result shape từ translateText (không dùng ở đây):
- *   { translation_id, original_text, translated_text, source_lang_code, target_lang_code, status }
- */
+// Detect file type from result_path extension
+function getFileType(path = "") {
+  const ext = path.split(".").pop().toLowerCase();
+  if (ext === "pdf") return "pdf";
+  if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) return "image";
+  return "other";
+}
+
 function UploadBox({
   onFileSelect,
   selectedFile,
@@ -42,8 +30,16 @@ function UploadBox({
   sseStatus,
   sseProgress = 0,
   sseMessage,
+  feedbackDone,
 }) {
   const inputRef = useRef(null);
+  const [actionError, setActionError] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  const showActionError = (msg) => {
+    setActionError(msg);
+    setTimeout(() => setActionError(null), 3000);
+  };
 
   const handleItemClick = (accept) => {
     if (inputRef.current) {
@@ -62,8 +58,99 @@ function UploadBox({
   const isFailed = sseStatus === "failed";
   const isProcessing = loading || sseStatus === "processing";
 
+  const getPresignedUrl = async () => {
+    if (!result?.result_path) return null;
+    try {
+      const response = await axiosUser.get(
+        `/api/files/presigned-url?path=${encodeURIComponent(
+          result.result_path
+        )}`
+      );
+      if (response.data?.success && response.data?.data?.url) {
+        return response.data.data.url;
+      }
+      showActionError("Không thể lấy link tải xuống.");
+      return null;
+    } catch (err) {
+      console.error(err);
+      showActionError("Đã xảy ra lỗi khi tải file.");
+      return null;
+    }
+  };
+
+  const handleDownload = async () => {
+    const url = await getPresignedUrl();
+    if (!url) return;
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = result?.result_path?.split("/").pop() || "ban-dich";
+    link.rel = "noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePreview = async () => {
+    const fileType = getFileType(result?.result_path || "");
+
+    if (fileType === "other") {
+      showActionError(
+        "Định dạng Word không hỗ trợ xem trước. Vui lòng tải xuống để xem."
+      );
+      return;
+    }
+
+    // Open blank window BEFORE async work so browser doesn't block the popup
+    const newWindow = window.open("", "_blank");
+    if (!newWindow) {
+      showActionError(
+        "Trình duyệt đã chặn cửa sổ mới. Vui lòng cho phép popup và thử lại."
+      );
+      return;
+    }
+    newWindow.document.write(
+      "<p style='font-family:sans-serif;padding:20px'>Đang tải...</p>"
+    );
+
+    setPreviewLoading(true);
+    try {
+      const presignedUrl = await getPresignedUrl();
+      if (!presignedUrl) {
+        newWindow.close();
+        return;
+      }
+
+      // Fetch as blob to bypass Content-Disposition: attachment from server
+      const res = await fetch(presignedUrl);
+      if (!res.ok) throw new Error("Fetch failed");
+      const blob = await res.blob();
+
+      const mimeType = fileType === "pdf" ? "application/pdf" : blob.type;
+      const typedBlob = new Blob([blob], { type: mimeType });
+      const blobUrl = URL.createObjectURL(typedBlob);
+
+      newWindow.location.href = blobUrl;
+
+      // Revoke blob URL after a delay to free memory
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+    } catch (err) {
+      console.error(err);
+      newWindow.close();
+      showActionError("Không thể tải file để xem trước.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const renderNote = () => {
-    // Lỗi hook (validate phía FE hoặc lỗi API)
+    if (actionError) {
+      return (
+        <span className="upload__error">
+          <i className="bx bx-error-circle"></i> {actionError}
+        </span>
+      );
+    }
+
     if (error) {
       return (
         <span className="upload__error">
@@ -72,7 +159,6 @@ function UploadBox({
       );
     }
 
-    // Đang xử lý — hiển thị progress bar + message từ SSE
     if (isProcessing) {
       return (
         <div className="upload__progress">
@@ -90,7 +176,6 @@ function UploadBox({
       );
     }
 
-    // SSE báo thất bại
     if (isFailed) {
       return (
         <span className="upload__error">
@@ -100,26 +185,44 @@ function UploadBox({
       );
     }
 
-    // SSE báo hoàn thành — result_path là đường dẫn file kết quả
     if (isCompleted && result?.result_path) {
+      const fileType = getFileType(result.result_path);
+      const canPreview = fileType !== "other";
+
       return (
         <div className="upload__result">
           <i className="bx bx-check-circle upload__result-icon"></i>
           <span>{success || "Dịch tài liệu thành công!"}</span>
-          <a
-            className="upload__download-btn"
-            href={result.result_path}
-            download
-            target="_blank"
-            rel="noreferrer"
-          >
-            <i className="bx bx-download"></i> Tải xuống bản dịch
-          </a>
+          <div className="upload__result-actions">
+            <button
+              className="upload__action-btn upload__action-btn--preview"
+              onClick={handlePreview}
+              disabled={previewLoading || !canPreview}
+              title={
+                canPreview
+                  ? "Xem trước bản dịch"
+                  : "Định dạng Word không hỗ trợ xem trước, vui lòng tải xuống"
+              }
+            >
+              {previewLoading ? (
+                <i className="bx bx-loader-alt bx-spin"></i>
+              ) : (
+                <i className="bx bx-show"></i>
+              )}{" "}
+              Xem trước
+            </button>
+            <button
+              className="upload__action-btn upload__action-btn--download"
+              onClick={handleDownload}
+              title="Tải xuống bản dịch"
+            >
+              <i className="bx bx-download"></i> Tải xuống
+            </button>
+          </div>
         </div>
       );
     }
 
-    // Đã chọn file, chưa dịch
     if (selectedFile) {
       return (
         <div className="upload__selected">
@@ -136,7 +239,6 @@ function UploadBox({
       );
     }
 
-    // Trạng thái mặc định
     return <span>Bản dịch sẽ xuất hiện ở đây sau khi xử lý...</span>;
   };
 
