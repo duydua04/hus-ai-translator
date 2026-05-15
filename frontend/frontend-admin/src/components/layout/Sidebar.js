@@ -4,13 +4,16 @@ import "./Sidebar.scss";
 
 const NAV_ITEMS = [
   {
+    section: "Dashboard",
+    items: [{ path: "dash", icon: "bx-grid-alt", label: "Thống kê" }],
+  },
+  {
     section: "Người dùng",
     items: [{ path: "/users", icon: "bx-group", label: "Quản lý người dùng" }],
   },
   {
     section: "Feedback",
     items: [
-      { path: "/feedback/dash", icon: "bx-grid-alt", label: "Dashboard" },
       {
         path: "/feedback/list",
         icon: "bx-list-ul",

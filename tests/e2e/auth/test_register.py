@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from playwright.sync_api import expect
 
-from tests.pages.register_page import RegisterPage
+from tests.pages.user.register_page import RegisterPage
 from tests.utils.faker_factory import get_faker
 
 from tests.data.register_data import (

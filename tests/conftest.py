@@ -130,7 +130,7 @@ def pytest_runtest_makereport(item, call):
                 print(f"Saved console log: {log_path}")
 
 @pytest.fixture
-def registered_user(api_client):
+def clean_user(api_client):
 
     created_users = []
 
@@ -142,6 +142,46 @@ def registered_user(api_client):
         try:
             api_client.delete(
                 f"/auth/users/{user['id']}"
+            )
+        except Exception:
+            pass
+
+@pytest.fixture
+def registered_user(api_client):
+
+    created_user = None
+
+    user_payload = {
+        "full_name": "Test User",
+        "email": "testuser@example.com",
+        "password": "StrongPass123!"
+    }
+
+    response = api_client.post(
+        f"{api_client.base_url}/auth/register",
+        json=user_payload
+    )
+
+    if response.status_code in [200, 201]:
+
+        created_user = response.json()
+
+    elif "Email này đã được đăng ký" in response.text:
+        pass
+
+    else:
+        pytest.fail(
+            f"Register failed: "
+            f"{response.status_code} - {response.text}"
+        )
+
+    yield user_payload
+
+    if created_user:
+
+        try:
+            api_client.delete(
+                f"{api_client.base_url}/auth/users/{created_user['id']}"
             )
         except Exception:
             pass

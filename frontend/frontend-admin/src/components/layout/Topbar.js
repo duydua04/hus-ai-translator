@@ -15,6 +15,8 @@ export default function Topbar() {
     title = "Quản lý Feedback";
   } else if (path.startsWith("/languages")) {
     title = "Quản lý ngôn ngữ";
+  } else if (path.startsWith("/dash")) {
+    title = "Dashboard";
   }
 
   return (

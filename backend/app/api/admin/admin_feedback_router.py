@@ -47,16 +47,14 @@ async def list_feedbacks(
 
 @router.get("/stats", response_model=FeedbackStatsResponse)
 async def get_quality_stats(
-    llm_model: Optional[str] = None,
     service: AdminFeedbackService = Depends(get_admin_feedback_service),
     _=Depends(require_admin),
 ):
     """
     Thống kê chất lượng bản dịch:
     - Điểm trung bình, phân bổ theo sao, số bản dịch có bản sửa tay.
-    - Truyền llm_model để so sánh giữa các model AI (gpt-4o, gemini-1.5...).
     """
-    return await service.get_quality_stats(llm_model=llm_model)
+    return await service.get_quality_stats()
 
 
 @router.get("/{feedback_id}", response_model=FeedbackDetailResponse)

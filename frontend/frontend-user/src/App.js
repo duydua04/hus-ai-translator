@@ -8,8 +8,7 @@ import {
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 
-import HomePage from "./pages/Home/HomePage";
-import TransFilesPage from "./pages/TransFiles/TransFilesPage";
+import TransFilesPage from "./pages/Home/HomePage";
 import AboutUsPage from "./pages/AboutUs/AboutUsPage";
 import LoginPage from "./pages/Auth/Login/LoginPage";
 import RegisterPage from "./pages/Auth/Register/RegisterPage";
@@ -23,16 +22,6 @@ import "./assets/styles/base.scss";
 import "./assets/styles/layout.scss";
 import "./assets/styles/components.scss";
 
-function PrivateRoute({ user, children }) {
-  if (user === undefined) return null;
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-}
-
 function MainLayout({ user, logout }) {
   return (
     <div className="app-wrapper">
@@ -40,30 +29,18 @@ function MainLayout({ user, logout }) {
 
       <main className="app-main">
         <Routes>
-          {/* Public */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about-us" element={<AboutUsPage />} />
-
-          {/* Protected */}
+          <Route path="/" element={<Navigate to="/home/text" replace />} />
+          <Route path="/home" element={<Navigate to="/home/text" replace />} />
+          <Route path="/home/:mode" element={<TransFilesPage user={user} />} />
           <Route
             path="/trans-files"
-            element={
-              <PrivateRoute user={user}>
-                <TransFilesPage />
-              </PrivateRoute>
-            }
+            element={<Navigate to="/home/text" replace />}
           />
-
+          <Route path="/about-us" element={<AboutUsPage />} />
           <Route
             path="/profile"
-            element={
-              <PrivateRoute user={user}>
-                <ProfilePage />
-              </PrivateRoute>
-            }
+            element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
           />
-
-          {/* Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
@@ -79,23 +56,21 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Auth */}
         <Route
           path="/login"
           element={
             user ? (
-              <Navigate to="/" replace />
+              <Navigate to="/home/text" replace />
             ) : (
               <LoginPage login={login} loading={loading} error={error} />
             )
           }
         />
-
         <Route
           path="/register"
           element={
             user ? (
-              <Navigate to="/" replace />
+              <Navigate to="/home/text" replace />
             ) : (
               <RegisterPage
                 register={register}
@@ -105,10 +80,7 @@ export default function App() {
             )
           }
         />
-
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-        {/* Main Layout */}
         <Route path="/*" element={<MainLayout user={user} logout={logout} />} />
       </Routes>
     </Router>

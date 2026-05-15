@@ -1,0 +1,42 @@
+# ============================================================================
+# HUS AI Translator - AI Module Requirements
+# ============================================================================
+# Dự án dịch tài liệu học thuật (PDF, sách, bài báo khoa học)
+# Giữ nguyên định dạng layout, công thức toán, bảng biểu
+# ============================================================================
+
+# === Core PDF Processing ===
+pymupdf<1.25.3              # PDF reader (MuPDF bindings)
+pdfminer-six==20250416      # PDF parsing & text extraction
+pikepdf                      # PDF manipulation & annotation
+
+# === Layout Analysis & Detection ===
+onnx                         # ONNX model format
+onnxruntime                  # ONNX Runtime (CPU execution)
+# onnxruntime-gpu            # Uncomment for GPU acceleration (CUDA)
+opencv-python-headless      # Computer vision for layout detection
+
+# === Translation Engines & APIs ===
+openai>=1.0.0               # OpenAI GPT API
+deepl                       # DeepL translation API
+googletrans==4.0.2          # Google Translate (free, no API key needed)
+ollama                      # Ollama (run local LLMs)
+xinference-client           # Xinference client (local inference)
+tencentcloud-sdk-python-tmt # TencentCloud Machine Translation
+azure-ai-translation-text<=1.0.1  # Microsoft Azure Translator
+requests                    # HTTP client
+
+# === Utility & Support Libraries ===
+numpy                       # Numerical computations
+tqdm                        # Progress bars for batch processing
+tenacity                    # Retry logic with exponential backoff
+peewee>=3.17.8             # SQLite ORM for caching
+babeldoc>=0.1.22, <0.3.0   # Document utilities & asset management
+fontTools                   # Font parsing & handling
+huggingface_hub            # Download models from Hugging Face
+python-dotenv              # Load environment variables from .env
+pydantic                    # Data validation & settings management
+minio==7.2.18
+redis==7.0.1
+requests==2.32.4
+python-dotenv==1.2.1

@@ -204,6 +204,17 @@ REGISTER_VALIDATION_CASES = [
         },
 
 
-        "expected_error": True
-    }
+        "expected_error": "Đăng ký thành công"
+    },
+    {
+    "name": "firstname_xss_injection_escape",
+
+    "override": {
+        "full_name": "<script>alert(1)</script>",
+        "password": "StrongPass123!",
+        "confirm_password": "StrongPass123!"
+    },
+
+    "expected_error": "Đăng ký thành công"
+}
 ]

@@ -3,9 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Header.scss";
 
 const NAV_LINKS = [
-  { to: "/", label: "Trang chủ", protected: false },
-  { to: "/trans-files", label: "Dịch tệp", protected: true },
-  { to: "/about-us", label: "Về chúng tôi", protected: false },
+  { to: "/home/text", label: "Trang chủ" },
+  { to: "/about-us", label: "Về chúng tôi" },
 ];
 
 function Header({ user, logout }) {
@@ -14,7 +13,6 @@ function Header({ user, logout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -25,20 +23,12 @@ function Header({ user, logout }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleProtectedLink = (e, link) => {
-    if (link.protected && !user) {
-      e.preventDefault();
-      navigate("/login");
-    }
-  };
-
   const handleLogout = async () => {
     setDropdownOpen(false);
     await logout();
-    navigate("/");
+    navigate("/home/text");
   };
 
-  // Get initials from user's name or email
   const getInitials = () => {
     if (!user) return "";
     const name = user.full_name || user.name || user.email || "";
@@ -52,30 +42,32 @@ function Header({ user, logout }) {
 
   return (
     <header className="header">
-      <Link to="/" className="header__brand">
-        <i className="bx bx-store header__brand-icon"></i>
-        <span className="header__brand-text">Site name</span>
-      </Link>
+      <div className="header__left">
+        <Link to="/home/text" className="header__brand">
+          <i className="bx bx-store header__brand-icon"></i>
+          <span className="header__brand-text">transde</span>
+        </Link>
 
-      <nav className="header__nav">
-        {NAV_LINKS.map(({ to, label, protected: isProtected }) => (
-          <Link
-            key={to}
-            to={to}
-            className={`header__link${
-              pathname === to ? " header__link--active" : ""
-            }${isProtected && !user ? " header__link--locked" : ""}`}
-            onClick={(e) =>
-              handleProtectedLink(e, { to, protected: isProtected })
-            }
-          >
-            {isProtected && !user && (
-              <i className="bx bx-lock-alt header__link-lock"></i>
-            )}
-            {label}
-          </Link>
-        ))}
-      </nav>
+        <nav className="header__nav">
+          {NAV_LINKS.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              className={`header__link${
+                (
+                  to === "/home/text"
+                    ? pathname.startsWith("/home")
+                    : pathname === to
+                )
+                  ? " header__link--active"
+                  : ""
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </div>
 
       {user ? (
         <div className="header__user" ref={dropdownRef}>
@@ -114,15 +106,13 @@ function Header({ user, logout }) {
                 className="header__dropdown-item"
                 onClick={() => setDropdownOpen(false)}
               >
-                <i className="bx bx-user"></i>
-                Trang cá nhân
+                <i className="bx bx-user"></i> Trang cá nhân
               </Link>
               <button
                 className="header__dropdown-item header__dropdown-item--logout"
                 onClick={handleLogout}
               >
-                <i className="bx bx-log-out"></i>
-                Đăng xuất
+                <i className="bx bx-log-out"></i> Đăng xuất
               </button>
             </div>
           )}
