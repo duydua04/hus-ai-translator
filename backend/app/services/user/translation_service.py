@@ -7,7 +7,7 @@ from typing import Dict, Any
 
 from ...config.db import get_db
 from ...schemas.common.translation import FileTranslationStartRequest, WebhookTranslationDone
-from ...models.models import Translation, MediaAsset
+from ...models.models import Translation, MediaAsset, Language
 from ...services.sse_manager import sse_manager
 from ...services.admin.admin_dashboard_service import AdminDashboardService
 
@@ -54,12 +54,23 @@ class TranslationService:
             await self.db.commit()
             await self.db.refresh(new_translation)
 
+            # Resolve language codes for AI Worker
+            lang_res = await self.db.execute(
+                select(Language).where(Language.id.in_([payload.source_lang_id, payload.target_lang_id]))
+            )
+            langs = lang_res.scalars().all()
+            lang_dict = {str(l.id): l.language_code for l in langs}
+            source_lang_code = lang_dict.get(str(payload.source_lang_id), "en")
+            target_lang_code = lang_dict.get(str(payload.target_lang_id), "vi")
+
             # 3. Đóng gói Task cho AI Worker
             task_data = {
                 "translation_id": str(new_translation.id),
                 "client_id": client_id,
                 "file_path": input_asset.file_path,
-                "action": "translate_file"
+                "action": "translate_file",
+                "source_lang": source_lang_code,
+                "target_lang": target_lang_code
             }
 
             # 4. Đẩy vào Redis Queue
