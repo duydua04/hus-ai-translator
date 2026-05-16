@@ -25,7 +25,7 @@ function MetricCard({ label, value, change, change_label, extra, variant }) {
       <div className="metric-card__value">{fmt(value)}</div>
       {extra ? (
         <div className="metric-card__trend metric-card__trend--neutral">
-          {extra}
+          {extra.replace(/^avg\s*/i, "")}
         </div>
       ) : change !== 0 ? (
         <div className={`metric-card__trend metric-card__trend--${trendDir}`}>
