@@ -21,12 +21,6 @@ const NAV_ITEMS = [
       },
     ],
   },
-  {
-    section: "Ngôn ngữ",
-    items: [
-      { path: "/languages", icon: "bx-world", label: "Quản lý ngôn ngữ" },
-    ],
-  },
 ];
 
 function getInitials(name) {

@@ -47,17 +47,6 @@ export default function UsersPage() {
             <option value="active">Đang hoạt động</option>
             <option value="locked">Bị vô hiệu hóa</option>
           </select>
-          <select
-            className="filter-select"
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, plan: e.target.value, page: 1 }))
-            }
-          >
-            <option value="">Tất cả gói</option>
-            <option value="free">Miễn phí</option>
-            <option value="pro">Pro</option>
-            <option value="enterprise">Doanh nghiệp</option>
-          </select>
         </div>
       </div>
 
