@@ -15,8 +15,8 @@ function Login({ login, loading, error }) {
     <div className="login-page">
       <div className="login-card">
         <div className="login-badge">
-          <i className="ti ti-shield-check" aria-hidden="true" />
-          Admin Portal
+          <i className="bx bx-shield-check" aria-hidden="true" />
+          Transde Admin Portal
         </div>
 
         <h1 className="login-title">Chào mừng quay trở lại!</h1>
@@ -26,7 +26,7 @@ function Login({ login, loading, error }) {
           <div className="login-field">
             <label htmlFor="email">Email</label>
             <div className="login-input-wrap">
-              <i className="ti ti-mail" aria-hidden="true" />
+              <i className="bx bx-envelope" aria-hidden="true" />
               <input
                 className="login-input"
                 id="email"
@@ -42,7 +42,7 @@ function Login({ login, loading, error }) {
           <div className="login-field">
             <label htmlFor="password">Mật khẩu</label>
             <div className="login-input-wrap">
-              <i className="ti ti-lock" aria-hidden="true" />
+              <i className="bx bx-lock-alt" aria-hidden="true" />
               <input
                 className="login-input login-input--pw"
                 id="password"
@@ -59,7 +59,7 @@ function Login({ login, loading, error }) {
                 aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
                 <i
-                  className={`ti ${showPassword ? "ti-eye-off" : "ti-eye"}`}
+                  className={`bx ${showPassword ? "bx-hide" : "bx-show"}`}
                   aria-hidden="true"
                 />
               </button>
@@ -68,19 +68,18 @@ function Login({ login, loading, error }) {
 
           {error && (
             <div className="login-error">
-              <i className="ti ti-alert-circle" aria-hidden="true" />
+              <i className="bx bx-error-circle" aria-hidden="true" />
               {error}
             </div>
           )}
 
           <button type="submit" className="login-btn" disabled={loading}>
-            <i className="ti ti-login-2" aria-hidden="true" />
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 
         <div className="login-footer">
-          <i className="ti ti-lock-check" aria-hidden="true" />
+          <i className="bx bx-lock-open-alt" aria-hidden="true" />
           Chỉ dành cho quản trị viên
         </div>
       </div>

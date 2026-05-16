@@ -12,7 +12,6 @@ import TransFilesPage from "./pages/Home/HomePage";
 import AboutUsPage from "./pages/AboutUs/AboutUsPage";
 import LoginPage from "./pages/Auth/Login/LoginPage";
 import RegisterPage from "./pages/Auth/Register/RegisterPage";
-import ForgotPasswordPage from "./pages/Auth/ForgotPassword/ForgotPassword";
 import ProfilePage from "./pages/Profile/Profile";
 import NotFound from "./pages/nf/NotFound";
 
@@ -80,7 +79,6 @@ export default function App() {
             )
           }
         />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/*" element={<MainLayout user={user} logout={logout} />} />
       </Routes>
     </Router>

@@ -28,10 +28,22 @@ export default function RegisterPage({ register, loading, error }) {
 
   const validate = () => {
     if (!form.full_name.trim()) return "Vui lòng nhập họ tên.";
+
+    // Kiểm tra định dạng email: local@ten_mien.duoi
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) return "Vui lòng nhập email.";
+    if (!emailRegex.test(form.email)) return "Email không đúng định dạng.";
+
+    // Kiểm tra mật khẩu
     if (form.password.length < 8) return "Mật khẩu tối thiểu 8 ký tự.";
+    if (!/[A-Z]/.test(form.password))
+      return "Mật khẩu phải có ít nhất 1 chữ hoa.";
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password))
+      return "Mật khẩu phải có ít nhất 1 ký tự đặc biệt.";
+
     if (form.password !== form.confirm_password)
       return "Mật khẩu xác nhận không khớp.";
+
     return null;
   };
 
@@ -56,7 +68,7 @@ export default function RegisterPage({ register, loading, error }) {
       <div className="auth-page__card">
         <div className="auth-page__brand">
           <i className="bx bx-store auth-page__brand-icon"></i>
-          <span className="auth-page__brand-name">Site name</span>
+          <span className="auth-page__brand-name">TRANSDE</span>
         </div>
 
         <h1 className="auth-page__title">Tạo tài khoản</h1>
@@ -120,7 +132,7 @@ export default function RegisterPage({ register, loading, error }) {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder="Tối thiểu 8 ký tự"
+                placeholder="Ít nhất 8 ký tự, 1 chữ hoa, 1 ký tự đặc biệt"
                 className="auth-form__input"
                 value={form.password}
                 onChange={handleChange}

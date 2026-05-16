@@ -12,7 +12,9 @@ const UPLOAD_TYPES = [
   },
 ];
 
-// Detect file type from result_path extension
+const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 function getFileType(path = "") {
   const ext = path.split(".").pop().toLowerCase();
   if (ext === "pdf") return "pdf";
@@ -35,10 +37,11 @@ function UploadBox({
   const inputRef = useRef(null);
   const [actionError, setActionError] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
 
   const showActionError = (msg) => {
     setActionError(msg);
-    setTimeout(() => setActionError(null), 3000);
+    setTimeout(() => setActionError(null), 8000);
   };
 
   const handleItemClick = (accept) => {
@@ -51,7 +54,43 @@ function UploadBox({
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) onFileSelect(file);
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      showActionError(
+        `File vượt quá ${MAX_FILE_SIZE_MB}MB. Vui lòng chọn file nhỏ hơn.`
+      );
+      e.target.value = "";
+      return;
+    }
+
+    // Tạo local preview URL cho file vừa chọn
+    if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    const url = URL.createObjectURL(file);
+    setLocalPreviewUrl(url);
+
+    onFileSelect(file);
+  };
+
+  const handleCancelFile = () => {
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl);
+      setLocalPreviewUrl(null);
+    }
+    onFileSelect(null);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const handlePreviewLocal = () => {
+    if (!localPreviewUrl) return;
+    const newWindow = window.open("", "_blank");
+    if (!newWindow) {
+      showActionError(
+        "Trình duyệt đã chặn cửa sổ mới. Vui lòng cho phép popup và thử lại."
+      );
+      return;
+    }
+    newWindow.location.href = localPreviewUrl;
   };
 
   const isCompleted = sseStatus === "completed";
@@ -100,7 +139,6 @@ function UploadBox({
       return;
     }
 
-    // Open blank window BEFORE async work so browser doesn't block the popup
     const newWindow = window.open("", "_blank");
     if (!newWindow) {
       showActionError(
@@ -120,7 +158,6 @@ function UploadBox({
         return;
       }
 
-      // Fetch as blob to bypass Content-Disposition: attachment from server
       const res = await fetch(presignedUrl);
       if (!res.ok) throw new Error("Fetch failed");
       const blob = await res.blob();
@@ -130,8 +167,6 @@ function UploadBox({
       const blobUrl = URL.createObjectURL(typedBlob);
 
       newWindow.location.href = blobUrl;
-
-      // Revoke blob URL after a delay to free memory
       setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
     } catch (err) {
       console.error(err);
@@ -232,9 +267,27 @@ function UploadBox({
               {selectedFile.name}
             </span>
           </div>
-          <span className="upload__selected-size">
-            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-          </span>
+          <div className="upload__selected-actions">
+            <span className="upload__selected-size">
+              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+            </span>
+            {localPreviewUrl && (
+              <button
+                className="upload__action-btn upload__action-btn--preview"
+                onClick={handlePreviewLocal}
+                title="Xem trước file đã tải lên"
+              >
+                <i className="bx bx-show"></i> Xem trước
+              </button>
+            )}
+            <button
+              className="upload__action-btn upload__action-btn--cancel"
+              onClick={handleCancelFile}
+              title="Hủy file đã chọn"
+            >
+              <i className="bx bx-x"></i> Hủy
+            </button>
+          </div>
         </div>
       );
     }
@@ -263,6 +316,9 @@ function UploadBox({
             <i className={icon}></i>
             <p>{label}</p>
             <small>{ext}</small>
+            <small className="upload__item-limit">
+              Tối đa {MAX_FILE_SIZE_MB}MB
+            </small>
           </div>
         ))}
       </div>

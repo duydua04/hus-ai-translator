@@ -13,7 +13,7 @@ const MODES = [
   { id: "file", label: "Tệp đính kèm" },
 ];
 
-const MAX_TEXT_LENGTH = 1024;
+const MAX_TEXT_LENGTH = 2000;
 const DEBOUNCE_DELAY_MS = 800;
 
 function TransFilesPage({ user }) {
@@ -45,6 +45,7 @@ function TransFilesPage({ user }) {
     translateText,
     translateDocument,
     clearMessages,
+    cancelTranslation,
   } = useTranslation();
 
   const { submitFeedback, loading: feedbackLoading } = useFeedback();
@@ -173,11 +174,20 @@ function TransFilesPage({ user }) {
   };
 
   const handleSwapLangs = () => {
-    setSourceLang(targetLang);
-    setTargetLang(sourceLang);
+    const newSource = targetLang;
+    const newTarget = sourceLang;
+
+    setSourceLang(newSource);
+    setTargetLang(newTarget);
+
     if (translatedText) {
       setInputText(translatedText);
+      setResult(null);
+      resetFeedbackState();
       clearMessages();
+      if (!isFile) {
+        scheduleTranslate(translatedText, newSource, newTarget);
+      }
     }
   };
 
@@ -224,6 +234,12 @@ function TransFilesPage({ user }) {
     }
   };
 
+  const handleCancel = () => {
+    cancelTranslation();
+    resetFeedbackState();
+    clearMessages();
+  };
+
   const mainActionLabel = showFeedbackBtn ? "Đánh giá bản dịch" : "Dịch ngay";
   const onMainAction = showFeedbackBtn
     ? () => setShowFeedbackModal(true)
@@ -248,6 +264,7 @@ function TransFilesPage({ user }) {
           onTranslate={onMainAction}
           actionLabel={mainActionLabel}
           loading={isActionLoading}
+          onCancel={isFile && loading ? handleCancel : null}
         >
           {isFile ? (
             <UploadBox

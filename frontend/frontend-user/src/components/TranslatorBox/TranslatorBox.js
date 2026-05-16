@@ -12,12 +12,8 @@ function TranslatorBox({
   onTranslate,
   loading = false,
   actionLabel = "Dịch ngay",
+  onCancel = null,
 }) {
-  const getLangName = (id) => {
-    const lang = languages.find((l) => l.id === id); // Tìm theo id
-    return lang ? lang.language_name : id;
-  };
-
   return (
     <div className="translator__box">
       <div className="translator__tabs">
@@ -59,7 +55,13 @@ function TranslatorBox({
       </div>
 
       <div className="translator__main-content">{children}</div>
+
       <div className="translator__action">
+        {onCancel && (
+          <button className="btn btn--primary" onClick={onCancel} type="button">
+            Hủy
+          </button>
+        )}
         <button
           className={`btn btn--primary ${loading ? "btn--loading" : ""}`}
           onClick={onTranslate}

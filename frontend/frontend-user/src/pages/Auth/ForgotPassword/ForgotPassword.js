@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
       <div className="auth-page__card">
         <div className="auth-page__brand">
           <i className="bx bx-store auth-page__brand-icon"></i>
-          <span className="auth-page__brand-name">Site name</span>
+          <span className="auth-page__brand-name">TRANSDE</span>
         </div>
 
         {/* Progress indicator */}

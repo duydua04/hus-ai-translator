@@ -1,6 +1,3 @@
-// Mixins dùng chung cho tất cả trang auth
-// Import bằng: @use "../auth-shared" as *;
-
 @mixin auth-page-base {
   min-height: 100%;
   flex: 1;
@@ -117,6 +114,9 @@
 
     &::placeholder {
       color: var(--clr-text-muted);
+    }
+    @media (max-width: 767px) {
+      font-size: 0.7rem;
     }
   }
 

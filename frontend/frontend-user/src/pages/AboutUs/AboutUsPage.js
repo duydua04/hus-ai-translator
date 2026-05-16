@@ -3,20 +3,20 @@ import "./AboutUsPage.scss";
 
 function AboutUsPage() {
   const teamMembers = [
-    { initials: "M1", name: "Hoàng Đình Duy", role: "Trưởng nhóm" },
+    { initials: "DD", name: "Hoàng Đình Duy", role: "Trưởng nhóm" },
     {
-      initials: "M2",
+      initials: "HB",
       name: "Đặng Hải Bình",
       role: "Nghiên cứu và phát triển dịch file",
     },
     {
-      initials: "M3",
+      initials: "MD",
       name: "Chu Thị Mai Duyên",
       role: "Phát triển mô hình dịch thuật văn bản",
     },
-    { initials: "M4", name: "Thái Văn Thắng", role: "Backend Developer" },
-    { initials: "M5", name: "Nguyễn Thị Hòa", role: "Tester/QA/QC" },
-    { initials: "M6", name: "Đinh Thị Kiều Na", role: "Frontend Developer" },
+    { initials: "VT", name: "Thái Văn Thắng", role: "Backend Developer" },
+    { initials: "TH", name: "Nguyễn Thị Hòa", role: "Tester/QA/QC" },
+    { initials: "KN", name: "Đinh Thị Kiều Na", role: "Frontend Developer" },
   ];
 
   return (
@@ -70,7 +70,7 @@ function AboutUsPage() {
               {
                 icon: "bx bx-file",
                 title: "Dịch file PDF",
-                desc: "Giữ nguyên định dạng, bảng biểu và hình ảnh của tài liệu gốc.",
+                desc: "Hỗ trợ dịch file PDF với nội dung văn bản lên đến 5MB.",
               },
               {
                 icon: "bx bx-bolt-circle",
