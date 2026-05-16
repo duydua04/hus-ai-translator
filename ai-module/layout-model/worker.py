@@ -37,6 +37,8 @@ def process_file_task(task_data: dict):
     client_id = task_data.get("client_id")
     translation_id = task_data.get("translation_id")
     file_path = task_data.get("file_path")
+    source_lang = task_data.get("source_lang", "en")
+    target_lang = task_data.get("target_lang", "vi")
 
     channel = f"sse_{client_id}"
 
@@ -58,11 +60,11 @@ def process_file_task(task_data: dict):
         minio_client.fget_object(BUCKET_NAME, object_name, local_input)
 
         # 2. KHỞI TẠO PIPELINE CỦA BẠN (Dùng Google Translate)
-        print("[-] Khởi chạy DocumentTranslationPipeline (service='google')...")
+        print(f"[-] Khởi chạy DocumentTranslationPipeline (service='google', {source_lang}->{target_lang})...")
         pipeline = DocumentTranslationPipeline(
             service="google",  # Ép cứng dùng Google Translator theo yêu cầu
-            lang_in="en",
-            lang_out="vi",
+            lang_in=source_lang,
+            lang_out=target_lang,
             use_cache=True  # Giữ nguyên hệ thống cache thông minh của bạn
         )
 

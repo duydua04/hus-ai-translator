@@ -3,12 +3,20 @@ import "./AboutUsPage.scss";
 
 function AboutUsPage() {
   const teamMembers = [
-    { initials: "M1", name: "Member1", role: "role" },
-    { initials: "M2", name: "Member2", role: "role" },
-    { initials: "M3", name: "Member3", role: "role" },
-    { initials: "M4", name: "Member4", role: "role" },
-    { initials: "M5", name: "Member5", role: "role" },
-    { initials: "M6", name: "Member6", role: "role" },
+    { initials: "M1", name: "Hoàng Đình Duy", role: "Trưởng nhóm" },
+    {
+      initials: "M2",
+      name: "Đặng Hải Bình",
+      role: "Nghiên cứu và phát triển dịch file",
+    },
+    {
+      initials: "M3",
+      name: "Chu Thị Mai Duyên",
+      role: "Phát triển mô hình dịch thuật văn bản",
+    },
+    { initials: "M4", name: "Thái Văn Thắng", role: "Backend Developer" },
+    { initials: "M5", name: "Nguyễn Thị Hòa", role: "Tester/QA/QC" },
+    { initials: "M6", name: "Đinh Thị Kiều Na", role: "Frontend Developer" },
   ];
 
   return (
@@ -23,23 +31,6 @@ function AboutUsPage() {
               dịch thuật giúp việc chuyển đổi Anh - Việt trở nên chính xác, tự
               nhiên và tối ưu nhất cho người dùng Việt.
             </p>
-
-            <div className="about__stats">
-              <div className="about__stat-item">
-                <div className="about__stat-value">Tên model</div>
-                <div className="about__stat-label">Công nghệ cốt lõi</div>
-              </div>
-              <div className="about__stat-sep"></div>
-              <div className="about__stat-item">
-                <div className="about__stat-value">...</div>
-                <div className="about__stat-label">Độ chính xác</div>
-              </div>
-              <div className="about__stat-sep"></div>
-              <div className="about__stat-item">
-                <div className="about__stat-value">24/7</div>
-                <div className="about__stat-label">Sẵn sàng hỗ trợ</div>
-              </div>
-            </div>
           </div>
 
           <div className="about__hero-visual">

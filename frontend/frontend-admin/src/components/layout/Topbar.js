@@ -24,12 +24,6 @@ export default function Topbar() {
       <div>
         <span className="topbar__title">{title}</span>
       </div>
-
-      <div className="topbar__actions">
-        <button className="topbar__btn topbar__btn--notif">
-          <i className="bx bx-bell" />
-        </button>
-      </div>
     </header>
   );
 }

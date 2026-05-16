@@ -13,7 +13,6 @@ import UsersPage from "./pages/users/UsersPage";
 import DashPage from "./pages/dashboard/DashPage";
 import FeedbackListPage from "./pages/feedback/FeedbackListPage";
 import NotFound from "./pages/nf/NotFound";
-import LanguagesPage from "./pages/language/Language";
 
 import useAuth from "./hooks/useAuth";
 
@@ -58,7 +57,6 @@ export default function App() {
           <Route path="users" element={<UsersPage />} />
           <Route path="dash" element={<DashPage />} />
           <Route path="feedback/list" element={<FeedbackListPage />} />
-          <Route path="languages" element={<LanguagesPage />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
