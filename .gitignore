@@ -10,3 +10,4 @@ airflow/
 node_modules/
 ai-module/translate_model/models/**/*.bin
 .venv/
+.pytest_cache/
