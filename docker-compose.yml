@@ -114,7 +114,7 @@ services:
       MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-transde.site:9004}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-admin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-admin123}
-      MINIO_SECURE: "False"
+      MINIO_SECURE: "True"
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-transminer-uploads}
       # Redis — hostname nội bộ Docker
       REDIS_URL: redis://redis:6379
@@ -171,7 +171,7 @@ services:
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-admin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-admin123}
-      MINIO_SECURE: "False"
+      MINIO_SECURE: "True"
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-transminer-uploads}
       # Backend Webhook — cùng Docker network, gọi trực tiếp
       BACKEND_WEBHOOK_URL: http://backend:8000/api/webhook/translation-done
@@ -191,7 +191,7 @@ services:
       context: ./frontend/frontend-user
       dockerfile: Dockerfile
       args:
-        REACT_APP_API_URL: http://api.transde.site:8080
+        REACT_APP_API_URL: https://api.transde.site
     container_name: transminer_frontend_user
     restart: always
     networks:
@@ -203,7 +203,7 @@ services:
       context: ./frontend/frontend-admin
       dockerfile: Dockerfile
       args:
-        REACT_APP_API_URL: http://api.transde.site:8080
+        REACT_APP_API_URL: https://api.transde.site
     container_name: transminer_frontend_admin
     restart: always
     networks:
