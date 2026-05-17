@@ -16,6 +16,8 @@ export default function UsersPage() {
     selectedUser,
     detailLoading,
     detailError,
+    actionError,
+    setActionError,
     openDetail,
     closeDetail,
     lockUser,
@@ -100,7 +102,11 @@ export default function UsersPage() {
         user={selectedUser}
         loading={detailLoading}
         error={detailError}
-        onClose={closeDetail}
+        actionError={actionError}
+        onClose={() => {
+          closeDetail();
+          setActionError(null);
+        }}
         onLock={lockUser}
         onUnlock={unlockUser}
         onDelete={deleteUser}

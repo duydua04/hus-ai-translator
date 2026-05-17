@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import UserAPI from "../api/UserApi";
 
-// Chuyển API field => UI field
 function normalizeUser(u) {
   return {
     id: u.id,
@@ -45,10 +44,10 @@ export function useUsers() {
     plan: "",
   });
 
-  // --- Detail modal ---
   const [selectedUser, setSelectedUser] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   const buildParams = (f) => {
     const params = { page: f.page, limit: f.limit };
@@ -79,10 +78,10 @@ export function useUsers() {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Mở modal chi tiết — fetch riêng để lấy total_translations, total_feedbacks
   const openDetail = async (userId) => {
     setSelectedUser(null);
     setDetailError(null);
+    setActionError(null);
     setDetailLoading(true);
     try {
       const data = await UserAPI.getUserDetail(userId);
@@ -99,9 +98,9 @@ export function useUsers() {
   const closeDetail = () => {
     setSelectedUser(null);
     setDetailError(null);
+    setActionError(null);
   };
 
-  // Khóa / mở khóa — cập nhật cả list lẫn modal nếu đang mở
   const lockUser = async (userId) => {
     try {
       await UserAPI.toggleUserStatus(userId, false);
@@ -112,7 +111,9 @@ export function useUsers() {
       if (selectedUser?.id === userId)
         setSelectedUser((prev) => ({ ...prev, ...patch }));
     } catch (err) {
-      setError(err.response?.data?.detail || "Không thể khóa người dùng.");
+      setActionError(
+        err.response?.data?.detail || "Không thể khóa người dùng."
+      );
     }
   };
 
@@ -126,19 +127,22 @@ export function useUsers() {
       if (selectedUser?.id === userId)
         setSelectedUser((prev) => ({ ...prev, ...patch }));
     } catch (err) {
-      setError(err.response?.data?.detail || "Không thể mở khóa người dùng.");
+      setActionError(
+        err.response?.data?.detail || "Không thể mở khóa người dùng."
+      );
     }
   };
 
-  // Xóa — đóng modal nếu đang xem user bị xóa
   const deleteUser = async (userId) => {
     try {
       await UserAPI.deleteUser(userId);
       setUsers((prev) => prev.filter((u) => u.id !== userId));
       setTotal((prev) => prev - 1);
+      if (users.length === 1 && filters.page > 1)
+        setFilters((prev) => ({ ...prev, page: prev.page - 1 }));
       if (selectedUser?.id === userId) closeDetail();
     } catch (err) {
-      setError(err.response?.data?.detail || "Không thể xóa người dùng.");
+      setActionError(err.response?.data?.detail || "Không thể xóa người dùng.");
     }
   };
 
@@ -152,6 +156,8 @@ export function useUsers() {
     selectedUser,
     detailLoading,
     detailError,
+    actionError,
+    setActionError,
     openDetail,
     closeDetail,
     lockUser,
