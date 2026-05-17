@@ -2,12 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginPage.scss";
 
-/**
- * Props:
- *  login   (payload) => { success, message? }
- *  loading boolean
- *  error   string | null
- */
 export default function LoginPage({ login, loading, error }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -34,7 +28,7 @@ export default function LoginPage({ login, loading, error }) {
         {/* Logo / Brand */}
         <div className="auth-page__brand">
           <i className="bx bx-store auth-page__brand-icon"></i>
-          <span className="auth-page__brand-name">Site name</span>
+          <span className="auth-page__brand-name">TRANSDE</span>
         </div>
 
         <h1 className="auth-page__title">Đăng nhập</h1>
@@ -92,13 +86,6 @@ export default function LoginPage({ login, loading, error }) {
                 <i className={`bx ${showPassword ? "bx-hide" : "bx-show"}`}></i>
               </button>
             </div>
-          </div>
-
-          {/* Quên mật khẩu */}
-          <div className="auth-form__row auth-form__row--right">
-            <Link to="/forgot-password" className="auth-form__link">
-              Quên mật khẩu?
-            </Link>
           </div>
 
           <button

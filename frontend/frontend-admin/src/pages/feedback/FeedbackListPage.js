@@ -150,17 +150,6 @@ export default function FeedbackListPage() {
 
       {/* Filter bar */}
       <div className="filter-bar">
-        <div className="search">
-          <i className="bx bx-search search__icon" />
-          <input
-            className="search__input"
-            placeholder="Tìm theo nội dung feedback..."
-            value={filters.search}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, search: e.target.value, page: 1 }))
-            }
-          />
-        </div>
         <div className="filter-bar__actions">
           <select
             className="filter-select"

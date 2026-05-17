@@ -7,7 +7,7 @@ import {
   openSSEStream,
 } from "../api/translationApi";
 
-const MAX_TEXT_LENGTH = 1024;
+const MAX_TEXT_LENGTH = 2000;
 const MAX_FILE_SIZE_MB = 5;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const MESSAGE_DURATION_MS = 3000;
@@ -167,6 +167,12 @@ export default function useTranslation() {
     [createAbortSignal, clearMessages, showError, showSuccess]
   );
 
+  const cancelTranslation = useCallback(() => {
+    abortControllerRef.current?.abort();
+    setLoading(false);
+    setResult(null);
+  }, []);
+
   return {
     languages,
     fetchLanguages,
@@ -178,5 +184,6 @@ export default function useTranslation() {
     clearMessages,
     translateText,
     translateDocument,
+    cancelTranslation,
   };
 }
