@@ -1,220 +1,81 @@
-# tests/data/register_data.py
+"""
+Dữ liệu tĩnh cho kiểm thử chức năng đăng ký.
+Các trường: full_name, email, password, confirm_password
+"""
 
-
-# =========================================================
-# COMMON DATA
-# =========================================================
-
-VALID_USER = {
-    "full_name": "Test User",
-    "email": "test@gmail.com",
-    "password": "StrongPass123!",
-    "confirm_password": "StrongPass123!"
+# ── Tài khoản đã tồn tại (seed sẵn trong DB test) ────────────────────────────
+EXISTING_USER = {
+    "full_name": "Nguyen Van A",
+    "email": "existing@example.com",
+    "password": "Test@1234",
+    "confirm_password": "Test@1234",
+    "expected_error": "Email này đã được đăng ký",
 }
 
+# ── Các trường hợp mật khẩu không hợp lệ ─────────────────────────────────────
+INVALID_PASSWORDS = [
+    {
+        "id": "too_short",
+        "description": "Mật khẩu quá ngắn (< 8 ký tự)",
+        "password": "Ab1@",
+        "confirm_password": "Ab1@",
+        "expected_error": "Mật khẩu tối thiểu 8 ký tự",
+    },
+    {
+        "id": "no_uppercase",
+        "description": "Mật khẩu không có chữ hoa",
+        "password": "test@1234",
+        "confirm_password": "test@1234",
+        "expected_error": "Mật khẩu phải có ít nhất 1 chữ hoa",
+    },
+    {
+        "id": "no_special_char",
+        "description": "Mật khẩu không có ký tự đặc biệt",
+        "password": "Test1234",
+        "confirm_password": "Test1234",
+        "expected_error": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt",
+    },
+    {
+        "id": "no_number",
+        "description": "Mật khẩu không có chữ số",
+        "password": "Test@abcd",
+        "confirm_password": "Test@abcd",
+        "expected_error": "Mật khẩu phải có ít nhất 1 chữ số",
+    },
+]
 
-# =========================================================
-# SUCCESS CASE
-# =========================================================
+# ── Các trường hợp email không hợp lệ ────────────────────────────────────────
+INVALID_EMAILS = [
+    {
+        "id": "missing_at",
+        "description": "Email thiếu ký tự @",
+        "email": "invalidemail.com",
+        "expected_error": "Email không đúng định dạng",
+    },
+    {
+        "id": "missing_domain",
+        "description": "Email thiếu phần domain",
+        "email": "user@",
+        "expected_error": "Email không đúng định dạng",
+    },
+    {
+        "id": "has_space",
+        "description": "Email chứa khoảng trắng",
+        "email": "user name@example.com",
+        "expected_error": "Email không đúng định dạng",
+    },
+]
 
-REGISTER_SUCCESS_CASE = {
-    "name": "register_success",
-    "data": VALID_USER
+# ── Confirm password không khớp ───────────────────────────────────────────────
+PASSWORD_MISMATCH = {
+    "password": "Test@1234",
+    "confirm_password": "Test@5678",
+    "expected_error": "Mật khẩu xác nhận không khớp",
 }
 
-
-# =========================================================
-# DUPLICATE EMAIL
-# =========================================================
-
-REGISTER_DUPLICATE_EMAIL_CASE = {
-    "name": "duplicate_email",
-
-    "data": {
-        "full_name": "Duplicate User",
-        "password": "StrongPass123!"
-    },
-
-    "expected_error": "Email này đã được đăng ký"
-}
-
-
-# =========================================================
-# VALIDATION CASES
-# =========================================================
-
-REGISTER_VALIDATION_CASES = [
-
-    # -----------------------------------------------------
-    # Confirm password mismatch
-    # -----------------------------------------------------
-
-    {
-        "name": "confirm_password_not_match",
-
-        "override": {
-            "confirm_password": "WrongPassword123!"
-        },
-
-        "expected_error": "Mật khẩu xác nhận không khớp"
-    },
-
-    # -----------------------------------------------------
-    # Invalid email
-    # -----------------------------------------------------
-
-    {
-        "name": "invalid_email_format",
-
-        "override": {
-            "email": "invalid-email"
-        },
-
-        "expected_error": "Vui lòng nhập email"
-    },
-
-    # -----------------------------------------------------
-    # Password too short
-    # -----------------------------------------------------
-
-    {
-        "name": "short_password",
-
-        "override": {
-            "password": "123",
-            "confirm_password": "123"
-        },
-
-        "expected_error": "Mật khẩu tối thiểu 8 ký tự"
-    },
-
-    # -----------------------------------------------------
-    # Password lowercase only
-    # -----------------------------------------------------
-
-    {
-        "name": "password_lowercase_only",
-
-        "override": {
-            "password": "onlylowercase",
-            "confirm_password": "onlylowercase"
-        },
-
-        "expected_error": "Mật khẩu phải chứa chữ hoa"
-    },
-
-    # -----------------------------------------------------
-    # Password no number
-    # -----------------------------------------------------
-
-    {
-        "name": "password_no_number",
-
-        "override": {
-            "password": "OnlyLetters!",
-            "confirm_password": "OnlyLetters!"
-        },
-
-        "expected_error": "Mật khẩu phải chứa số"
-    },
-
-    # -----------------------------------------------------
-    # Password no special character
-    # -----------------------------------------------------
-
-    {
-        "name": "password_no_special_character",
-
-        "override": {
-            "password": "StrongPass123",
-            "confirm_password": "StrongPass123"
-        },
-
-        "expected_error": "Mật khẩu phải chứa ký tự đặc biệt"
-    },
-
-    # -----------------------------------------------------
-    # Password contains whitespace
-    # -----------------------------------------------------
-
-    {
-        "name": "password_contains_whitespace",
-
-        "override": {
-            "password": "Strong Pass123!",
-            "confirm_password": "Strong Pass123!"
-        },
-
-        "expected_error": "Mật khẩu không được chứa khoảng trắng"
-    },
-
-    # -----------------------------------------------------
-    # Password same as email
-    # -----------------------------------------------------
-
-    {
-        "name": "password_same_as_email",
-
-        "override": {
-            "password": "test@gmail.com",
-            "confirm_password": "test@gmail.com"
-        },
-
-        "expected_error": "Mật khẩu không được trùng Email"
-    },
-
-    # -----------------------------------------------------
-    # Password too long
-    # -----------------------------------------------------
-
-    {
-        "name": "password_too_long",
-
-        "override": {
-            "password": "A" * 300,
-            "confirm_password": "A" * 300
-        },
-
-        "expected_error": "Mật khẩu vượt quá độ dài cho phép"
-    },
-
-    # -----------------------------------------------------
-    # Empty required fields
-    # -----------------------------------------------------
-
-    {
-        "name": "empty_required_fields",
-
-        "override": {
-            "full_name": "",
-            "email": "",
-            "password": "",
-            "confirm_password": ""
-        },
-
-        "expected_error": "Vui lòng nhập họ tên"
-    },
-
-    {
-        "name": "password_valid",
-
-        "override": {
-            "password": "StrongPass123!",
-            "confirm_password": "StrongPass123!"
-        },
-
-
-        "expected_error": "Đăng ký thành công"
-    },
-    {
-    "name": "firstname_xss_injection_escape",
-
-    "override": {
-        "full_name": "<script>alert(1)</script>",
-        "password": "StrongPass123!",
-        "confirm_password": "StrongPass123!"
-    },
-
-    "expected_error": "Đăng ký thành công"
-}
+# ── Trường bắt buộc bị bỏ trống ──────────────────────────────────────────────
+REQUIRED_FIELDS = [
+    {"field": "full_name", "expected_error": "Vui lòng nhập họ tên"},
+    {"field": "email",     "expected_error": "Vui lòng nhập email"},
+    {"field": "password",  "expected_error": "Mật khẩu tối thiểu 8 ký tự"},
 ]

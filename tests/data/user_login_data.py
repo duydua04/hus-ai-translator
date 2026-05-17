@@ -1,35 +1,95 @@
-EMPTY_FIELDS = {
-    "email": "",
-    "password": "",
-    "expected_error": None
+"""
+Test data cho chức năng đăng nhập User.
+Bao gồm: happy path, negative path, boundary value.
+"""
+
+# ── tài khoản hợp lệ (lấy từ fixture users.json) ───────────────────────────
+VALID_USER = {
+    "email":    "user_test@hus.edu.vn",
+    "password": "Test@12345",
 }
 
-EMPTY_EMAIL = {
-    "email": "",
-    "password": "StrongPass123!",
-    "expected_error": None
-}
+# ── parametrize: đăng nhập thành công ───────────────────────────────────────
+LOGIN_SUCCESS_CASES = [
+    pytest_param := {
+        "id":       "valid_user",
+        "email":    "user_test@hus.edu.vn",
+        "password": "Test@12345",
+        "desc":     "Email và mật khẩu hợp lệ → đăng nhập thành công",
+    },
+]
 
-EMPTY_PASSWORD = {
-    "email": "test@example.com",
-    "password": "",
-    "expected_error": None
-}
+# ── parametrize: đăng nhập thất bại ─────────────────────────────────────────
+LOGIN_FAILURE_CASES = [
+    {
+        "id":       "wrong_password",
+        "email":    "user_test@hus.edu.vn",
+        "password": "WrongPass!99",
+        "desc":     "Đúng email, sai mật khẩu → báo lỗi xác thực",
+    },
+    {
+        "id":       "wrong_email",
+        "email":    "notexist@hus.edu.vn",
+        "password": "Test@12345",
+        "desc":     "Email không tồn tại → báo lỗi xác thực",
+    },
+    {
+        "id":       "empty_email",
+        "email":    "",
+        "password": "Test@12345",
+        "desc":     "Email rỗng → nút submit bị disabled, không thể gửi form",
+    },
+    {
+        "id":       "empty_password",
+        "email":    "user_test@hus.edu.vn",
+        "password": "",
+        "desc":     "Mật khẩu rỗng → nút submit bị disabled, không thể gửi form",
+    },
+    {
+        "id":       "both_empty",
+        "email":    "",
+        "password": "",
+        "desc":     "Cả hai trường rỗng → nút submit bị disabled",
+    },
+    {
+        "id":       "invalid_email_format",
+        "email":    "not-an-email",
+        "password": "Test@12345",
+        "desc":     "Sai định dạng email → browser validation chặn submit",
+    },
+    {
+        "id":       "locked_account",
+        "email":    "locked@hus.edu.vn",
+        "password": "Test@12345",
+        "desc":     "Tài khoản bị khóa → hiển thị thông báo tài khoản bị khóa",
+    },
+    {
+        "id":       "unverified_account",
+        "email":    "unverified@hus.edu.vn",
+        "password": "Test@12345",
+        "desc":     "Chưa xác thực email → hiển thị thông báo yêu cầu xác thực",
+    },
+]
 
-INVALID_EMAIL = {
-    "email": "wronguser@example.com",
-    "password": "StrongPass123!",
-    "expected_error": "Email hoặc mật khẩu không chính xác"
-}
-INVALID_PASSWORD = {
-    "email": "testuser@example.com",
-    "password": "wrong_password",
-    "expected_error": "Email hoặc mật khẩu không chính xác"
-}   
+# ── boundary: mật khẩu cực ngắn / cực dài ───────────────────────────────────
+LOGIN_BOUNDARY_CASES = [
+    {
+        "id":       "password_1_char",
+        "email":    "user_test@hus.edu.vn",
+        "password": "A",
+        "desc":     "Mật khẩu 1 ký tự → xác thực thất bại",
+    },
+    {
+        "id":       "password_255_chars",
+        "email":    "user_test@hus.edu.vn",
+        "password": "A" * 255,
+        "desc":     "Mật khẩu 255 ký tự → xác thực thất bại (không khớp)",
+    },
+]
 
-INVALID_EMAIL_FORMAT = {
-    "email": "invalid-email-format",
-    "password": "StrongPass123!",
-    "expected_error": "Email không hợp lệ"
+# ── thông báo lỗi mong đợi trên UI ──────────────────────────────────────────
+ERROR_MESSAGES = {
+    "invalid_credentials": "Email hoặc mật khẩu không chính xác",
+    "account_locked":      "Tài khoản của bạn đã bị khóa tạm thời",
+    "unverified_email":    "Vui lòng xác thực email trước khi đăng nhập",
 }
-

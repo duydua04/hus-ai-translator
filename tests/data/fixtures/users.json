@@ -1,13 +1,36 @@
-
-[
-  {
-    "full_name": "Existing User",
-    "email": "admin@example.com",
-    "password": "AdminPassw0rd!"
-  },
-  {
-    "full_name": "Sample Customer",
-    "email": "customer@example.com",
-    "password": "CustomerPassw0rd!"
-  }
-]
+{
+  "users": [
+    {
+      "id": "valid_user",
+      "email": "user1@example.com",
+      "password": "Test1234!",
+      "role": "user",
+      "status": "verified",
+      "description": "Tài khoản user thông thường đã xác thực email"
+    },
+    {
+      "id": "admin_user",
+      "email": "admin_test@hus.edu.vn",
+      "password": "Admin@12345",
+      "role": "admin",
+      "status": "verified",
+      "description": "Tài khoản quản trị viên"
+    },
+    {
+      "id": "locked_user",
+      "email": "locked@hus.edu.vn",
+      "password": "Test@12345",
+      "role": "user",
+      "status": "locked",
+      "description": "Tài khoản bị khóa do đăng nhập sai nhiều lần"
+    },
+    {
+      "id": "unverified_user",
+      "email": "unverified@hus.edu.vn",
+      "password": "Test@12345",
+      "role": "user",
+      "status": "unverified",
+      "description": "Tài khoản chưa xác thực email"
+    }
+  ]
+}
