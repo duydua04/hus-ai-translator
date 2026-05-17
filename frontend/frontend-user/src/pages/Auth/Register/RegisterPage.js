@@ -29,17 +29,19 @@ export default function RegisterPage({ register, loading, error }) {
   const validate = () => {
     if (!form.full_name.trim()) return "Vui lòng nhập họ tên.";
 
-    // Kiểm tra định dạng email: local@ten_mien.duoi
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email.trim()) return "Vui lòng nhập email.";
     if (!emailRegex.test(form.email)) return "Email không đúng định dạng.";
 
-    // Kiểm tra mật khẩu
     if (form.password.length < 8) return "Mật khẩu tối thiểu 8 ký tự.";
     if (!/[A-Z]/.test(form.password))
       return "Mật khẩu phải có ít nhất 1 chữ hoa.";
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password))
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.password))
       return "Mật khẩu phải có ít nhất 1 ký tự đặc biệt.";
+    if (!/[0-9]/.test(form.password))
+      return "Mật khẩu phải có ít nhất 1 chữ số.";
+    if (form.password === form.email)
+      return "Mật khẩu không được trùng với email.";
 
     if (form.password !== form.confirm_password)
       return "Mật khẩu xác nhận không khớp.";

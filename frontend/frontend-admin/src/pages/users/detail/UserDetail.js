@@ -37,6 +37,7 @@ export default function UserDetailModal({
   user,
   loading,
   error,
+  actionError,
   onClose,
   onLock,
   onUnlock,
@@ -81,10 +82,12 @@ export default function UserDetailModal({
             {error && (
               <p className="modal__state modal__state--error">{error}</p>
             )}
+            {actionError && (
+              <p className="modal__state modal__state--error">{actionError}</p>
+            )}
 
             {user && (
               <>
-                {/* Avatar + tên */}
                 <div className="modal__user-header">
                   <UserCell
                     initials={user.initials}
@@ -102,7 +105,6 @@ export default function UserDetailModal({
                   </Badge>
                 </div>
 
-                {/* Thông tin */}
                 <dl className="modal__info">
                   <div className="modal__info-row">
                     <dt>Gói dịch vụ</dt>

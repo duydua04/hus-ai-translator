@@ -6,16 +6,30 @@ export default function LoginPage({ login, loading, error }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validate = () => {
+    if (!form.email.trim()) return "Vui lòng nhập email.";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) return "Email không đúng định dạng.";
+    if (!form.password) return "Vui lòng nhập mật khẩu.";
+    return null;
+  };
+
   const handleSubmit = async () => {
-    if (!form.email || !form.password) return;
+    setLocalError(null);
+    const err = validate();
+    if (err) {
+      setLocalError(err);
+      return;
+    }
     const result = await login(form);
-    if (result.success) navigate("/");
+    if (result?.success) navigate("/");
   };
 
   const handleKeyDown = (e) => {
@@ -37,10 +51,10 @@ export default function LoginPage({ login, loading, error }) {
         </p>
 
         {/* Error */}
-        {error && (
+        {(localError || error) && (
           <div className="auth-page__alert auth-page__alert--error">
             <i className="bx bx-error-circle"></i>
-            {error}
+            {localError || error}
           </div>
         )}
 
