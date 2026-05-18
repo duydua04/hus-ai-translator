@@ -1,91 +1,94 @@
 """
-Test data cho chức năng Dịch văn bản – Text Mode.
+data/translation_data.py
+────────────────────────
+Dữ liệu test cho luồng dịch văn bản (text translation).
+
+UUID của ngôn ngữ phải khớp với giá trị <option value="..."> trong HTML.
+Nếu backend trả về ID khác, cập nhật LANG_EN / LANG_VI tại đây.
 """
 
-from pages.home_page import HomePage
+# ── Language option values ────────────────────────────────────────────────────
+LANG_EN = "5baa6399-bb68-4ea1-adbf-9da0fd83180f"
+LANG_VI = "46a5f84f-57f9-4636-a565-c19905f0b07c"
 
-# ── shorthand ─────────────────────────────────────────────────────────────────
-EN = HomePage.LANG_EN
-VI = HomePage.LANG_VI
+# ── Giới hạn ký tự ───────────────────────────────────────────────────────────
+MAX_CHARS = 2000
 
-# ── văn bản mẫu hợp lệ ───────────────────────────────────────────────────────
-SAMPLES = {
-    "short_vi": {
-        "text":   "Giải tích hàm số",
-        "source": VI,
-        "target": EN,
-        "desc":   "Văn bản ngắn tiếng Việt → tiếng Anh",
+# ── Dữ liệu dịch hợp lệ ─────────────────────────────────────────────────────
+VALID_TRANSLATIONS = [
+    {
+        "id": "en_to_vi_short",
+        "source": LANG_EN,
+        "target": LANG_VI,
+        "input": "Hello",
+        "description": "Dịch từ ngắn EN → VI",
     },
-    "short_en": {
-        "text":   "Mathematical analysis",
-        "source": EN,
-        "target": VI,
-        "desc":   "Văn bản ngắn tiếng Anh → tiếng Việt",
+    {
+        "id": "vi_to_en_short",
+        "source": LANG_VI,
+        "target": LANG_EN,
+        "input": "Xin chào",
+        "description": "Dịch từ ngắn VI → EN",
     },
-    "with_latex_inline": {
-        "text":   "Cho hàm số $f(x) = x^2 + 1$, tìm đạo hàm.",
-        "source": VI,
-        "target": EN,
-        "desc":   "Văn bản có công thức LaTeX inline $...$",
+    {
+        "id": "en_to_vi_sentence",
+        "source": LANG_EN,
+        "target": LANG_VI,
+        "input": "Good morning, how are you today?",
+        "description": "Dịch câu hoàn chỉnh EN → VI",
     },
-    "with_latex_display": {
-        "text":   "Tích phân sau đây bằng bao nhiêu?\n$$\\int_0^1 x^2\\,dx$$",
-        "source": VI,
-        "target": EN,
-        "desc":   "Văn bản có công thức LaTeX display $$...$$",
+    {
+        "id": "vi_to_en_sentence",
+        "source": LANG_VI,
+        "target": LANG_EN,
+        "input": "Chào buổi sáng, bạn có khỏe không?",
+        "description": "Dịch câu hoàn chỉnh VI → EN",
     },
-    "medium_vi": {
-        "text": (
-            "Trong toán học, giải tích là một nhánh nghiên cứu về giới hạn, "
-            "đạo hàm, tích phân và chuỗi vô hạn. Giải tích được phát triển "
-            "độc lập bởi Isaac Newton và Gottfried Wilhelm Leibniz vào thế kỷ 17."
+    {
+        "id": "en_to_vi_paragraph",
+        "source": LANG_EN,
+        "target": LANG_VI,
+        "input": (
+            "Artificial intelligence is transforming the way we live and work. "
+            "Machine learning models can now understand and generate human language "
+            "with remarkable accuracy."
         ),
-        "source": VI,
-        "target": EN,
-        "desc":   "Đoạn văn trung bình ~50 từ tiếng Việt",
+        "description": "Dịch đoạn văn EN → VI",
     },
-}
+]
 
-# ── boundary ──────────────────────────────────────────────────────────────────
-BOUNDARY = {
-    "exactly_2000": {
-        "text":   "a" * 2000,
-        "desc":   "Đúng 2000 ký tự – giới hạn tối đa",
-        "source": VI,
-        "target": EN,
-    },
-    "over_2000": {
-        "text":   "a" * 2001,
-        "desc":   "2001 ký tự – vượt giới hạn",
-        "source": VI,
-        "target": EN,
-    },
-    "single_char": {
-        "text":   "A",
-        "desc":   "1 ký tự – giá trị biên tối thiểu",
-        "source": EN,
-        "target": VI,
-    },
-}
+# ── Văn bản dài (gần giới hạn) ───────────────────────────────────────────────
+LONG_TEXT_EN = "This is a test sentence for performance evaluation. " * 38  # ~1976 ký tự
+LONG_TEXT_VI = "Đây là câu kiểm tra hiệu năng của hệ thống dịch thuật. " * 34  # ~1938 ký tự
 
-# ── negative ──────────────────────────────────────────────────────────────────
-NEGATIVE = {
-    "empty_string": {
-        "text":   "",
-        "desc":   "Chuỗi rỗng – nút Dịch ngay không nên hoạt động",
-        "source": VI,
-        "target": EN,
-    },
-    "whitespace_only": {
-        "text":   "     ",
-        "desc":   "Chỉ khoảng trắng – hệ thống không nên dịch",
-        "source": VI,
-        "target": EN,
-    },
-}
+# ── Văn bản vượt giới hạn ────────────────────────────────────────────────────
+OVER_LIMIT_TEXT = "A" * (MAX_CHARS + 1)
 
-# ── swap pairs ────────────────────────────────────────────────────────────────
-SWAP_PAIRS = [
-    {"source": VI, "target": EN, "desc": "VI→EN hoán thành EN→VI"},
-    {"source": EN, "target": VI, "desc": "EN→VI hoán thành VI→EN"},
+# ── Văn bản đặc biệt ─────────────────────────────────────────────────────────
+SPECIAL_TEXTS = [
+    {
+        "id": "only_numbers",
+        "input": "12345 67890",
+        "description": "Chỉ có số",
+    },
+    {
+        "id": "only_punctuation",
+        "input": "!!! ??? ...",
+        "description": "Chỉ có ký tự đặc biệt",
+    },
+    {
+        "id": "mixed_language",
+        "input": "Hello thế giới",
+        "description": "Trộn lẫn ngôn ngữ",
+    },
+    {
+        "id": "html_injection",
+        "input": "<script>alert('xss')</script>",
+        "description": "Văn bản chứa HTML/script tag",
+    },
+    {
+        "id": "unicode_emoji",
+        "input": "Hello 😊 Xin chào 🌍",
+        "description": "Văn bản có emoji",
+    },
 ]

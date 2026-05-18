@@ -43,6 +43,17 @@ def browser_context_args(browser_context_args: dict) -> dict:
         "locale": "vi-VN",
     }
 
+@pytest.fixture(scope="session")
+def browser_type_launch_options(browser_type_launch_options: dict) -> dict:
+    """
+    Cấu hình launch options – thêm slow_mo để dễ quan sát khi debug.
+    Đặt slow_mo=0 khi chạy CI/CD.
+    """
+    slow_mo = int(os.getenv("SLOW_MO", "500"))   # đọc từ .env hoặc mặc định 500ms
+    return {
+        **browser_type_launch_options,
+        "slow_mo": slow_mo,
+    }
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 2.  PAGE OBJECTS  (pytest-playwright inject 'page' tự động)
