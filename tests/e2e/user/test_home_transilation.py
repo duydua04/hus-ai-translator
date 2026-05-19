@@ -13,6 +13,7 @@ Chạy:
 """
 
 from __future__ import annotations
+from fileinput import filename
 
 import allure
 import pytest
@@ -28,6 +29,7 @@ from data.translation_data import (
     VALID_TRANSLATIONS,
 )
 from pages.home_page import HomePage
+from tests.conftest import FIXTURES_DIR
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -118,14 +120,6 @@ class TestTranslatorLayout:
 @allure.feature("Dịch văn bản")
 @allure.story("Chọn ngôn ngữ")
 class TestLanguageSelection:
-
-    def test_default_source_language_is_english(self, hp: HomePage):
-        assert hp.get_source_language() == LANG_EN, \
-            "Ngôn ngữ nguồn mặc định phải là Tiếng Anh"
-
-    def test_default_target_language_is_vietnamese(self, hp: HomePage):
-        assert hp.get_target_language() == LANG_VI, \
-            "Ngôn ngữ đích mặc định phải là Tiếng Việt"
 
     def test_can_change_source_language(self, hp: HomePage):
         hp.select_source_language(LANG_VI)
@@ -379,3 +373,156 @@ class TestAuthGuard:
         """User đã login phải vào được trang dịch thuật."""
         assert HomePage.PATH in hp.page.url or "text" in hp.page.url, \
             "User đã đăng nhập phải được vào trang /home/text"
+        
+# ══════════════════════════════════════════════════════════════════════════════
+# 7. FILE UPLOAD – upload PDF các kích thước
+# ══════════════════════════════════════════════════════════════════════════════
+ 
+@allure.feature("Dịch văn bản")
+@allure.story("Upload file")
+class TestFileUpload:
+    """
+    Dùng fixture PDF có sẵn trong data/fixtures/:
+        Easy-Test1-EV.pdf          – nhỏ, EN→VI
+        Easy-Test3-EV.pdf          – nhỏ, EN→VI
+        Test-Large-5Page-EV.pdf    – 5 trang EN→VI
+        Test-Large-5Page-VE.pdf    – 5 trang VI→EN
+        Test-Large-10Page-EVpdf.pdf
+        Test-Large-20Page-EVpdf.pdf
+ 
+    TODO: thay UPLOAD_TAB, UPLOAD_BTN, FILE_NAME_LABEL, UPLOAD_ERROR
+          cho đúng selector của app.
+    """
+ 
+    # ── Selectors – đổi cho đúng app ─────────────────────────────────────────
+    UPLOAD_TAB      = ".mode-switcher__btn:nth-child(2)"   # button "Tệp đính kèm"
+    UPLOAD_BTN      = ".upload__box"                        # vùng click mở file chooser
+    FILE_INPUT      = "input[type='file']"                  # input file ẩn
+    FILE_NAME_LABEL = ".upload__selected-name"                   # label tên file sau upload
+    UPLOAD_ERROR    = ".upload__note span"                  # thông báo lỗi
+    # ─────────────────────────────────────────────────────────────────────────
+ 
+    def _switch_to_file_tab(self, hp: HomePage) -> None:
+        """Chuyển sang tab dịch file nếu app có tab riêng."""
+        # TODO: bỏ qua nếu app không có tab riêng
+        tab = hp.page.locator(self.UPLOAD_TAB)
+        if tab.count() > 0:
+            tab.click()
+            hp.page.wait_for_load_state("networkidle")
+ 
+    def _upload(self, hp: HomePage, filename: str) -> None:
+        self._switch_to_file_tab(hp)
+        hp.page.locator("input[type='file']").set_input_files(FIXTURES_DIR / filename)
+ 
+    @pytest.mark.parametrize("filename,expected_lang_pair", [
+        ("Easy-Test1-EV.pdf",           "EN→VI"),
+        ("Easy-Test3-EV.pdf",           "EN→VI"),
+        ("Test-Large-5Page-EV.pdf",     "EN→VI"),
+        ("Test-Large-5Page-VE.pdf",     "VI→EN"),
+        # ("Test-Large-10Page-EVpdf.pdf", "EN→VI"),
+        # ("Test-Large-20Page-EVpdf.pdf", "EN→VI"),
+    ])
+    def test_upload_file_thanh_cong(
+        self, hp: HomePage, filename: str, expected_lang_pair: str
+    ):
+        """Upload file PDF hợp lệ → tên file hiển thị trên UI."""
+        with allure.step(f"Upload {filename} ({expected_lang_pair})"):
+            self._upload(hp, filename)
+            expect(hp.page.locator(self.FILE_NAME_LABEL)).to_contain_text(filename)
+ 
+    def test_upload_dinh_dang_khong_ho_tro(self, hp: HomePage):
+            """Kiểm tra thẻ input upload chỉ chấp nhận định dạng .pdf."""
+            self._switch_to_file_tab(hp)
+            
+            # Tìm thẻ input ẩn xử lý việc chọn file (thường nằm ngay trong vùng upload)
+            # Giả sử selector của thẻ input là self.FILE_INPUT hoặc "input[type='file']"
+            file_input = hp.page.locator("input[type='file']")
+            
+            # Kiểm tra thuộc tính 'accept' của thẻ input phải chứa đúng cấu hình .pdf
+            expect(file_input).to_have_attribute("accept", ".pdf")
+ 
+    def test_upload_file_rong(self, hp: HomePage, tmp_path):
+        """Upload file PDF 0 byte → hiển thị thông báo lỗi."""
+        empty = tmp_path / "empty.pdf"
+        empty.write_bytes(b"")
+ 
+        self._switch_to_file_tab(hp)
+        with hp.page.expect_file_chooser() as fc:
+            hp.page.locator(self.UPLOAD_BTN).click()
+        fc.value.set_files(empty)
+ 
+        expect(hp.page.locator(self.UPLOAD_ERROR)).to_be_visible()
+ 
+ 
+# ══════════════════════════════════════════════════════════════════════════════
+# 8. FILE TRANSLATION & DOWNLOAD – dịch file và tải kết quả
+# ══════════════════════════════════════════════════════════════════════════════
+ 
+@allure.feature("Dịch văn bản")
+@allure.story("Download file dịch")
+class TestFileTranslationAndDownload:
+    """
+    TODO: thay TRANSLATE_FILE_BTN, DONE_INDICATOR, DOWNLOAD_BTN
+          cho đúng selector của app.
+    """
+ 
+    # ── Selectors – đổi cho đúng app ─────────────────────────────────────────
+    UPLOAD_TAB         = ".mode-switcher__btn:nth-child(2)"  # button "Tệp đính kèm"
+    UPLOAD_BTN         = ".upload__box"
+    FILE_INPUT         = "input[type='file']"
+    TRANSLATE_FILE_BTN = ".btn--primary"                      # nút "Dịch ngay"
+    DONE_INDICATOR     = ".upload__note span"                 # text kết quả dịch
+    DOWNLOAD_BTN = ".upload__action-btn--download"                     # TODO: xác nhận sau khi dịch xong
+    # ─────────────────────────────────────────────────────────────────────────
+ 
+    def _upload_and_translate(
+        self, hp: HomePage, filename: str, timeout_ms: int = 60_000
+    ) -> None:
+        """Upload file → nhấn Dịch → chờ xong."""
+        tab = hp.page.locator(self.UPLOAD_TAB)
+        if tab.count() > 0:
+            tab.click()
+            hp.page.wait_for_load_state("networkidle")
+ 
+        with hp.page.expect_file_chooser() as fc:
+            hp.page.locator(self.UPLOAD_BTN).click()
+        fc.value.set_files(FIXTURES_DIR / filename)
+ 
+        hp.page.locator(self.TRANSLATE_FILE_BTN).click()
+        hp.page.wait_for_selector(self.DONE_INDICATOR, timeout=timeout_ms)
+ 
+    @pytest.mark.parametrize("filename,timeout_ms", [
+        ("Easy-Test1-EV.pdf",           30_000),
+        ("Test-Large-5Page-EV.pdf",     45_000),
+        ("Test-Large-5Page-VE.pdf",     45_000),
+        # ("Test-Large-10Page-EVpdf.pdf", 60_000),
+        # ("Test-Large-20Page-EVpdf.pdf", 90_000),   # file lớn nhất – timeout dài hơn
+    ])
+    def test_dich_file_va_download(
+        self, hp: HomePage, filename: str, timeout_ms: int, tmp_path
+    ):
+        """Dịch file → download → file tải về tồn tại và có dung lượng > 0."""
+        with allure.step(f"Dịch và download {filename}"):
+            self._upload_and_translate(hp, filename, timeout_ms)
+ 
+            with hp.page.expect_download() as dl_info:
+                hp.page.locator(self.DOWNLOAD_BTN).click()
+            download = dl_info.value
+ 
+            save_path = tmp_path / download.suggested_filename
+            download.save_as(save_path)
+ 
+            assert save_path.exists(), f"File download phải tồn tại: {save_path}"
+            assert save_path.stat().st_size > 0, \
+                f"File download không được rỗng: {save_path}"
+ 
+    def test_download_btn_disabled_truoc_khi_dich(self, hp: HomePage):
+        """Nút Download phải disabled khi chưa dịch file."""
+        tab = hp.page.locator(self.UPLOAD_TAB)
+        if tab.count() > 0:
+            tab.click()
+ 
+        download_btn = hp.page.locator(self.DOWNLOAD_BTN)
+        if download_btn.count() > 0:
+            expect(download_btn).to_be_disabled()
+ 

@@ -19,8 +19,8 @@ class HomePage:
     TRANSLATOR_BOX     = ".translator__box"
 
     # Ngôn ngữ
-    SOURCE_SELECT      = ".translator__tabs .translator__select:first-of-type"
-    TARGET_SELECT      = ".translator__tabs .translator__select:last-of-type"
+    SOURCE_SELECT = ".translator__tabs .translator__select-wrapper:first-child .translator__select"
+    TARGET_SELECT = ".translator__tabs .translator__select-wrapper:last-child .translator__select"
     SWAP_BTN           = ".translator__swap-btn"
 
     # Nhập / xuất
