@@ -93,9 +93,9 @@ pytest e2e/ --html=reports/report.html --self-contained-html
 
 | Tài liệu | Link |
 |----------|------|
-| 📄 Test Plan | [Google Sheets — Test Plan](https://docs.google.com/document/d/1YE7lUOPsaXc9oHhLAynKqsnkbYZU9JP5/edit) |
-| 🗂️ Test Cases (300+) | [Google Sheets — Test Cases](https://docs.google.com/spreadsheets/d/10GPgtvYsajffjaWpGKRn23oY_hp1Go5goSuRwl4p3bo/edit?gid=662710053#gid=662710053) |
-| 🐛 Bug Report | [Google Sheets — Bug Tracking](https://docs.google.com/spreadsheets/d/1b70eouFZ2PEjVS01Dl5c7DsUqMjYyZKs/edit?gid=344164659#gid=344164659) |
+| 📄 Test Plan | [Google Sheets — Test Plan](https://docs.google.com/document/d/1XpkWS310Uk1hqxGRfVyeyS9JDOX314b2/edit) |
+| 🗂️ Test Cases (300+) | [Google Sheets — Test Cases](https://docs.google.com/spreadsheets/d/1kCyIl2MFaR-b21G74nrx9O3AzHWuZTFKK_cjet8XS8o/edit?gid=662710053#gid=662710053) |
+| 🐛 Bug Report | [Google Sheets — Bug Tracking](https://docs.google.com/spreadsheets/d/1Drl3xuHdRBsqbApxPj4XAde4sHoFtz2h/edit?gid=344164659#gid=344164659) |
 
 > **300+ test case** tổng cộng (thủ công + tự động) bao gồm UI/UX, logic nghiệp vụ, API, boundary và negative scenarios.
 
