@@ -23,7 +23,7 @@ class DashboardPage:
     # ---------------- ACTIONS ----------------
 
     def open(self):
-        self.page.goto("/admin/dashboard")
+        self.page.goto("/dash")
 
     def select_time_filter(self, option: str):
         self.time_filter.click()

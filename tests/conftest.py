@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Page
+from tests.pages.admin.admin_user_page import AdminUserPage
 
 # ── load biến môi trường từ .env ─────────────────────────────────────────────
 load_dotenv()
@@ -43,6 +44,17 @@ def browser_context_args(browser_context_args: dict) -> dict:
         "locale": "vi-VN",
     }
 
+@pytest.fixture(scope="session")
+def browser_type_launch_options(browser_type_launch_options: dict) -> dict:
+    """
+    Cấu hình launch options – thêm slow_mo để dễ quan sát khi debug.
+    Đặt slow_mo=0 khi chạy CI/CD.
+    """
+    slow_mo = int(os.getenv("SLOW_MO", "500"))   # đọc từ .env hoặc mặc định 500ms
+    return {
+        **browser_type_launch_options,
+        "slow_mo": slow_mo,
+    }
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 2.  PAGE OBJECTS  (pytest-playwright inject 'page' tự động)
@@ -90,6 +102,10 @@ def admin_user_page(page: Page):
     from pages.admin.admin_user_page import AdminUserPage
     return AdminUserPage(page, ADMIN_URL)
 
+# conftest.py
+# @pytest.fixture()
+# def admin_user_page(authenticated_admin_page: Page) -> AdminUserPage:
+#     return AdminUserPage(authenticated_admin_page)  # chỉ truyền 1 argument
 
 @pytest.fixture(scope="function")
 def dashboard_page(page: Page):
@@ -158,15 +174,21 @@ def authenticated_user_page(page: Page, valid_user: dict) -> Page:
     return page
 
 
+ADMIN_EMAIL = "admin123@example.com"    # đổi lại
+ADMIN_PASS  = "admin123"        # đổi lại
+
+
 @pytest.fixture(scope="function")
-def authenticated_admin_page(page: Page, admin_user: dict) -> Page:
-    """
-    Trả về Page đã đăng nhập với tài khoản admin (cổng 3001).
-    Dùng cho test Dashboard, quản lý user, feedback admin.
-    """
-    from pages.admin.admin_login_page import AdminLoginPage
-    alp = AdminLoginPage(page, ADMIN_URL)
-    alp.navigate()
-    alp.login(admin_user["email"], admin_user["password"])
+def authenticated_admin_page(page: Page) -> Page:
+    """Login admin trước khi chạy test."""
+    page.goto(f"{ADMIN_URL}/login")
     page.wait_for_load_state("networkidle")
+
+    page.locator("#email").fill(ADMIN_EMAIL)
+    page.locator("#password").fill(ADMIN_PASS)
+    page.locator(".login-btn").click()
+
+    # Chờ login xong → redirect vào trang admin
+    page.wait_for_url(f"{ADMIN_URL}/admin/**", timeout=10_000)
+
     return page

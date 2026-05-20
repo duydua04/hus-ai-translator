@@ -8,8 +8,8 @@ Chạy: pytest e2e/user/test_performance.py -v -s --headed
 import time
 import pytest
 from playwright.sync_api import Page
-from pages.performance_page import PerformancePage
-from data.performance_data import (
+from tests.performance.pages.performance_page import PerformancePage
+from tests.performance.data.performance_data import (
     PDF_2P, TEXT_SMALL, TEXT_MEDIUM, TEXT_LARGE,
     LABEL_SMALL, LABEL_MEDIUM, LABEL_LARGE,
     PDF_5P, PDF_10P, PDF_20P,PDF_1P,TEXT_SMALL_SMALLER, TEXT_SMALL_SMALL, LABEL_SMALL_SMALLER, LABEL_SMALL_SMALL,   

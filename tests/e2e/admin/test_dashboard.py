@@ -1,95 +1,130 @@
-# tests/tests/test_dashboard.py
+"""
+e2e/admin/test_dashboard.py
+────────────────────────────
+Test E2E cho trang Dashboard – Admin (port 3001).
+Kiểm tra các số liệu thống kê hiển thị đúng và đầy đủ.
+"""
+
+from __future__ import annotations
 
 import pytest
-from tests.pages.admin.dashboard_page import DashboardPage
-from tests.data.dashboard_data import *
+from playwright.sync_api import Page, expect
+
+from pages.admin.dashboard_page import DashboardPage
 
 
-class TestDashboard:
+# ══════════════════════════════════════════════════════════════════════════════
+# FIXTURE – DashboardPage đã đăng nhập
+# ══════════════════════════════════════════════════════════════════════════════
 
-    # ---------------- TIME FILTER ----------------
+@pytest.fixture()
+def dash(authenticated_admin_page: Page, dashboard_page: DashboardPage) -> DashboardPage:
+    """DashboardPage đã đăng nhập admin sẵn, đã navigate."""
+    # TODO: kiểm tra lại cách DashboardPage nhận page
+    dashboard_page.page = authenticated_admin_page
+    dashboard_page.navigate()
+    return dashboard_page
 
-    def test_time_filter(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
 
-        for option in TIME_FILTERS:
-            dashboard.select_time_filter(option)
-            dashboard.expect_metrics_updated()
+# ══════════════════════════════════════════════════════════════════════════════
+# 1. KIỂM TRA CÁC THẺ THỐNG KÊ (STAT CARDS)
+# ══════════════════════════════════════════════════════════════════════════════
 
-    # ---------------- TOTAL FEEDBACK LOGIC ----------------
+class TestDashboardStatCards:
 
-    def test_total_feedback_consistency(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
+    def test_hien_thi_tong_so_user(self, dash: DashboardPage):
+        """Dashboard hiển thị thẻ tổng số user → giá trị là số dương."""
+        # TODO: thay selector thẻ thống kê
+        TOTAL_USERS_CARD = "[data-testid='stat-total-users']"  # ← đổi
+        STAT_VALUE       = "[data-testid='stat-value']"         # ← đổi (con của card)
 
-        stars = dashboard.get_star_values()
-        total = dashboard.get_total_feedback()
+        card = dash.page.locator(TOTAL_USERS_CARD)
+        expect(card).to_be_visible()
 
-        calculated_total = sum(int(s) for s in stars)
-        assert calculated_total == total
+        value_text = card.locator(STAT_VALUE).inner_text()
+        # TODO: tuỳ app hiển thị số như thế nào (1,234 hoặc 1234)
+        value = int(value_text.replace(",", "").replace(".", "").strip())
+        assert value > 0, f"Tổng số user phải > 0, nhưng thấy: {value}"
 
-    # ---------------- AVG SCORE CONSISTENCY ----------------
+    def test_hien_thi_tong_so_bai_dich(self, dash: DashboardPage):
+        """Dashboard hiển thị thẻ tổng số bài dịch."""
+        # TODO: thay selector
+        TOTAL_TRANS_CARD = "[data-testid='stat-total-translations']"  # ← đổi
+        STAT_VALUE       = "[data-testid='stat-value']"
 
-    def test_avg_score_consistency(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
+        card = dash.page.locator(TOTAL_TRANS_CARD)
+        expect(card).to_be_visible()
 
-        avg_ui = dashboard.get_avg_score()
+        value_text = card.locator(STAT_VALUE).inner_text()
+        value = int(value_text.replace(",", "").replace(".", "").strip())
+        assert value >= 0, "Tổng số bài dịch không được âm"
 
-        # giả lập logic check (thường backend API verify sẽ chuẩn hơn)
-        assert avg_ui >= 0 and avg_ui <= 5
+    def test_hien_thi_tong_so_feedback(self, dash: DashboardPage):
+        """Dashboard hiển thị thẻ tổng số feedback."""
+        # TODO: thay selector
+        TOTAL_FB_CARD = "[data-testid='stat-total-feedback']"  # ← đổi
+        STAT_VALUE    = "[data-testid='stat-value']"
 
-    # ---------------- EMPTY DATA ----------------
+        card = dash.page.locator(TOTAL_FB_CARD)
+        expect(card).to_be_visible()
 
-    def test_empty_data_state(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
+    def test_tat_ca_stat_cards_co_gia_tri(self, dash: DashboardPage):
+        """Tất cả thẻ thống kê phải hiển thị giá trị (không rỗng, không '--')."""
+        # TODO: thay selector tất cả stat cards
+        ALL_STAT_VALUES = "[data-testid='stat-value']"  # ← đổi
 
-        dashboard.select_time_filter(SAMPLE_MONTH_EMPTY)
+        values = dash.page.locator(ALL_STAT_VALUES).all_inner_texts()
+        assert len(values) > 0, "Phải có ít nhất 1 thẻ thống kê"
+        for v in values:
+            assert v.strip() not in ("", "--", "N/A"), \
+                f"Thẻ thống kê không được rỗng: '{v}'"
 
-        dashboard.expect_no_data()
 
-    # ---------------- SATISFACTION RATE ----------------
+# ══════════════════════════════════════════════════════════════════════════════
+# 2. KIỂM TRA BIỂU ĐỒ / CHART
+# ══════════════════════════════════════════════════════════════════════════════
 
-    def test_satisfaction_rate_logic(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
+class TestDashboardCharts:
 
-        rate = dashboard.get_satisfaction_rate()
+    def test_bieu_do_hien_thi(self, dash: DashboardPage):
+        """Biểu đồ thống kê phải hiển thị được (không bị lỗi render)."""
+        # TODO: thay selector container biểu đồ (canvas hoặc svg của chart)
+        CHART_CONTAINER = "[data-testid='dashboard-chart']"  # ← đổi
 
-        assert "%" in rate
+        expect(dash.page.locator(CHART_CONTAINER)).to_be_visible()
 
-    # ---------------- REALTIME UPDATE ----------------
+    def test_bieu_do_theo_ngay_hien_thi(self, dash: DashboardPage):
+        """Biểu đồ số lượng dịch theo ngày render thành công."""
+        # TODO: thay selector
+        DAILY_CHART = "[data-testid='chart-daily-translations']"  # ← đổi
 
-    def test_realtime_feedback_update(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
+        expect(dash.page.locator(DAILY_CHART)).to_be_visible()
 
-        before = dashboard.get_total_feedback()
 
-        dashboard.refresh()
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. KIỂM TRA ĐIỀU HƯỚNG TỪ DASHBOARD
+# ══════════════════════════════════════════════════════════════════════════════
 
-        after = dashboard.get_total_feedback()
+class TestDashboardNavigation:
 
-        assert after >= before
+    def test_click_xem_tat_ca_users(self, dash: DashboardPage):
+        """Click 'Xem tất cả' ở thẻ user → điều hướng sang trang quản lý user."""
+        # TODO: thay selector nút và URL đích
+        VIEW_ALL_USERS_BTN = "[data-testid='view-all-users']"   # ← đổi
+        USER_MANAGE_PATH   = "/users"                      # ← đổi đúng path
 
-    # ---------------- TREND INDICATOR ----------------
+        dash.page.locator(VIEW_ALL_USERS_BTN).click()
+        dash.page.wait_for_load_state("networkidle")
 
-    def test_growth_indicator(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
+        expect(dash.page).to_have_url(f"http://localhost:3001{USER_MANAGE_PATH}")
 
-        indicator = page.locator(".growth-indicator").text_content()
+    def test_click_xem_tat_ca_feedback(self, dash: DashboardPage):
+        """Click 'Xem tất cả' ở thẻ feedback → điều hướng sang trang feedback."""
+        # TODO: thay selector và URL đích
+        VIEW_ALL_FB_BTN = "[data-testid='view-all-feedback']"  # ← đổi
+        FB_PATH         = "/feedback"                      # ← đổi đúng path
 
-        assert "↑" in indicator or "↓" in indicator
+        dash.page.locator(VIEW_ALL_FB_BTN).click()
+        dash.page.wait_for_load_state("networkidle")
 
-    # ---------------- CATEGORY FILTER ----------------
-
-    def test_category_filter(self, page):
-        dashboard = DashboardPage(page)
-        dashboard.open()
-
-        dashboard.select_category(FEEDBACK_CATEGORY)
-
-        expect(page.locator("text=Lỗi kỹ thuật")).to_be_visible()
+        expect(dash.page).to_have_url(f"http://localhost:3001{FB_PATH}")

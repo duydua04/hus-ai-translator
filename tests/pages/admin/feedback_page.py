@@ -28,7 +28,7 @@ class FeedbackPage:
     # ---------------- ACTIONS ----------------
 
     def open(self):
-        self.page.goto("/admin/feedback")
+        self.page.goto("/feedback")
 
     def click_tab(self, tab_name: str):
         self.page.locator(f"text={tab_name}").click()
