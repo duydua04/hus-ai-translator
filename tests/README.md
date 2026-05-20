@@ -1,201 +1,138 @@
-# 🧪 Tests — Bộ kiểm thử tự động
+# 🧪 Bộ Test — HUS AI Translator
 
-Bộ kiểm thử tự động cho hệ thống học thuật, bao gồm kiểm thử end-to-end (E2E), kiểm thử hiệu năng và các tiện ích hỗ trợ.
-
----
-
-## 📋 Mục lục
-
-- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-- [Cài đặt](#cài-đặt)
-- [Cấu trúc dự án](#cấu-trúc-dự-án)
-- [Chạy kiểm thử](#chạy-kiểm-thử)
-- [Mô tả các module](#mô-tả-các-module)
----
-
-## Yêu cầu hệ thống
-
-- Python >= 3.9
-- pip hoặc virtualenv
-- Trình duyệt Chrome
-- ChromeDriver tương ứng với phiên bản trình duyệt
+Tài liệu kiểm thử tự động và thủ công cho **HUS AI Translator** — ứng dụng web dịch tài liệu học thuật, backend xây dựng bằng FastAPI.
 
 ---
 
-## Cài đặt
-
-```bash
-# Clone repository (nếu chưa có)
-git clone <repo-url>
-cd Tests
-
-# Tạo và kích hoạt môi trường ảo
-python -m venv .venv
-source .venv/bin/activate        # Linux/macOS
-.venv\Scripts\activate           # Windows
-
-# Cài đặt các thư viện phụ thuộc
-pip install -r requirements.txt
-```
-
----
-
-
-
-## Cấu trúc dự án
+## 📁 Cấu trúc thư mục
 
 ```
 Tests/
-├── .env                        # Biến môi trường (không commit)
-├── conftest.py                 # Cấu hình và fixture chung cho toàn bộ bộ test
-├── pytest.ini                  # Cấu hình pytest (markers, đường dẫn, v.v.)
-├── requirements.txt            # Danh sách thư viện phụ thuộc
-├── __init__.py
-│
-├── data/                       # Dữ liệu đầu vào cho các test case
-│   ├── admin_login_data.py     # Dữ liệu đăng nhập admin
-│   ├── dashboard_data.py       # Dữ liệu kiểm thử dashboard
-│   ├── feedback_data.py        # Dữ liệu phản hồi / feedback
-│   ├── register_data.py        # Dữ liệu đăng ký tài khoản
-│   ├── reset_password_data.py  # Dữ liệu đặt lại mật khẩu
-│   ├── translation_data.py     # Dữ liệu kiểm thử dịch thuật
-│   ├── user_login_data.py      # Dữ liệu đăng nhập người dùng
-│   └── fixtures/               # File đính kèm dùng trong test
-│       ├── Easy-Test1-EV.pdf
-│       ├── Easy-Test3-EV.pdf
-│       ├── Test-Large-10Page-EVpdf.pdf
-│       ├── Test-Large-20Page-EVpdf.pdf
-│       ├── Test-Large-5Page-EV.pdf
-│       ├── Test-Large-5Page-VE.pdf
-│       ├── test_cards.json     # Dữ liệu thẻ học (flashcard)
-│       └── users.json          # Danh sách người dùng mẫu
-│
-├── e2e/                        # Kiểm thử end-to-end
-│   ├── admin/                  # Luồng nghiệp vụ của Admin
-│   │   ├── test_admin_user.py  # Quản lý người dùng
-│   │   ├── test_dashboard.py   # Dashboard thống kê
-│   │   └── test_feedback.py    # Xem và xử lý phản hồi
-│   ├── auth/                   # Xác thực và phân quyền
-│   │   ├── test_admin_login.py # Đăng nhập admin
-│   │   ├── test_register.py    # Đăng ký tài khoản mới
-│   │   ├── test_reset_password.py  # Đặt lại mật khẩu
-│   │   └── test_user_login.py  # Đăng nhập người dùng
-│   └── user/                   # Luồng nghiệp vụ của Người dùng
-│       ├── test_home_transilation.py  # Dịch thuật trang chủ
-│       └── test_rating_modal.py       # Modal đánh giá
-│
-├── pages/                      # Page Object Model (POM)
-│   ├── base_login_page.py      # Lớp cơ sở cho các trang đăng nhập
-│   ├── home_page.py            # Trang chủ người dùng
-│   ├── rating_modal_page.py    # Modal đánh giá
-│   ├── admin/                  # Các trang trong giao diện Admin
-│   │   ├── admin_login_page.py
-│   │   ├── admin_user_page.py
-│   │   ├── dashboard_page.py
-│   │   └── feedback_page.py
-│   └── user/                   # Các trang trong giao diện Người dùng
-│       ├── register_page.py
-│       ├── reset_password_page.py
-│       └── user_login_page.py
-│
-├── performance/                # Kiểm thử hiệu năng (Locust)
-│   ├── conftest.py             # Fixture riêng cho performance test
-│   ├── test_performance.py     # Kịch bản tải (load scenario)
-│   ├── data/
-│   │   └── performance_data.py # Dữ liệu tải và ngưỡng chấp nhận
-│   └── pages/
-│       └── performance_page.py # Định nghĩa các endpoint được kiểm thử
-│
-└── utils/                      # Tiện ích dùng chung
-    ├── api_client.py           # HTTP client gọi REST API
-    └── faker_factory.py        # Sinh dữ liệu giả ngẫu nhiên (Faker)
+├── e2e/                  # Test E2E tự động
+│   ├── admin/            # Module Admin (dashboard, quản lý user, feedback)
+│   ├── auth/             # Module Auth (đăng nhập, đăng ký, reset mật khẩu)
+│   └── user/             # Module User (dịch tài liệu, rating modal)
+├── pages/                # Các class theo mô hình Page Object Model (POM)
+│   ├── admin/
+│   └── user/
+├── data/                 # Dữ liệu test
+│   └── fixtures/         # File PDF mẫu, JSON fixtures
+├── performance/          # Module kiểm thử hiệu năng
+├── utils/                # Tiện ích dùng chung (API client, Faker factory)
+├── conftest.py           # Fixtures dùng chung cho Pytest
+├── pytest.ini            # Cấu hình Pytest
+├── requirements.txt      # Thư viện cần cài
+└── .env.example          # Mẫu biến môi trường
 ```
 
 ---
 
-## Chạy kiểm thử
+## 🛠️ Công nghệ sử dụng
 
-### Chạy toàn bộ bộ test E2E
+| Công cụ | Mục đích |
+|---------|---------|
+| Pytest + Playwright | Tự động hóa kiểm thử E2E |
+| Page Object Model | Mô hình tổ chức code test |
+| Postman | Kiểm thử API thủ công |
+| Google Sheets | Quản lý test case & theo dõi bug |
+| Faker | Sinh dữ liệu test động |
+
+---
+
+## 🚀 Hướng dẫn chạy test
+
+### 1. Clone & cài đặt
 
 ```bash
+git clone https://github.com/duydua04/hus-ai-translator.git
+cd Tests
+pip install -r requirements.txt
+playwright install chromium
+```
+
+### 2. Cấu hình môi trường
+
+```bash
+cp .env.example .env
+# Điền BASE_URL và thông tin tài khoản test vào .env
+```
+
+### 3. Chạy test
+
+```bash
+# Chạy toàn bộ E2E
 pytest e2e/ -v
-```
 
-### Chạy theo nhóm (marker)
-
-```bash
-# Chỉ chạy test xác thực
+# Chạy theo module
 pytest e2e/auth/ -v
-
-# Chỉ chạy test admin
 pytest e2e/admin/ -v
-
-# Chỉ chạy test người dùng
 pytest e2e/user/ -v
+
+# Chạy performance test
+pytest performance/ -v
+
+# Xuất báo cáo HTML
+pytest e2e/ --html=reports/report.html --self-contained-html
 ```
 
-### Chạy một file test cụ thể
-
-```bash
-pytest e2e/auth/test_user_login.py -v
-```
-
-### Chạy với báo cáo HTML
-
-```bash
-pytest e2e/ -v --html=report.html --self-contained-html
-```
-
-### Chạy song song (tăng tốc độ)
-
-```bash
-pytest e2e/ -v -n auto          # Dùng pytest-xdist
-```
-
-### Chạy kiểm thử hiệu năng
- 
-Bộ test hiệu năng dùng **pytest + Playwright** — đo thời gian thực tế trên trình duyệt
- 
-```bash
-# Chạy toàn bộ (headless)
-pytest performance/test_performance.py -v -s
- 
-# Chạy có giao diện trình duyệt để quan sát
-pytest performance/test_performance.py -v -s --headed
- 
-# Chỉ chạy nhóm văn bản thuần
-pytest performance/test_performance.py::TestTextTranslationTiming -v -s --headed
- 
-# Chỉ chạy nhóm PDF
-pytest performance/test_performance.py::TestPDFTranslationTiming -v -s --headed
- 
-# Chạy báo cáo tổng hợp (văn bản + PDF cùng lúc)
-pytest performance/test_performance.py::TestFullTimingReport -v -s --headed
-```
- 
 ---
 
-## Mô tả các module
+## 📋 Phạm vi kiểm thử
 
-### `conftest.py` (gốc)
-Khởi tạo WebDriver, quản lý vòng đời của browser session, và cung cấp các fixture dùng chung như `driver`, `base_url`, `authenticated_user`, `authenticated_admin`.
-
-### `data/`
-Chứa các hằng số và tập dữ liệu tham số hóa (parametrize) cho từng tính năng. Mỗi file tương ứng với một module nghiệp vụ, giúp tách biệt logic dữ liệu khỏi logic kiểm thử.
-
-### `e2e/`
-Các test case E2E được tổ chức theo vai trò người dùng (`auth`, `admin`, `user`). Mỗi test case sử dụng Page Object tương ứng và dữ liệu từ `data/`.
-
-### `pages/`
-Triển khai mô hình **Page Object Model (POM)**. Mỗi class đóng gói các selector và hành động tương tác với một trang cụ thể, giúp test case dễ đọc và dễ bảo trì.
-
-### `performance/`
-Kịch bản kiểm thử tải dùng **Locust**. Định nghĩa các luồng người dùng ảo (virtual user) mô phỏng hành vi thực tế để đo throughput, thời gian phản hồi và tỷ lệ lỗi.
-
-### `utils/`
-| File | Mô tả |
-|---|---|
-| `api_client.py` | Wrapper cho `requests`, hỗ trợ xác thực, retry, và logging |
-| `faker_factory.py` | Sinh dữ liệu ngẫu nhiên (tên, email, mật khẩu, v.v.) dùng thư viện `Faker` |
+| Module | Loại test | Mô tả |
+|--------|-----------|-------|
+| Auth | E2E, Boundary | Đăng nhập, Đăng ký, Reset mật khẩu |
+| Admin | E2E, Functional | Dashboard, Quản lý user, Feedback |
+| User | E2E, Functional | Luồng dịch tài liệu, Rating Modal |
+| API | Thủ công (Postman) | 25+ REST endpoints |
+| Performance | Tự động | Thời gian tải trang, thời gian phản hồi dịch |
 
 ---
+
+## 📊 Tài liệu kiểm thử
+
+| Tài liệu | Link |
+|----------|------|
+| 📄 Test Plan | [Google Sheets — Test Plan](https://docs.google.com/document/d/1YE7lUOPsaXc9oHhLAynKqsnkbYZU9JP5/edit) |
+| 🗂️ Test Cases (300+) | [Google Sheets — Test Cases](https://docs.google.com/spreadsheets/d/10GPgtvYsajffjaWpGKRn23oY_hp1Go5goSuRwl4p3bo/edit?gid=662710053#gid=662710053) |
+| 🐛 Bug Report | [Google Sheets — Bug Tracking](https://docs.google.com/spreadsheets/d/1b70eouFZ2PEjVS01Dl5c7DsUqMjYyZKs/edit?gid=344164659#gid=344164659) |
+
+> **300+ test case** tổng cộng (thủ công + tự động) bao gồm UI/UX, logic nghiệp vụ, API, boundary và negative scenarios.
+
+---
+
+## 📈 Kết quả kiểm thử
+
+| Chỉ số | Kết quả |
+|--------|---------|
+| Tổng test case tự động | ~100 |
+| Tỉ lệ pass | 94% |
+| Test case thủ công | 200+ |
+| API endpoints đã kiểm thử | 25+ |
+
+---
+
+## 🧩 Kiến trúc — Page Object Model
+
+```
+File Test (e2e/)
+      │
+      ▼
+Page Class (pages/)       ← chứa locators + hành động trên UI
+      │
+      ▼
+conftest.py               ← fixtures dùng chung (browser, session đăng nhập...)
+      │
+      ▼
+data/                     ← dữ liệu test (JSON, Python data files)
+```
+
+Mỗi page class đại diện cho một màn hình, tách biệt hoàn toàn với logic test — giúp dễ bảo trì khi UI thay đổi.
+
+---
+
+## 📝 Ghi chú
+
+- File `.env` không được commit lên Git — dùng `.env.example` làm mẫu
+- File PDF fixture nằm trong `data/fixtures/` để test upload (5, 10, 20 trang)
+- Toàn bộ code test nằm ở nhánh: `test-branch`
